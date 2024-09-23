@@ -2,9 +2,11 @@
 	"cSpell.words": [
 		"biomejs",
 		"codegen",
+		"formdata",
 		"pandacss",
 		"Replicache",
 		"solidjs",
+		"valibot",
 		"vinxi"
 	],
 	"editor.defaultFormatter": "biomejs.biome",

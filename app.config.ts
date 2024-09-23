@@ -1,7 +1,6 @@
 import { defineConfig } from "@solidjs/start/config";
 
 const app = defineConfig({
-	ssr: false,
 	server: {
 		experimental: {
 			websocket: true,
