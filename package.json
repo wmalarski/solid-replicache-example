@@ -2,6 +2,7 @@
 	"name": "example-basic",
 	"type": "module",
 	"scripts": {
+		"prepare": "panda codegen",
 		"dev": "vinxi dev",
 		"build": "vinxi build",
 		"start": "vinxi start",
