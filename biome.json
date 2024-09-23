@@ -1,0 +1,43 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+	"organizeImports": {
+		"enabled": true
+	},
+	"formatter": {
+		"enabled": true,
+		"indentWidth": 2
+	},
+	"linter": {
+		"enabled": true,
+		"ignore": ["app/routeTree.gen.ts"],
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				"noUnusedImports": "error",
+				"noUndeclaredVariables": "error",
+				"noUnusedVariables": "error",
+				"useArrayLiterals": "error",
+				"useHookAtTopLevel": "error",
+				"useJsxKeyInIterable": "off"
+			},
+			"style": {
+				"noNegationElse": "error",
+				"useBlockStatements": "error",
+				"useCollapsedElseIf": "error",
+				"useConsistentArrayType": "error",
+				"useFragmentSyntax": "error"
+			},
+			"nursery": {
+				"useSortedClasses": "error"
+			},
+			"complexity": {
+				"noForEach": "off"
+			}
+		}
+	},
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	}
+}

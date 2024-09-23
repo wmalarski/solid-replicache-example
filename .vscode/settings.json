@@ -1,0 +1,24 @@
+{
+	"cSpell.words": ["biomejs", "pandacss", "solidjs", "vinxi"],
+	"editor.defaultFormatter": "biomejs.biome",
+	"editor.codeActionsOnSave": {
+		"quickfix.biome": "always",
+		"source.sortImports": "always",
+		"source.fixAll.ts": "always",
+		"source.organizeImports": "always",
+		"source.removeUnusedImports": "always"
+	},
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[css]": {
+		"editor.defaultFormatter": "vscode.css-language-features"
+	},
+	"editor.formatOnSave": true
+}
