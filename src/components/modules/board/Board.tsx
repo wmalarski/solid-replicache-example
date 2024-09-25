@@ -1,7 +1,8 @@
-import { type Component, onCleanup } from "solid-js";
+import type { Component } from "solid-js";
 import { Button } from "~/components/ui/button";
 import {
 	ReplicacheProvider,
+	createSubscription,
 	useReplicacheContext,
 } from "~/contexts/replicache";
 
@@ -24,25 +25,11 @@ const Actions: Component = () => {
 		rep().mutate.increment(1);
 	};
 
-	const unsubscribe = rep().subscribe((body) => body.get("count"), {
-		onData(result) {
-			console.log("onData", result);
-		},
-		onDone() {
-			console.log("onDone");
-		},
-		onError(error) {
-			console.log("onError", error);
-		},
-	});
-
-	onCleanup(() => {
-		unsubscribe();
-	});
+	const counter = createSubscription((tx) => tx.get("count") ?? 0);
 
 	return (
 		<Button onClick={onClick} type="button">
-			Click
+			Click {JSON.stringify(counter.value)}
 		</Button>
 	);
 };

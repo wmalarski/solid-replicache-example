@@ -1,12 +1,18 @@
-import { Replicache, type WriteTransaction } from "replicache";
+import {
+	type ReadTransaction,
+	Replicache,
+	type WriteTransaction,
+} from "replicache";
 import {
 	type Component,
 	type ParentProps,
 	createContext,
 	createMemo,
+	createResource,
 	onCleanup,
 	useContext,
 } from "solid-js";
+import { createStore, reconcile } from "solid-js/store";
 
 const createReplicache = (playerId: string) => {
 	const replicache = new Replicache({
@@ -74,3 +80,44 @@ export const ReplicacheProvider: Component<ReplicacheProviderProps> = (
 		</ReplicacheContext.Provider>
 	);
 };
+
+export function createSubscription<R>(
+	cb: (tx: ReadTransaction) => Promise<R>,
+): {
+	value: R | undefined;
+};
+export function createSubscription<R>(
+	cb: (tx: ReadTransaction) => Promise<R>,
+	initial: R,
+): {
+	value: R;
+};
+export function createSubscription<R>(
+	cb: (tx: ReadTransaction) => Promise<R>,
+	initial?: R | undefined,
+) {
+	const [store, setStore] = createStore({
+		value: initial,
+	});
+
+	const rep = useReplicacheContext();
+
+	let subscription: () => void;
+
+	const [r] = createResource(() => {
+		if (subscription) {
+			subscription();
+		}
+		subscription = rep().subscribe((tx) => cb(tx), {
+			onData(result) {
+				setStore(reconcile({ value: result }, { merge: true }));
+			},
+		});
+	});
+	return {
+		get value() {
+			r();
+			return store.value;
+		},
+	};
+}
