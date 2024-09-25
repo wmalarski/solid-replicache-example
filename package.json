@@ -15,6 +15,7 @@
 		"@solidjs/meta": "^0.29.4",
 		"@solidjs/router": "^0.14.1",
 		"@solidjs/start": "^1.0.6",
+		"convex": "^1.16.2",
 		"decode-formdata": "^0.8.0",
 		"nanoid": "^5.0.7",
 		"replicache": "^15.0.1",
