@@ -1,6 +1,9 @@
-import { Title } from "@solidjs/meta";
 import { type RouteDefinition, createAsync } from "@solidjs/router";
+import { clientOnly } from "@solidjs/start";
+import { Show } from "solid-js";
 import { getPlayerLoader } from "~/server/player/client";
+
+const Board = clientOnly(() => import("~/components/modules/board/Board"));
 
 export const route = {
 	load: async () => {
@@ -13,9 +16,9 @@ export default function Home() {
 
 	return (
 		<main>
-			<Title>Hello World</Title>
-			<h1>Hello world!</h1>
-			<pre>{JSON.stringify(player(), null, 2)}</pre>
+			<Show when={player()}>
+				{(player) => <Board playerId={player().id} />}
+			</Show>
 		</main>
 	);
 }
