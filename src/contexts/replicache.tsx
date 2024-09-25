@@ -13,6 +13,7 @@ import {
 	useContext,
 } from "solid-js";
 import { createStore, reconcile } from "solid-js/store";
+import type { MessageWithID } from "~/server/messages/types";
 
 const createReplicache = (playerId: string) => {
 	const replicache = new Replicache({
@@ -34,6 +35,9 @@ const createReplicache = (playerId: string) => {
 		//     jsonPointer: "/id",
 		//   },
 		// },
+		pushURL: "/api/push",
+		pullURL: "/api/pull",
+		logLevel: "debug",
 		mutators: {
 			async increment(tx: WriteTransaction, delta: number) {
 				// Despite 'await' this get almost always responds instantly.
@@ -42,6 +46,16 @@ const createReplicache = (playerId: string) => {
 				const next = prev + delta;
 				await tx.set("count", next);
 				return next;
+			},
+			async createMessage(
+				tx: WriteTransaction,
+				{ id, from, content, order }: MessageWithID,
+			) {
+				await tx.set(`message/${id}`, {
+					from,
+					content,
+					order,
+				});
 			},
 		},
 	});

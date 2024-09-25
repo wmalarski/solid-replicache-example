@@ -16,6 +16,7 @@
 		"@solidjs/router": "^0.14.1",
 		"@solidjs/start": "^1.0.6",
 		"decode-formdata": "^0.8.0",
+		"nanoid": "^5.0.7",
 		"replicache": "^15.0.1",
 		"solid-js": "^1.8.18",
 		"valibot": "^0.42.1",
