@@ -13,8 +13,8 @@
 	"dependencies": {
 		"@ark-ui/solid": "^4.0.0",
 		"@solidjs/meta": "^0.29.4",
-		"@solidjs/router": "^0.14.5",
-		"@solidjs/start": "^1.0.6",
+		"@solidjs/router": "^0.14.7",
+		"@solidjs/start": "^1.0.8",
 		"decode-formdata": "^0.8.0",
 		"nanoid": "^5.0.7",
 		"replicache": "^15.0.1",
@@ -26,8 +26,8 @@
 	},
 	"devDependencies": {
 		"@types/better-sqlite3": "^7.6.11",
-		"@types/node": "^20.16.9",
-		"drizzle-kit": "^0.22.8",
+		"@types/node": "^22.7.4",
+		"drizzle-kit": "^0.24.2",
 		"@biomejs/biome": "^1.9.2",
 		"@pandacss/dev": "^0.46.1",
 		"@park-ui/panda-preset": "^0.42.0"
