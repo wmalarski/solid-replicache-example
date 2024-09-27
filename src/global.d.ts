@@ -2,8 +2,10 @@
 
 interface ImportMetaEnv {
 	readonly VITE_REPLICACHE_LICENSE_KEY: string;
-	readonly CONVEX_DEPLOYMENT: string;
-	readonly CONVEX_URL: string;
+	DB_URL: string;
+	DB_MIGRATIONS_URL: string;
+	SITE_NAME: string;
+	SESSION_SECRET: string;
 }
 
 // biome-ignore lint/correctness/noUnusedVariables: <explanation>
