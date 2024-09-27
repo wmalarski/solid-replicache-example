@@ -1,6 +1,7 @@
+"use server";
+import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import type { MutationV1 } from "replicache";
 import type { ServerContext } from "../context";
-import type { Transaction } from "../db/db";
 import { insertMessage } from "../messages/server";
 import type { MessageWithID } from "../messages/types";
 import {
@@ -20,7 +21,7 @@ type ProcessMutationArgs = {
 
 export const processMutation = (
 	ctx: ServerContext,
-	transaction: Transaction,
+	transaction: BetterSQLite3Database,
 	{ clientGroupId, mutation, error }: ProcessMutationArgs,
 ) => {
 	const { clientID: clientId } = mutation;
