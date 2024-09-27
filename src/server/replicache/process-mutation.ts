@@ -1,7 +1,7 @@
 "use server";
-import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import type { MutationV1 } from "replicache";
 import type { ServerContext } from "../context";
+import type { Transaction } from "../db/db";
 import { insertMessage } from "../messages/server";
 import type { MessageWithID } from "../messages/types";
 import {
@@ -19,15 +19,17 @@ type ProcessMutationArgs = {
 	error?: string | undefined;
 };
 
-export const processMutation = (
+export const processMutation = async (
 	ctx: ServerContext,
-	transaction: BetterSQLite3Database,
+	transaction: Transaction,
 	{ clientGroupId, mutation, error }: ProcessMutationArgs,
 ) => {
 	const { clientID: clientId } = mutation;
 
 	// Get the previous version and calculate the next one.
-	const previousVersion = selectServerVersion(ctx, transaction, { serverId });
+	const previousVersion = await selectServerVersion(ctx, transaction, {
+		serverId,
+	});
 
 	if (!previousVersion) {
 		return;
@@ -35,7 +37,9 @@ export const processMutation = (
 
 	const nextVersion = previousVersion + 1;
 
-	const lastMutationID = getLastMutationId(ctx, transaction, { clientId });
+	const lastMutationID = await getLastMutationId(ctx, transaction, {
+		clientId,
+	});
 
 	const nextMutationID = lastMutationID + 1;
 
@@ -66,7 +70,7 @@ export const processMutation = (
 		// mutation.
 		switch (mutation.name) {
 			case "createMessage":
-				insertMessage(ctx, transaction, {
+				await insertMessage(ctx, transaction, {
 					...(mutation.args as MessageWithID),
 					version: nextVersion,
 				});
@@ -87,7 +91,7 @@ export const processMutation = (
 	console.log("setting", clientId, "last_mutation_id to", nextMutationID);
 
 	// Update lastMutationID for requesting client.
-	setLastMutationId(ctx, transaction, {
+	await setLastMutationId(ctx, transaction, {
 		clientId,
 		clientGroupId,
 		mutationId: nextMutationID,
@@ -95,7 +99,7 @@ export const processMutation = (
 	});
 
 	// Update global version.
-	updateServerVersion(ctx, transaction, {
+	await updateServerVersion(ctx, transaction, {
 		serverId,
 		version: nextVersion,
 	});

@@ -1,7 +1,7 @@
 "use server";
-import { Message, ReplicacheClient, ReplicacheServer } from "@/schema";
 import type { FetchEvent } from "@solidjs/start/server";
 import { db } from "./db/db";
+import { Message, ReplicacheClient, ReplicacheServer } from "./db/schema";
 
 export const getServerContext = (event: FetchEvent) => {
 	return {

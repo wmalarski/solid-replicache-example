@@ -3,6 +3,7 @@
 		"biomejs",
 		"codegen",
 		"formdata",
+		"libsql",
 		"pandacss",
 		"Replicache",
 		"solidjs",

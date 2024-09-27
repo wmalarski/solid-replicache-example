@@ -1,6 +1,6 @@
 "use server";
-import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import type { ServerContext } from "../context";
+import type { Transaction } from "../db/db";
 import type { MessageWithID } from "./types";
 
 type InsertMessageArgs = MessageWithID & {
@@ -9,7 +9,7 @@ type InsertMessageArgs = MessageWithID & {
 
 export const insertMessage = (
 	ctx: ServerContext,
-	transaction: BetterSQLite3Database,
+	transaction: Transaction,
 	{ content, from, id, order, version }: InsertMessageArgs,
 ) => {
 	return transaction.insert(ctx.schema.Message).values({

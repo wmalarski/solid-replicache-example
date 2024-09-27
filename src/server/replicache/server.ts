@@ -1,7 +1,7 @@
 "use server";
 import { eq } from "drizzle-orm";
-import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import type { ServerContext } from "../context";
+import type { Transaction } from "../db/db";
 
 type SetLastMutationIdArgs = {
 	clientId: string;
@@ -10,19 +10,19 @@ type SetLastMutationIdArgs = {
 	version: number;
 };
 
-export const setLastMutationId = (
+export const setLastMutationId = async (
 	ctx: ServerContext,
-	transaction: BetterSQLite3Database,
+	transaction: Transaction,
 	{ clientGroupId, clientId, mutationId, version }: SetLastMutationIdArgs,
 ) => {
-	const result = transaction
+	const result = await transaction
 		.update(ctx.schema.ReplicacheClient)
 		.set({ clientGroupId, lastMutationId: mutationId, version })
 		.where(eq(ctx.schema.ReplicacheClient.id, clientId))
 		.run();
 
-	if (result.changes === 0) {
-		transaction
+	if (result.rowsAffected === 0) {
+		await transaction
 			.insert(ctx.schema.ReplicacheClient)
 			.values({
 				clientGroupId,
@@ -39,12 +39,12 @@ type UpdateServerVersionArgs = {
 	serverId: number;
 };
 
-export const updateServerVersion = (
+export const updateServerVersion = async (
 	ctx: ServerContext,
-	transaction: BetterSQLite3Database,
+	transaction: Transaction,
 	{ version, serverId }: UpdateServerVersionArgs,
 ) => {
-	transaction
+	await transaction
 		.update(ctx.schema.ReplicacheServer)
 		.set({ version })
 		.where(eq(ctx.schema.ReplicacheServer.id, serverId))
@@ -55,12 +55,12 @@ type GetLastMutationIdArgs = {
 	clientId: string;
 };
 
-export const getLastMutationId = (
+export const getLastMutationId = async (
 	ctx: ServerContext,
-	transaction: BetterSQLite3Database,
+	transaction: Transaction,
 	{ clientId }: GetLastMutationIdArgs,
 ) => {
-	const row = transaction
+	const row = await transaction
 		.select()
 		.from(ctx.schema.ReplicacheClient)
 		.where(eq(ctx.schema.ReplicacheClient.id, clientId))
@@ -74,12 +74,12 @@ type SelectServerVersionArgs = {
 	serverId: number;
 };
 
-export const selectServerVersion = (
+export const selectServerVersion = async (
 	ctx: ServerContext,
-	transaction: BetterSQLite3Database,
+	transaction: Transaction,
 	{ serverId }: SelectServerVersionArgs,
 ) => {
-	const row = transaction
+	const row = await transaction
 		.select()
 		.from(ctx.schema.ReplicacheServer)
 		.where(eq(ctx.schema.ReplicacheServer.id, serverId))
