@@ -4,14 +4,13 @@ import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
 import { insertMessage } from "../messages/server";
 import type { MessageWithID } from "../messages/types";
+import { serverId } from "./const";
 import {
-	getLastMutationId,
+	selectLastMutationId,
 	selectServerVersion,
 	setLastMutationId,
 	updateServerVersion,
 } from "./server";
-
-const serverId = 1;
 
 type ProcessMutationArgs = {
 	clientGroupId: string;
@@ -37,7 +36,7 @@ export const processMutation = async (
 
 	const nextVersion = previousVersion + 1;
 
-	const lastMutationID = await getLastMutationId(ctx, transaction, {
+	const lastMutationID = await selectLastMutationId(ctx, transaction, {
 		clientId,
 	});
 

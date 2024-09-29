@@ -1,5 +1,5 @@
 "use server";
-import { eq } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
 
@@ -51,14 +51,14 @@ export const updateServerVersion = async (
 		.run();
 };
 
-type GetLastMutationIdArgs = {
+type selectLastMutationIdArgs = {
 	clientId: string;
 };
 
-export const getLastMutationId = async (
+export const selectLastMutationId = async (
 	ctx: ServerContext,
 	transaction: Transaction,
-	{ clientId }: GetLastMutationIdArgs,
+	{ clientId }: selectLastMutationIdArgs,
 ) => {
 	const row = await transaction
 		.select()
@@ -87,4 +87,31 @@ export const selectServerVersion = async (
 		.get();
 
 	return row?.version;
+};
+
+type SelectLastMutationIdChangesArgs = {
+	clientGroupId: string;
+	fromVersion: number;
+};
+
+export const selectLastMutationIdChanges = async (
+	ctx: ServerContext,
+	transaction: Transaction,
+	{ clientGroupId, fromVersion }: SelectLastMutationIdChangesArgs,
+) => {
+	const rows = await transaction
+		.select({
+			id: ctx.schema.ReplicacheClient.id,
+			lastMutationId: ctx.schema.ReplicacheClient.lastMutationId,
+		})
+		.from(ctx.schema.ReplicacheClient)
+		.where(
+			and(
+				eq(ctx.schema.ReplicacheClient.clientGroupId, clientGroupId),
+				gt(ctx.schema.ReplicacheClient.version, fromVersion),
+			),
+		)
+		.all();
+
+	return Object.fromEntries(rows.map((r) => [r.id, r.lastMutationId]));
 };
