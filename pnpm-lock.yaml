@@ -23,6 +23,9 @@ importers:
       '@solidjs/start':
         specifier: ^1.0.8
         version: 1.0.8(solid-js@1.9.1)(vinxi@0.4.3(@libsql/client@0.14.0)(@types/node@22.7.4)(drizzle-orm@0.33.0(@libsql/client@0.14.0)(@types/better-sqlite3@7.6.11))(ioredis@5.4.1)(lightningcss@1.25.1)(terser@5.33.0))(vite@5.4.7(@types/node@22.7.4)(lightningcss@1.25.1)(terser@5.33.0))
+      cookie-es:
+        specifier: ^1.2.2
+        version: 1.2.2
       decode-formdata:
         specifier: ^0.8.0
         version: 0.8.0
@@ -2696,7 +2699,6 @@ packages:
 
   libsql@0.4.5:
     resolution: {integrity: sha512-sorTJV6PNt94Wap27Sai5gtVLIea4Otb2LUiAUyr3p6BPOScGMKGt5F1b5X/XgkNtcsDKeX5qfeBDj+PdShclQ==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lightningcss-darwin-arm64@1.25.1:

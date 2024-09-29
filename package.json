@@ -19,6 +19,7 @@
 		"@solidjs/meta": "^0.29.4",
 		"@solidjs/router": "^0.14.7",
 		"@solidjs/start": "^1.0.8",
+		"cookie-es": "^1.2.2",
 		"decode-formdata": "^0.8.0",
 		"drizzle-orm": "^0.33.0",
 		"nanoid": "^5.0.7",

@@ -1,7 +1,10 @@
 import { nanoid } from "nanoid";
 import type { ReadTransaction } from "replicache";
 import { type Component, type ComponentProps, For } from "solid-js";
-import { RealtimeProvider } from "~/components/contexts/realtime";
+import {
+	RealtimeProvider,
+	useRealtimeContext,
+} from "~/components/contexts/realtime";
 import {
 	ReplicacheProvider,
 	createSubscription,
@@ -29,17 +32,19 @@ export default function Board(props: BoardProps) {
 }
 
 const Actions: Component = () => {
-	const rep = useReplicacheContext();
+	const realtime = useRealtimeContext();
 
 	const onClick = () => {
-		rep().mutate.increment(1);
+		realtime().send(
+			JSON.stringify({
+				data: "It's me",
+			}),
+		);
 	};
-
-	const counter = createSubscription((tx) => tx.get("count") ?? 0);
 
 	return (
 		<Button onClick={onClick} type="button">
-			Click {JSON.stringify(counter.value)}
+			Click
 		</Button>
 	);
 };

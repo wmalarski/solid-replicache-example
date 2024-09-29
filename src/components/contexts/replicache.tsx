@@ -39,14 +39,6 @@ const createReplicache = (playerId: string) => {
 		pullURL: "/api/pull",
 		logLevel: "debug",
 		mutators: {
-			async increment(tx: WriteTransaction, delta: number) {
-				// Despite 'await' this get almost always responds instantly.
-				// Same with `put` below.
-				const prev = Number((await tx.get("count")) ?? 0);
-				const next = prev + delta;
-				await tx.set("count", next);
-				return next;
-			},
 			async createMessage(
 				tx: WriteTransaction,
 				{ id, from, content, order }: MessageWithID,

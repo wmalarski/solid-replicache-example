@@ -65,13 +65,8 @@ export const getParsedCookie = async <
 
 	try {
 		const parsed = JSON.parse(cookie);
-		const result = await v.safeParseAsync(schema, parsed);
-
-		if (!result.success) {
-			return null;
-		}
-
-		return result.output;
+		const output = await v.parseAsync(schema, parsed);
+		return output;
 	} catch {
 		return null;
 	}
