@@ -2,7 +2,6 @@ import type { APIEvent } from "@solidjs/start/server";
 import type { PushRequestV1 } from "replicache";
 import { getServerContext } from "~/server/context";
 import { processMutation } from "~/server/replicache/process-mutation";
-import {} from "~/server/replicache/server";
 
 export const POST = async (event: APIEvent) => {
 	const ctx = getServerContext(event);
@@ -19,7 +18,7 @@ export const POST = async (event: APIEvent) => {
 			const t1 = Date.now();
 
 			try {
-				ctx.db.transaction((transaction) =>
+				await ctx.db.transaction((transaction) =>
 					processMutation(ctx, transaction, {
 						clientGroupId: push.clientGroupID,
 						mutation,
@@ -32,7 +31,7 @@ export const POST = async (event: APIEvent) => {
 				// convenient in development but you may want to reconsider as your app
 				// gets close to production:
 				// https://doc.replicache.dev/reference/server-push#error-handling
-				ctx.db.transaction((transaction) =>
+				await ctx.db.transaction((transaction) =>
 					processMutation(ctx, transaction, {
 						clientGroupId: push.clientGroupID,
 						mutation,
