@@ -1,6 +1,6 @@
 import type { APIEvent } from "@solidjs/start/server";
 import type { PushRequestV1 } from "replicache";
-import { getServerContext } from "~/server/context";
+import { type ServerContext, getServerContext } from "~/server/context";
 import { processMutation } from "~/server/replicache/process-mutation";
 
 export const POST = async (event: APIEvent) => {
@@ -43,7 +43,7 @@ export const POST = async (event: APIEvent) => {
 			console.log("Processed mutation in", Date.now() - t1);
 		}
 
-		await sendPoke();
+		await sendPoke(ctx);
 
 		return {};
 	} catch (error) {
@@ -55,6 +55,6 @@ export const POST = async (event: APIEvent) => {
 	}
 };
 
-async function sendPoke() {
-	// TODO
+async function sendPoke(ctx: ServerContext) {
+	console.log("EVENT", ctx.event);
 }

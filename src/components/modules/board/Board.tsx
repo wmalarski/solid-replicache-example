@@ -1,13 +1,14 @@
 import { nanoid } from "nanoid";
 import type { ReadTransaction } from "replicache";
 import { type Component, type ComponentProps, For } from "solid-js";
-import { Button } from "~/components/ui/button";
-import { Field } from "~/components/ui/field";
+import { RealtimeProvider } from "~/components/contexts/realtime";
 import {
 	ReplicacheProvider,
 	createSubscription,
 	useReplicacheContext,
-} from "~/contexts/replicache";
+} from "~/components/contexts/replicache";
+import { Button } from "~/components/ui/button";
+import { Field } from "~/components/ui/field";
 import type { Message } from "~/server/messages/types";
 import { Stack } from "~/styled-system/jsx";
 import { flex } from "~/styled-system/patterns";
@@ -18,10 +19,12 @@ type BoardProps = {
 
 export default function Board(props: BoardProps) {
 	return (
-		<ReplicacheProvider playerId={props.playerId}>
-			<Actions />
-			<Messages />
-		</ReplicacheProvider>
+		<RealtimeProvider>
+			<ReplicacheProvider playerId={props.playerId}>
+				<Actions />
+				<Messages />
+			</ReplicacheProvider>
+		</RealtimeProvider>
 	);
 }
 
