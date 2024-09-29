@@ -1,8 +1,6 @@
 export default {
 	dialect: "sqlite",
-	schema: "./drizzle/schema.ts",
+	schema: "./src/server/db/schema.ts",
 	out: "./drizzle/migrations/",
-	dbCredentials: {
-		url: "./drizzle/db.sqlite",
-	},
+	dbCredentials: { url: "./drizzle/db.sqlite" },
 };

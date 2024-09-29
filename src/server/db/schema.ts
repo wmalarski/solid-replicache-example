@@ -5,7 +5,7 @@ export const ReplicacheServer = sqliteTable("replicache_server", {
 	version: integer("version"),
 });
 
-export const ReplicacheClient = sqliteTable("replicache_server", {
+export const ReplicacheClient = sqliteTable("replicache_client", {
 	id: text("id", { length: 36 }).primaryKey().unique().notNull(),
 	clientGroupId: text("client_group_id", { length: 36 }).notNull(),
 	lastMutationId: integer("last_mutation_id").notNull(),
