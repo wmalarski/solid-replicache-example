@@ -1,10 +1,7 @@
 import { nanoid } from "nanoid";
 import type { ReadTransaction } from "replicache";
 import { type Component, type ComponentProps, For } from "solid-js";
-import {
-	RealtimeProvider,
-	useRealtimeContext,
-} from "~/components/contexts/realtime";
+import { RealtimeProvider } from "~/components/contexts/realtime";
 import {
 	ReplicacheProvider,
 	createSubscription,
@@ -24,30 +21,11 @@ export default function Board(props: BoardProps) {
 	return (
 		<RealtimeProvider>
 			<ReplicacheProvider playerId={props.playerId}>
-				<Actions />
 				<Messages />
 			</ReplicacheProvider>
 		</RealtimeProvider>
 	);
 }
-
-const Actions: Component = () => {
-	const realtime = useRealtimeContext();
-
-	const onClick = () => {
-		realtime().send(
-			JSON.stringify({
-				data: "It's me",
-			}),
-		);
-	};
-
-	return (
-		<Button onClick={onClick} type="button">
-			Click
-		</Button>
-	);
-};
 
 const messagesSelector = async (tx: ReadTransaction) => {
 	const list = await tx

@@ -19,23 +19,8 @@ import { createRealtimeSubscription } from "./realtime";
 const createReplicache = (playerId: string) => {
 	const replicache = new Replicache({
 		name: playerId,
-		// auth: `Bearer ${token}`,
-		// licenseKey: "l24ea5a24b71247c1b2bb78fa2bca2336",
 		licenseKey: import.meta.env.VITE_REPLICACHE_LICENSE_KEY,
-		// pullURL:
-		//   import.meta.env.VITE_API_URL +
-		//   (dummy()
-		//     ? `/replicache/dummy/pull?dummy=${dummy()}`
-		//     : "/replicache/pull1"),
-		// pushURL: import.meta.env.VITE_API_URL + "/replicache/push1",
 		pullInterval: 60 * 1000,
-		// mutators,
-		// indexes: {
-		//   id: {
-		//     allowEmpty: true,
-		//     jsonPointer: "/id",
-		//   },
-		// },
 		pushURL: "/api/push",
 		pullURL: "/api/pull",
 		logLevel: "debug",
@@ -84,7 +69,6 @@ export const ReplicacheProvider: Component<ReplicacheProviderProps> = (
 	createRealtimeSubscription(() => ({
 		type: "message",
 		callback() {
-			console.log("PULL");
 			rep().pull();
 		},
 	}));
