@@ -2,14 +2,14 @@
 import type { MutationV1 } from "replicache";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
-import { insertMessage } from "../messages/server";
+import { insertMessage } from "../messages/db";
 import type { MessageWithID } from "../messages/types";
 import {
 	selectLastMutationId,
 	selectServerVersion,
 	setLastMutationId,
 	updateServerVersion,
-} from "./server";
+} from "./db";
 
 type ProcessMutationArgs = {
 	clientGroupId: string;

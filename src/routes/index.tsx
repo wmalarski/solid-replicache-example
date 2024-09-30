@@ -1,9 +1,9 @@
-import { CreateBoardForm } from "~/components/modules/board/create-board-form";
+import { CreateGameForm } from "~/components/modules/create-game/create-game-form";
 
 export default function Home() {
 	return (
 		<main>
-			<CreateBoardForm />
+			<CreateGameForm />
 		</main>
 	);
 }

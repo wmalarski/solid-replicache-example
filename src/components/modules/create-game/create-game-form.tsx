@@ -4,7 +4,7 @@ import { Field } from "~/components/ui/field";
 import { insertGameAction } from "~/server/replicache/client";
 import { flex } from "~/styled-system/patterns";
 
-export const CreateBoardForm: Component = () => {
+export const CreateGameForm: Component = () => {
 	return (
 		<form
 			action={insertGameAction}

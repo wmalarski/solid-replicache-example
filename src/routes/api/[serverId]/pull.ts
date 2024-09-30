@@ -1,11 +1,11 @@
 import type { APIEvent } from "@solidjs/start/server";
 import type { PatchOperation, PullRequestV1, PullResponse } from "replicache";
 import { getServerContext } from "~/server/context";
-import { selectMessages } from "~/server/messages/server";
+import { selectMessages } from "~/server/messages/db";
 import {
 	selectLastMutationIdChanges,
 	selectServerVersion,
-} from "~/server/replicache/server";
+} from "~/server/replicache/db";
 
 export const POST = async (event: APIEvent) => {
 	const ctx = getServerContext(event);
