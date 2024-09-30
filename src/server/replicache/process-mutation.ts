@@ -4,7 +4,6 @@ import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
 import { insertMessage } from "../messages/server";
 import type { MessageWithID } from "../messages/types";
-import { serverId } from "./const";
 import {
 	selectLastMutationId,
 	selectServerVersion,
@@ -15,13 +14,14 @@ import {
 type ProcessMutationArgs = {
 	clientGroupId: string;
 	mutation: MutationV1;
+	serverId: string;
 	error?: string | undefined;
 };
 
 export const processMutation = async (
 	ctx: ServerContext,
 	transaction: Transaction,
-	{ clientGroupId, mutation, error }: ProcessMutationArgs,
+	{ clientGroupId, mutation, error, serverId }: ProcessMutationArgs,
 ) => {
 	const { clientID: clientId } = mutation;
 

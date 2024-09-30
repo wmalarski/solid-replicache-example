@@ -7,6 +7,7 @@ import { processMutation } from "~/server/replicache/process-mutation";
 export const POST = async (event: APIEvent) => {
 	const ctx = getServerContext(event);
 
+	const serverId = event.params.serverId;
 	const push: PushRequestV1 = await event.request.json();
 
 	console.log("Processing push", JSON.stringify(push));
@@ -23,6 +24,7 @@ export const POST = async (event: APIEvent) => {
 					processMutation(ctx, transaction, {
 						clientGroupId: push.clientGroupID,
 						mutation,
+						serverId,
 					}),
 				);
 			} catch (error) {
@@ -36,6 +38,7 @@ export const POST = async (event: APIEvent) => {
 					processMutation(ctx, transaction, {
 						clientGroupId: push.clientGroupID,
 						mutation,
+						serverId,
 						error: error as string,
 					}),
 				);

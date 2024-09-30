@@ -2,7 +2,6 @@ import type { APIEvent } from "@solidjs/start/server";
 import type { PatchOperation, PullRequestV1, PullResponse } from "replicache";
 import { getServerContext } from "~/server/context";
 import { selectMessages } from "~/server/messages/server";
-import { serverId } from "~/server/replicache/const";
 import {
 	selectLastMutationIdChanges,
 	selectServerVersion,
@@ -11,6 +10,7 @@ import {
 export const POST = async (event: APIEvent) => {
 	const ctx = getServerContext(event);
 
+	const serverId = event.params.serverId;
 	const pull: PullRequestV1 = await event.request.json();
 
 	console.log("Processing pull", JSON.stringify(pull));

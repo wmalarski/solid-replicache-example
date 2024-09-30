@@ -16,13 +16,13 @@ import { createStore, reconcile } from "solid-js/store";
 import type { MessageWithID } from "~/server/messages/types";
 import { createRealtimeSubscription } from "./realtime";
 
-const createReplicache = (playerId: string) => {
+const createReplicache = (playerId: string, serverId: string) => {
 	const replicache = new Replicache({
 		name: playerId,
 		licenseKey: import.meta.env.VITE_REPLICACHE_LICENSE_KEY,
 		pullInterval: 60 * 1000,
-		pushURL: "/api/push",
-		pullURL: "/api/pull",
+		pushURL: `/api/${serverId}/push`,
+		pullURL: `/api/${serverId}/pull`,
 		logLevel: "debug",
 		mutators: {
 			async createMessage(
@@ -53,13 +53,14 @@ export const useReplicacheContext = () => {
 
 type ReplicacheProviderProps = ParentProps<{
 	playerId: string;
+	serverId: string;
 }>;
 
 export const ReplicacheProvider: Component<ReplicacheProviderProps> = (
 	props,
 ) => {
 	const rep = createMemo(() => {
-		return createReplicache(props.playerId);
+		return createReplicache(props.playerId, props.serverId);
 	});
 
 	onCleanup(() => {
@@ -113,6 +114,7 @@ export function createSubscription<R>(
 			},
 		});
 	});
+
 	return {
 		get value() {
 			r();

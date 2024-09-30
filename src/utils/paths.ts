@@ -1,4 +1,4 @@
 export const paths = {
 	notFound: "/404",
-	game: (serverId: number) => `/game/${serverId}`,
+	game: (serverId: string) => `/game/${serverId}`,
 };

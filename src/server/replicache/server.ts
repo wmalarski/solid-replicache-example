@@ -62,6 +62,7 @@ const insertGame = async (
 	return transaction
 		.insert(ctx.schema.ReplicacheServer)
 		.values({
+			id: crypto.randomUUID(),
 			code: generateServerGameCode({ height, mines, width }),
 			height,
 			ipHash,
@@ -99,7 +100,7 @@ export const insertGameServerAction = async (formData: FormData) => {
 
 type UpdateServerVersionArgs = {
 	version: number;
-	serverId: number;
+	serverId: string;
 };
 
 export const updateServerVersion = async (
@@ -134,7 +135,7 @@ export const selectLastMutationId = async (
 };
 
 type SelectServerVersionArgs = {
-	serverId: number;
+	serverId: string;
 };
 
 export const selectServerVersion = async (

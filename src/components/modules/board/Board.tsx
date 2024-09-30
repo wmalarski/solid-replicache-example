@@ -21,7 +21,7 @@ type BoardProps = {
 export default function Board(props: BoardProps) {
 	return (
 		<RealtimeProvider>
-			<ReplicacheProvider playerId={props.playerId}>
+			<ReplicacheProvider playerId={props.playerId} serverId={props.serverId}>
 				<Messages />
 			</ReplicacheProvider>
 		</RealtimeProvider>
