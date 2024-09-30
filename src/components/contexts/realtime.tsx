@@ -2,6 +2,7 @@ import {
 	type Component,
 	type ParentProps,
 	createContext,
+	createEffect,
 	createMemo,
 	onCleanup,
 	useContext,
@@ -10,14 +11,9 @@ import {
 const createWebsocket = () => {
 	const websocket = new WebSocket("http://localhost:3000/_ws");
 
-	websocket.onopen = (event) => {
-		console.log("OPEN", event);
-		websocket.send("Hello");
-	};
-
-	websocket.onmessage = (event) => {
-		console.log("MESSAGE", event);
-	};
+	onCleanup(() => {
+		websocket.close();
+	});
 
 	return websocket;
 };
@@ -39,13 +35,31 @@ export const RealtimeProvider: Component<RealtimeProviderProps> = (props) => {
 		return createWebsocket();
 	});
 
-	onCleanup(() => {
-		websocket().close();
-	});
-
 	return (
 		<RealtimeContext.Provider value={websocket}>
 			{props.children}
 		</RealtimeContext.Provider>
 	);
+};
+
+type CreateRealtimeSubscriptionArgs<K extends keyof WebSocketEventMap> = {
+	type: K;
+	callback: (event: WebSocketEventMap[K]) => void;
+};
+
+export const createRealtimeSubscription = <K extends keyof WebSocketEventMap>(
+	options: () => CreateRealtimeSubscriptionArgs<K>,
+) => {
+	const realtime = useRealtimeContext();
+
+	createEffect(() => {
+		const args = options();
+		const websocket = realtime();
+
+		websocket.addEventListener(args.type, args.callback);
+
+		onCleanup(() => {
+			websocket.removeEventListener(args.type, args.callback);
+		});
+	});
 };

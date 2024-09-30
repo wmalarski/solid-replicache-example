@@ -14,6 +14,7 @@ import {
 } from "solid-js";
 import { createStore, reconcile } from "solid-js/store";
 import type { MessageWithID } from "~/server/messages/types";
+import { createRealtimeSubscription } from "./realtime";
 
 const createReplicache = (playerId: string) => {
 	const replicache = new Replicache({
@@ -27,7 +28,7 @@ const createReplicache = (playerId: string) => {
 		//     ? `/replicache/dummy/pull?dummy=${dummy()}`
 		//     : "/replicache/pull1"),
 		// pushURL: import.meta.env.VITE_API_URL + "/replicache/push1",
-		// pullInterval: 60 * 1000,
+		pullInterval: 60 * 1000,
 		// mutators,
 		// indexes: {
 		//   id: {
@@ -79,6 +80,14 @@ export const ReplicacheProvider: Component<ReplicacheProviderProps> = (
 	onCleanup(() => {
 		rep().close();
 	});
+
+	createRealtimeSubscription(() => ({
+		type: "message",
+		callback() {
+			console.log("PULL");
+			rep().pull();
+		},
+	}));
 
 	return (
 		<ReplicacheContext.Provider value={rep}>

@@ -1,27 +1,26 @@
 import { defineWebSocket, eventHandler } from "vinxi/http";
-import { getPlayerFromHeaders } from "./server/player/utils";
+import { broadcastChannel } from "./server/realtime/channel";
 
 const websocket = defineWebSocket({
 	async open(peer) {
-		const player = await getPlayerFromHeaders(peer.headers);
+		const listener = (event: MessageEvent) => {
+			console.log("Broadcast", event);
+			peer.send(event.data);
+		};
 
-		console.log("OPEN", player);
-
-		if (!player) {
-			return;
-		}
-
-		console.log("Open", player.id);
+		broadcastChannel.addEventListener("message", listener);
+		peer.ctx.listener = listener;
 	},
-	async message(peer, message) {
-		const player = await getPlayerFromHeaders(peer.headers);
+	// async message(peer, message) {
+	// 	const player = await getPlayerFromHeaders(peer.headers);
 
-		console.log("Message", message, player);
+	// 	console.log("Message", message, player);
 
-		peer.send(`Hi ${player?.id}`);
-	},
-	async close(peer, details) {
-		console.log("CLOSE", peer, details);
+	// 	peer.send(`Hi ${player?.id}`);
+	// },
+	async close(peer, _details) {
+		broadcastChannel.removeEventListener("message", peer.ctx.listener);
+		console.log("CLOSE", peer);
 	},
 });
 
