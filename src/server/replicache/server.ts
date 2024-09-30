@@ -1,7 +1,14 @@
 "use server";
+import { redirect } from "@solidjs/router";
+import bcrypt from "bcryptjs";
+import { decode } from "decode-formdata";
 import { and, eq, gt } from "drizzle-orm";
-import type { ServerContext } from "../context";
+import * as v from "valibot";
+import { paths } from "~/utils/paths";
+import { type ServerContext, getServerContext } from "../context";
 import type { Transaction } from "../db/db";
+import { getRequestEventOrThrow, rpcParseIssueResult } from "../utils";
+import { generateServerGameCode } from "./utils";
 
 type SetLastMutationIdArgs = {
 	clientId: string;
@@ -32,6 +39,62 @@ export const setLastMutationId = async (
 			})
 			.run();
 	}
+};
+
+type InsertGameArgs = {
+	width: number;
+	height: number;
+	name: string;
+	mines: number;
+};
+
+const insertGame = async (
+	ctx: ServerContext,
+	transaction: Transaction,
+	{ height, width, mines, name }: InsertGameArgs,
+) => {
+	if (!ctx.event.clientAddress) {
+		throw new Error("Invalid request");
+	}
+
+	const ipHash = await bcrypt.hash(ctx.event.clientAddress, 10);
+
+	return transaction
+		.insert(ctx.schema.ReplicacheServer)
+		.values({
+			code: generateServerGameCode({ height, mines, width }),
+			height,
+			ipHash,
+			mines,
+			name,
+			width,
+			version: 1,
+		})
+		.returning()
+		.get();
+};
+
+export const insertGameServerAction = async (formData: FormData) => {
+	const parsed = await v.safeParseAsync(
+		v.object({
+			width: v.number(),
+			height: v.number(),
+			name: v.string(),
+			mines: v.number(),
+		}),
+		decode(formData, { numbers: ["rows", "columns", "height", "width"] }),
+	);
+
+	if (!parsed.success) {
+		return rpcParseIssueResult(parsed.issues);
+	}
+
+	const event = getRequestEventOrThrow();
+	const ctx = getServerContext(event);
+
+	const game = await insertGame(ctx, ctx.db, parsed.output);
+
+	throw redirect(paths.game(game.id));
 };
 
 type UpdateServerVersionArgs = {

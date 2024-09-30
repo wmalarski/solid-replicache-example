@@ -15,6 +15,7 @@ import { flex } from "~/styled-system/patterns";
 
 type BoardProps = {
 	playerId: string;
+	serverId: string;
 };
 
 export default function Board(props: BoardProps) {

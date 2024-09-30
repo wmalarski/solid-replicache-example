@@ -1,8 +1,14 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const ReplicacheServer = sqliteTable("replicache_server", {
-	id: integer("id").primaryKey().unique().notNull(),
+	id: text("id").primaryKey().unique().notNull(),
 	version: integer("version"),
+	name: text("name").notNull(),
+	width: integer("width").notNull(),
+	height: integer("height").notNull(),
+	mines: integer("height").notNull(),
+	code: text("code").notNull(),
+	ipHash: text("ip_hash").notNull().unique(),
 });
 
 export const ReplicacheClient = sqliteTable("replicache_client", {
@@ -19,4 +25,5 @@ export const Message = sqliteTable("message", {
 	ord: integer("ord").notNull(),
 	deleted: integer("deleted", { mode: "boolean" }).notNull(),
 	version: integer("version").notNull(),
+	spaceId: text("space_id"),
 });
