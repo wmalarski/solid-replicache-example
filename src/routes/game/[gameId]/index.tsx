@@ -19,9 +19,7 @@ export default function GamePage() {
 	return (
 		<main>
 			<Show when={player()}>
-				{(player) => (
-					<Board serverId={params.serverId} playerId={player().id} />
-				)}
+				{(player) => <Board gameId={params.gameId} playerId={player().id} />}
 			</Show>
 		</main>
 	);

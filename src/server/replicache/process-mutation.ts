@@ -8,7 +8,7 @@ import {
 	selectLastMutationId,
 	selectServerVersion,
 	setLastMutationId,
-	updateServerVersion,
+	updateGameVersion,
 } from "./db";
 
 type ProcessMutationArgs = {
@@ -89,17 +89,18 @@ export const processMutation = async (
 
 	console.log("setting", clientId, "last_mutation_id to", nextMutationID);
 
-	// Update lastMutationID for requesting client.
-	await setLastMutationId(ctx, transaction, {
-		clientId,
-		clientGroupId,
-		mutationId: nextMutationID,
-		version: nextVersion,
-	});
-
-	// Update global version.
-	await updateServerVersion(ctx, transaction, {
-		serverId,
-		version: nextVersion,
-	});
+	await Promise.all([
+		// Update lastMutationID for requesting client.
+		setLastMutationId(ctx, transaction, {
+			clientId,
+			clientGroupId,
+			mutationId: nextMutationID,
+			version: nextVersion,
+		}),
+		// Update global version.
+		updateGameVersion(ctx, transaction, {
+			serverId,
+			version: nextVersion,
+		}),
+	]);
 };

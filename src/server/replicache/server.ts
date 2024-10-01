@@ -15,7 +15,7 @@ export const insertGameServerAction = async (formData: FormData) => {
 			name: v.string(),
 			mines: v.number(),
 		}),
-		decode(formData, { numbers: ["rows", "columns", "height", "width"] }),
+		decode(formData, { numbers: ["mines", "height", "width"] }),
 	);
 
 	if (!parsed.success) {

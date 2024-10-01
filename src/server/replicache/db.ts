@@ -70,15 +70,15 @@ export const insertGame = async (
 		.get();
 };
 
-type UpdateServerVersionArgs = {
+type UpdateGameVersionArgs = {
 	version: number;
 	serverId: string;
 };
 
-export const updateServerVersion = async (
+export const updateGameVersion = async (
 	ctx: ServerContext,
 	transaction: Transaction,
-	{ version, serverId }: UpdateServerVersionArgs,
+	{ version, serverId }: UpdateGameVersionArgs,
 ) => {
 	await transaction
 		.update(ctx.schema.ReplicacheServer)

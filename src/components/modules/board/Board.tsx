@@ -15,13 +15,13 @@ import { flex } from "~/styled-system/patterns";
 
 type BoardProps = {
 	playerId: string;
-	serverId: string;
+	gameId: string;
 };
 
 export default function Board(props: BoardProps) {
 	return (
 		<RealtimeProvider>
-			<ReplicacheProvider playerId={props.playerId} serverId={props.serverId}>
+			<ReplicacheProvider playerId={props.playerId} gameId={props.gameId}>
 				<Messages />
 			</ReplicacheProvider>
 		</RealtimeProvider>

@@ -10,7 +10,7 @@ import {
 export const POST = async (event: APIEvent) => {
 	const ctx = getServerContext(event);
 
-	const serverId = event.params.serverId;
+	const gameId = event.params.gameId;
 	const pull: PullRequestV1 = await event.request.json();
 
 	console.log("Processing pull", JSON.stringify(pull));
@@ -24,7 +24,7 @@ export const POST = async (event: APIEvent) => {
 		const result = await ctx.db.transaction(async (transaction) => {
 			// Get current version.
 			const currentVersion = await selectServerVersion(ctx, transaction, {
-				serverId,
+				serverId: gameId,
 			});
 
 			if (!currentVersion || fromVersion > currentVersion) {
