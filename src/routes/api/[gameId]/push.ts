@@ -9,7 +9,7 @@ export const POST = async (event: APIEvent) => {
 	const gameId = event.params.gameId;
 	const push: PushRequestV1 = await event.request.json();
 
-	await ctx.db.transaction(async (transaction) => {
-		processPush(ctx, transaction, { gameId, push });
-	});
+	await ctx.db.transaction(async (transaction) =>
+		processPush(ctx, transaction, { gameId, push }),
+	);
 };
