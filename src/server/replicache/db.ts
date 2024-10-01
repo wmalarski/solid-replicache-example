@@ -1,6 +1,6 @@
 "use server";
 import bcrypt from "bcryptjs";
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, inArray } from "drizzle-orm";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
 import { generateServerGameCode } from "./utils";
@@ -34,6 +34,29 @@ export const setLastMutationId = async (
 			})
 			.run();
 	}
+};
+
+type SetLastMutationIdsArgs = {
+	clientGroupId: string;
+	version: number;
+	lastMutationIds: Map<string, number>;
+};
+
+export const setLastMutationIds = async (
+	ctx: ServerContext,
+	transaction: Transaction,
+	{ clientGroupId, version, lastMutationIds }: SetLastMutationIdsArgs,
+) => {
+	await Promise.all(
+		Array.from(lastMutationIds.entries()).map(([clientId, mutationId]) =>
+			setLastMutationId(ctx, transaction, {
+				clientGroupId,
+				clientId,
+				mutationId,
+				version,
+			}),
+		),
+	);
 };
 
 type InsertGameArgs = {
@@ -87,14 +110,14 @@ export const updateGameVersion = async (
 		.run();
 };
 
-type selectLastMutationIdArgs = {
+type SelectLastMutationIdArgs = {
 	clientId: string;
 };
 
 export const selectLastMutationId = async (
 	ctx: ServerContext,
 	transaction: Transaction,
-	{ clientId }: selectLastMutationIdArgs,
+	{ clientId }: SelectLastMutationIdArgs,
 ) => {
 	const row = await transaction
 		.select()
@@ -106,19 +129,45 @@ export const selectLastMutationId = async (
 	return row ? row.lastMutationId : 0;
 };
 
-type SelectServerVersionArgs = {
-	serverId: string;
+type SelectLastMutationIdsArgs = {
+	clientIds: string[];
 };
 
-export const selectServerVersion = async (
+export const selectLastMutationIds = async (
 	ctx: ServerContext,
 	transaction: Transaction,
-	{ serverId }: SelectServerVersionArgs,
+	{ clientIds }: SelectLastMutationIdsArgs,
+) => {
+	const rows = await transaction
+		.select()
+		.from(ctx.schema.ReplicacheClient)
+		.where(inArray(ctx.schema.ReplicacheClient.id, clientIds))
+		.all();
+
+	const map = new Map<string, number>();
+	rows.forEach((row) => map.set(row.id, row.lastMutationId));
+
+	const lastIds = new Map<string, number>();
+	clientIds.forEach((clientId) =>
+		lastIds.set(clientId, map.get(clientId) ?? 0),
+	);
+
+	return lastIds;
+};
+
+type SelectGameVersionArgs = {
+	gameId: string;
+};
+
+export const selectGameVersion = async (
+	ctx: ServerContext,
+	transaction: Transaction,
+	{ gameId }: SelectGameVersionArgs,
 ) => {
 	const row = await transaction
 		.select()
 		.from(ctx.schema.ReplicacheServer)
-		.where(eq(ctx.schema.ReplicacheServer.id, serverId))
+		.where(eq(ctx.schema.ReplicacheServer.id, gameId))
 		.limit(1)
 		.get();
 

@@ -2,7 +2,13 @@ import type { APIEvent } from "@solidjs/start/server";
 import type { PushRequestV1 } from "replicache";
 import { getServerContext } from "~/server/context";
 import { broadcastChannel } from "~/server/realtime/channel";
-import { processMutation } from "~/server/replicache/process-mutation";
+import {
+	selectGameVersion,
+	selectLastMutationIds,
+	setLastMutationIds,
+	updateGameVersion,
+} from "~/server/replicache/db";
+import { handleMutation } from "~/server/replicache/process-mutation";
 
 export const POST = async (event: APIEvent) => {
 	const ctx = getServerContext(event);
@@ -10,53 +16,74 @@ export const POST = async (event: APIEvent) => {
 	const gameId = event.params.gameId;
 	const push: PushRequestV1 = await event.request.json();
 
-	console.log("Processing push", JSON.stringify(push));
+	await ctx.db.transaction(async (transaction) => {
+		const previousVersion = await selectGameVersion(ctx, transaction, {
+			gameId,
+		});
 
-	const t0 = Date.now();
+		if (!previousVersion) {
+			throw new Error(`Unknown game ${gameId}`);
+		}
 
-	try {
-		// Iterate each mutation in the push.
+		const nextVersion = previousVersion + 1;
+
+		const clientIds = [...new Set(push.mutations.map((m) => m.clientID))];
+		const lastMutationIds = await selectLastMutationIds(ctx, transaction, {
+			clientIds,
+		});
+
 		for (const mutation of push.mutations) {
-			const t1 = Date.now();
+			const lastMutationId = lastMutationIds.get(mutation.clientID);
 
-			try {
-				await ctx.db.transaction((transaction) =>
-					processMutation(ctx, transaction, {
-						clientGroupId: push.clientGroupID,
-						mutation,
-						serverId: gameId,
-					}),
-				);
-			} catch (error) {
-				console.error("Caught error from mutation", mutation, error);
-
-				// Handle errors inside mutations by skipping and moving on. This is
-				// convenient in development but you may want to reconsider as your app
-				// gets close to production:
-				// https://doc.replicache.dev/reference/server-push#error-handling
-				await ctx.db.transaction((transaction) =>
-					processMutation(ctx, transaction, {
-						clientGroupId: push.clientGroupID,
-						mutation,
-						serverId: gameId,
-						error: error as string,
-					}),
+			if (lastMutationId === undefined) {
+				throw new Error(
+					`invalid state - lastMutationID not found for client: ${mutation.clientID}`,
 				);
 			}
 
-			console.log("Processed mutation in", Date.now() - t1);
+			const nextMutationId = lastMutationId + 1;
+
+			// It's common due to connectivity issues for clients to send a
+			// mutation which has already been processed. Skip these.
+			if (mutation.id < nextMutationId) {
+				console.log(
+					`Mutation ${mutation.id} has already been processed - skipping`,
+				);
+				return;
+			}
+
+			// If the Replicache client is working correctly, this can never
+			// happen. If it does there is nothing to do but return an error to
+			// client and report a bug to Replicache.
+			if (mutation.id > nextMutationId) {
+				throw new Error(
+					`Mutation ${mutation.id} is from the future - aborting. This can happen in development if the server restarts. In that case, clear appliation data in browser and refresh.`,
+				);
+			}
+
+			// For each possible mutation, run the server-side logic to apply the
+			// mutation.
+			await handleMutation(ctx, transaction, { mutation, nextVersion });
+
+			lastMutationIds.set(mutation.clientID, nextMutationId);
 		}
 
+		await Promise.all([
+			// Update lastMutationID for requesting client.
+			setLastMutationIds(ctx, transaction, {
+				lastMutationIds,
+				clientGroupId: push.clientGroupID,
+				version: nextVersion,
+			}),
+			// Update global version.
+			updateGameVersion(ctx, transaction, {
+				serverId: gameId,
+				version: nextVersion,
+			}),
+		]);
+
 		sendPoke();
-
-		return {};
-	} catch (error) {
-		console.error(error);
-
-		return new Response(String(error), { status: 500 });
-	} finally {
-		console.log("Processed push in", Date.now() - t0);
-	}
+	});
 };
 
 const sendPoke = () => {

@@ -3,8 +3,8 @@ import type { PatchOperation, PullRequestV1, PullResponse } from "replicache";
 import { getServerContext } from "~/server/context";
 import { selectMessages } from "~/server/messages/db";
 import {
+	selectGameVersion,
 	selectLastMutationIdChanges,
-	selectServerVersion,
 } from "~/server/replicache/db";
 
 export const POST = async (event: APIEvent) => {
@@ -23,8 +23,8 @@ export const POST = async (event: APIEvent) => {
 		// Read all data in a single transaction so it's consistent.
 		const result = await ctx.db.transaction(async (transaction) => {
 			// Get current version.
-			const currentVersion = await selectServerVersion(ctx, transaction, {
-				serverId: gameId,
+			const currentVersion = await selectGameVersion(ctx, transaction, {
+				gameId: gameId,
 			});
 
 			if (!currentVersion || fromVersion > currentVersion) {
