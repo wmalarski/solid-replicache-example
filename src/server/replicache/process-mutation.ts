@@ -5,15 +5,15 @@ import type { Transaction } from "../db/db";
 import { insertMessage } from "../messages/db";
 import type { MessageWithID } from "../messages/types";
 
-type HandleMutationArgs = {
+type ProcessMutationArgs = {
 	mutation: MutationV1;
 	nextVersion: number;
 };
 
-export const handleMutation = async (
+export const processMutation = async (
 	ctx: ServerContext,
 	transaction: Transaction,
-	{ mutation, nextVersion }: HandleMutationArgs,
+	{ mutation, nextVersion }: ProcessMutationArgs,
 ) => {
 	switch (mutation.name) {
 		case "createMessage":
