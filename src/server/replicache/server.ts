@@ -5,7 +5,7 @@ import * as v from "valibot";
 import { paths } from "~/utils/paths";
 import { getServerContext } from "../context";
 import { getRequestEventOrThrow, rpcParseIssueResult } from "../utils";
-import { insertGame } from "./db";
+import { insertGame, selectGame } from "./db";
 
 export const insertGameServerAction = async (formData: FormData) => {
 	const parsed = await v.safeParseAsync(
@@ -28,4 +28,13 @@ export const insertGameServerAction = async (formData: FormData) => {
 	const game = await insertGame(ctx, ctx.db, parsed.output);
 
 	throw redirect(paths.game(game.id));
+};
+
+export const selectGameServerLoader = async (gameId: string) => {
+	const event = getRequestEventOrThrow();
+	const ctx = getServerContext(event);
+
+	const game = await selectGame(ctx, ctx.db, { gameId });
+
+	return game;
 };

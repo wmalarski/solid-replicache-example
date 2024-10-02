@@ -9,53 +9,54 @@ import {
 	useReplicacheContext,
 } from "~/components/contexts/replicache";
 import type { GameCell } from "~/server/cells/types";
-import { Stack } from "~/styled-system/jsx";
+import { Grid } from "~/styled-system/jsx";
 
 type BoardProps = {
 	playerId: string;
 	gameId: string;
+	width: number;
+	code: string;
 };
 
 export default function Board(props: BoardProps) {
 	return (
 		<RealtimeProvider>
 			<ReplicacheProvider playerId={props.playerId} gameId={props.gameId}>
-				<Messages gameId={props.gameId} />
+				<BoardCells
+					gameId={props.gameId}
+					code={props.code}
+					width={props.width}
+				/>
 			</ReplicacheProvider>
 		</RealtimeProvider>
 	);
 }
 
-type MessagesProps = {
+type BoardCellsProps = {
 	gameId: string;
+	width: number;
+	code: string;
 };
 
-const Messages: Component<MessagesProps> = (props) => {
-	const messages = createSubscription(async (tx: ReadTransaction) => {
-		const list = await tx
-			.scan<GameCell>({ prefix: "message/" })
-			.entries()
-			.toArray();
-		return list.map(([_id, cell]) => cell);
-	}, []);
-
+const BoardCells: Component<BoardCellsProps> = (props) => {
 	return (
-		<Stack gap="4">
-			<BoardCell
-				positionX={0}
-				positionY={0}
-				messages={messages.value}
-				gameId={props.gameId}
-			/>
-			<For each={messages.value}>
-				{(value) => <pre>{JSON.stringify(value, null, 2)}</pre>}
+		<Grid columnCount={props.width}>
+			<For each={[...props.code]}>
+				{(cellCode, index) => (
+					<BoardCell
+						positionX={index() % props.width}
+						positionY={Math.floor(index() / props.width)}
+						cellCode={cellCode}
+						gameId={props.gameId}
+					/>
+				)}
 			</For>
-		</Stack>
+		</Grid>
 	);
 };
 
 type BoardCellProps = {
-	messages: GameCell[];
+	cellCode: string;
 	gameId: string;
 	positionX: number;
 	positionY: number;
@@ -77,29 +78,31 @@ const BoardCell: Component<BoardCellProps> = (props) => {
 	const onClick: ComponentProps<"button">["onClick"] = async (event) => {
 		event.preventDefault();
 
-		if (cell) {
+		const common = {
+			clicked: true,
+			marked: false,
+			positionX: props.positionX,
+			positionY: props.positionY,
+		};
+
+		if (cell.value) {
 			await rep().mutate.updateCell({
-				id: nanoid(),
-				clicked: true,
-				marked: false,
-				positionX: props.positionX,
-				positionY: props.positionY,
+				id: cell.value.id,
+				...common,
 			});
 			return;
 		}
 
 		await rep().mutate.insertCell({
 			id: nanoid(),
-			clicked: true,
-			marked: false,
-			positionX: props.positionX,
-			positionY: props.positionY,
+			gameId: props.gameId,
+			...common,
 		});
 	};
 
 	return (
 		<button onClick={onClick} type="button">
-			{JSON.stringify(cell.value, null, 2)}
+			{JSON.stringify({ cell: cell.value, cellCode: props.cellCode }, null, 2)}
 		</button>
 	);
 };

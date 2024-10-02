@@ -174,6 +174,29 @@ export const selectGameVersion = async (
 	return row?.version;
 };
 
+type SelectGameArgs = {
+	gameId: string;
+};
+
+export const selectGame = async (
+	ctx: ServerContext,
+	transaction: Transaction,
+	{ gameId }: SelectGameArgs,
+) => {
+	const row = await transaction
+		.select({
+			name: ctx.schema.ReplicacheServer.name,
+			width: ctx.schema.ReplicacheServer.width,
+			code: ctx.schema.ReplicacheServer.code,
+		})
+		.from(ctx.schema.ReplicacheServer)
+		.where(eq(ctx.schema.ReplicacheServer.id, gameId))
+		.limit(1)
+		.get();
+
+	return row;
+};
+
 type SelectLastMutationIdChangesArgs = {
 	clientGroupId: string;
 	fromVersion: number;

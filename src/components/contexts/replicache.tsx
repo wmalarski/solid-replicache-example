@@ -44,35 +44,12 @@ const createReplicache = (playerId: string, gameId: string) => {
 		pullURL: `/api/${gameId}/pull`,
 		logLevel: "debug",
 		mutators: {
-			async insertCell(
-				tx: WriteTransaction,
-				{
-					id,
-					clicked,
-					marked,
-					positionX,
-					positionY,
-				}: Omit<InsertCellArgs, "gameId">,
-			) {
-				await tx.set(getGameCellKey({ gameId, positionX, positionY }), {
-					id,
-					gameId,
-					clicked,
-					marked,
-					positionX,
-					positionY,
-				});
+			async insertCell(tx: WriteTransaction, args: InsertCellArgs) {
+				await tx.set(getGameCellKey(args), args);
 			},
-			async updateCell(
-				tx: WriteTransaction,
-				{ positionX, positionY, clicked, marked }: UpdateCellArgs,
-			) {
-				const key = getGameCellKey({ gameId, positionX, positionY });
-				const value = await tx.get(key);
-
-				if (value) {
-					await tx.set(key, { ...(value as GameCell), clicked, marked });
-				}
+			async updateCell(tx: WriteTransaction, args: UpdateCellArgs) {
+				const withGameId = { ...args, gameId };
+				await tx.set(getGameCellKey(withGameId), withGameId);
 			},
 			async deleteCells(tx: WriteTransaction) {
 				const cells = await tx

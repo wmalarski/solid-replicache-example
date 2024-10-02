@@ -2,13 +2,13 @@
 import { and, eq, gt } from "drizzle-orm";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
-import type { GameCellWithID } from "./types";
+import type { GameCell } from "./types";
 
 type WithVersion<T> = T & {
 	version: number;
 };
 
-export type InsertCellArgs = GameCellWithID;
+export type InsertCellArgs = GameCell;
 
 export const insertCell = (
 	ctx: ServerContext,
