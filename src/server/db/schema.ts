@@ -18,12 +18,13 @@ export const ReplicacheClient = sqliteTable("replicache_client", {
 	version: integer("version").notNull(),
 });
 
-export const Message = sqliteTable("message", {
+export const Cell = sqliteTable("cell", {
 	id: text("id").primaryKey().unique().notNull(),
-	sender: text("sender", { length: 255 }).notNull(),
-	content: text("content").notNull(),
-	ord: integer("ord").notNull(),
+	gameId: text("game_id").notNull(),
+	positionX: integer("position_x").notNull(),
+	positionY: integer("position_y").notNull(),
+	marked: integer("marked", { mode: "boolean" }).notNull(),
+	clicked: integer("clicked", { mode: "boolean" }).notNull(),
 	deleted: integer("deleted", { mode: "boolean" }).notNull(),
 	version: integer("version").notNull(),
-	spaceId: text("space_id"),
 });

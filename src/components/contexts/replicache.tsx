@@ -13,8 +13,27 @@ import {
 	useContext,
 } from "solid-js";
 import { createStore, reconcile } from "solid-js/store";
-import type { MessageWithID } from "~/server/messages/types";
+import type { InsertCellArgs, UpdateCellArgs } from "~/server/cells/db";
+import type { GameCell } from "~/server/cells/types";
 import { createRealtimeSubscription } from "./realtime";
+
+export const getGameKey = (gameId: string) => {
+	return `game/${gameId}/`;
+};
+
+type GetGameCellKeyArgs = {
+	gameId: string;
+	positionX: number;
+	positionY: number;
+};
+
+export const getGameCellKey = ({
+	gameId,
+	positionX,
+	positionY,
+}: GetGameCellKeyArgs) => {
+	return `${getGameKey(gameId)}${positionX}/${positionY}`;
+};
 
 const createReplicache = (playerId: string, gameId: string) => {
 	const replicache = new Replicache({
@@ -25,15 +44,43 @@ const createReplicache = (playerId: string, gameId: string) => {
 		pullURL: `/api/${gameId}/pull`,
 		logLevel: "debug",
 		mutators: {
-			async createMessage(
+			async insertCell(
 				tx: WriteTransaction,
-				{ id, from, content, order }: MessageWithID,
+				{
+					id,
+					clicked,
+					marked,
+					positionX,
+					positionY,
+				}: Omit<InsertCellArgs, "gameId">,
 			) {
-				await tx.set(`message/${id}`, {
-					from,
-					content,
-					order,
+				await tx.set(getGameCellKey({ gameId, positionX, positionY }), {
+					id,
+					gameId,
+					clicked,
+					marked,
+					positionX,
+					positionY,
 				});
+			},
+			async updateCell(
+				tx: WriteTransaction,
+				{ positionX, positionY, clicked, marked }: UpdateCellArgs,
+			) {
+				const key = getGameCellKey({ gameId, positionX, positionY });
+				const value = await tx.get(key);
+
+				if (value) {
+					await tx.set(key, { ...(value as GameCell), clicked, marked });
+				}
+			},
+			async deleteCells(tx: WriteTransaction) {
+				const cells = await tx
+					.scan<GameCell>({ prefix: getGameKey(gameId) })
+					.entries()
+					.toArray();
+
+				await Promise.all(cells.map(([key]) => tx.del(key)));
 			},
 		},
 	});

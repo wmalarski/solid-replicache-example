@@ -5,13 +5,11 @@ import { RealtimeProvider } from "~/components/contexts/realtime";
 import {
 	ReplicacheProvider,
 	createSubscription,
+	getGameCellKey,
 	useReplicacheContext,
 } from "~/components/contexts/replicache";
-import { Button } from "~/components/ui/button";
-import { Field } from "~/components/ui/field";
-import type { Message } from "~/server/messages/types";
+import type { GameCell } from "~/server/cells/types";
 import { Stack } from "~/styled-system/jsx";
-import { flex } from "~/styled-system/patterns";
 
 type BoardProps = {
 	playerId: string;
@@ -22,27 +20,33 @@ export default function Board(props: BoardProps) {
 	return (
 		<RealtimeProvider>
 			<ReplicacheProvider playerId={props.playerId} gameId={props.gameId}>
-				<Messages />
+				<Messages gameId={props.gameId} />
 			</ReplicacheProvider>
 		</RealtimeProvider>
 	);
 }
 
-const messagesSelector = async (tx: ReadTransaction) => {
-	const list = await tx
-		.scan<Message>({ prefix: "message/" })
-		.entries()
-		.toArray();
-	list.sort(([, { order: a }], [, { order: b }]) => a - b);
-	return list;
+type MessagesProps = {
+	gameId: string;
 };
 
-const Messages: Component = () => {
-	const messages = createSubscription(messagesSelector, []);
+const Messages: Component<MessagesProps> = (props) => {
+	const messages = createSubscription(async (tx: ReadTransaction) => {
+		const list = await tx
+			.scan<GameCell>({ prefix: "message/" })
+			.entries()
+			.toArray();
+		return list.map(([_id, cell]) => cell);
+	}, []);
 
 	return (
 		<Stack gap="4">
-			<CreateMessageForm messages={messages.value} />
+			<BoardCell
+				positionX={0}
+				positionY={0}
+				messages={messages.value}
+				gameId={props.gameId}
+			/>
 			<For each={messages.value}>
 				{(value) => <pre>{JSON.stringify(value, null, 2)}</pre>}
 			</For>
@@ -50,57 +54,52 @@ const Messages: Component = () => {
 	);
 };
 
-type CreateMessageFormProps = {
-	messages: Awaited<ReturnType<typeof messagesSelector>>;
+type BoardCellProps = {
+	messages: GameCell[];
+	gameId: string;
+	positionX: number;
+	positionY: number;
 };
 
-const CreateMessageForm: Component<CreateMessageFormProps> = (props) => {
+const BoardCell: Component<BoardCellProps> = (props) => {
 	const rep = useReplicacheContext();
 
-	let contentRef: HTMLInputElement | undefined;
+	const cell = createSubscription(async (tx: ReadTransaction) => {
+		return tx.get<GameCell>(
+			getGameCellKey({
+				gameId: props.gameId,
+				positionX: props.positionX,
+				positionY: props.positionY,
+			}),
+		);
+	});
 
-	const onSubmit: ComponentProps<"form">["onSubmit"] = async (event) => {
+	const onClick: ComponentProps<"button">["onClick"] = async (event) => {
 		event.preventDefault();
 
-		const formData = new FormData(event.currentTarget);
-
-		let last: Message | null = null;
-
-		if (props.messages.length) {
-			const lastMessageTuple = props.messages[props.messages.length - 1];
-			last = lastMessageTuple[1];
+		if (cell) {
+			await rep().mutate.updateCell({
+				id: nanoid(),
+				clicked: true,
+				marked: false,
+				positionX: props.positionX,
+				positionY: props.positionY,
+			});
+			return;
 		}
 
-		const order = (last?.order ?? 0) + 1;
-		const username = formData.get("username") as string;
-		const content = formData.get("content") as string;
-
-		await rep().mutate.createMessage({
+		await rep().mutate.insertCell({
 			id: nanoid(),
-			from: username,
-			content,
-			order,
+			clicked: true,
+			marked: false,
+			positionX: props.positionX,
+			positionY: props.positionY,
 		});
-
-		if (contentRef) {
-			contentRef.value = "";
-		}
 	};
 
 	return (
-		<form
-			onSubmit={onSubmit}
-			class={flex({ gap: "4", alignItems: "flex-end" })}
-		>
-			<Field.Root>
-				<Field.Label>Username</Field.Label>
-				<Field.Input name="username" />
-			</Field.Root>
-			<Field.Root>
-				<Field.Label>Content</Field.Label>
-				<Field.Input ref={contentRef} name="content" />
-			</Field.Root>
-			<Button>Submit</Button>
-		</form>
+		<button onClick={onClick} type="button">
+			{JSON.stringify(cell.value, null, 2)}
+		</button>
 	);
 };

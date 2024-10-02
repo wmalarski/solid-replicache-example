@@ -1,9 +1,15 @@
 "use server";
 import type { MutationV1 } from "replicache";
+import {
+	type DeleteCellsArgs,
+	type InsertCellArgs,
+	type UpdateCellArgs,
+	deleteCells,
+	insertCell,
+	updateCell,
+} from "../cells/db";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
-import { insertMessage } from "../messages/db";
-import type { MessageWithID } from "../messages/types";
 
 type ProcessMutationArgs = {
 	mutation: MutationV1;
@@ -16,9 +22,21 @@ export const processMutation = async (
 	{ mutation, nextVersion }: ProcessMutationArgs,
 ) => {
 	switch (mutation.name) {
-		case "createMessage":
-			await insertMessage(ctx, transaction, {
-				...(mutation.args as MessageWithID),
+		case "insertCell":
+			await insertCell(ctx, transaction, {
+				...(mutation.args as InsertCellArgs),
+				version: nextVersion,
+			});
+			break;
+		case "updateCell":
+			await updateCell(ctx, transaction, {
+				...(mutation.args as UpdateCellArgs),
+				version: nextVersion,
+			});
+			break;
+		case "resetGame":
+			await deleteCells(ctx, transaction, {
+				...(mutation.args as DeleteCellsArgs),
 				version: nextVersion,
 			});
 			break;

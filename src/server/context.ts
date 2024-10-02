@@ -10,7 +10,7 @@ export const getServerContext = (event: FetchEvent) => {
 		schema: {
 			ReplicacheServer,
 			ReplicacheClient,
-			Message: Cell,
+			Cell,
 		},
 	};
 };

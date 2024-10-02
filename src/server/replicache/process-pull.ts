@@ -1,5 +1,5 @@
 import type { PatchOperation, PullRequestV1, PullResponse } from "replicache";
-import { selectMessages } from "~/server/messages/db";
+import { selectCells } from "~/server/cells/db";
 import {
 	selectGameVersion,
 	selectLastMutationIdChanges,
@@ -26,7 +26,7 @@ export const processPull = async (
 			clientGroupId: pull.clientGroupID,
 			fromVersion,
 		}),
-		selectMessages(ctx, transaction, { fromVersion }),
+		selectCells(ctx, transaction, { fromVersion, gameId }),
 	]);
 
 	if (!currentVersion || fromVersion > currentVersion) {
@@ -39,17 +39,14 @@ export const processPull = async (
 	const patch: PatchOperation[] = [];
 
 	for (const row of changed) {
-		const { id, sender, content, ord, version: rowVersion, deleted } = row;
+		const { id, version: rowVersion, deleted, ...args } = row;
+
 		if (deleted) {
 			if (rowVersion > fromVersion) {
 				patch.push({ op: "del", key: `message/${id}` });
 			}
 		} else {
-			patch.push({
-				op: "put",
-				key: `message/${id}`,
-				value: { from: sender, content, order: ord },
-			});
+			patch.push({ op: "put", key: `cell/${id}`, value: args });
 		}
 	}
 
