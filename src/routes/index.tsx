@@ -1,11 +1,16 @@
-import { ThemeToggle } from "~/components/modules/common/theme-toggle";
-import { CreateGameForm } from "~/components/modules/create-game/create-game-form";
+import {
+	FormLayout,
+	PageFooter,
+	PageTitle,
+} from "~/components/modules/common/layout";
+import { CreateGameCard } from "~/components/modules/create-game/create-game-card";
 
 export default function Home() {
 	return (
-		<main>
-			<ThemeToggle />
-			<CreateGameForm />
-		</main>
+		<FormLayout>
+			<PageTitle />
+			<CreateGameCard />
+			<PageFooter />
+		</FormLayout>
 	);
 }

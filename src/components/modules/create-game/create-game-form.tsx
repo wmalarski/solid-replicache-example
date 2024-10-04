@@ -1,20 +1,25 @@
 import { useSubmission } from "@solidjs/router";
-import type { Component } from "solid-js";
+import { type Component, Show } from "solid-js";
 import { useI18n } from "~/components/contexts/i18n";
-import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
 import { insertGameAction } from "~/server/replicache/client";
 import { flex } from "~/styled-system/patterns";
 
-export const CreateGameForm: Component = () => {
+type CreateGameFormProps = {
+	formId: string;
+};
+
+export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 	const { t } = useI18n();
 
 	const submission = useSubmission(insertGameAction);
 
 	return (
 		<form
+			id={props.formId}
 			action={insertGameAction}
-			class={flex({ gap: "4", alignItems: "flex-end" })}
+			method="post"
+			class={flex({ gap: "4", flexDirection: "column" })}
 		>
 			<Field.Root>
 				<Field.Label>{t("createBoard.name.label")}</Field.Label>
@@ -22,6 +27,9 @@ export const CreateGameForm: Component = () => {
 					name="name"
 					placeholder={t("createBoard.name.placeholder")}
 				/>
+				<Show when={submission.result?.errors?.name}>
+					<Field.ErrorText>{submission.result?.errors?.name}</Field.ErrorText>
+				</Show>
 			</Field.Root>
 
 			<Field.Root>
@@ -33,6 +41,9 @@ export const CreateGameForm: Component = () => {
 					name="width"
 					placeholder={t("createBoard.columns.placeholder")}
 				/>
+				<Show when={submission.result?.errors?.width}>
+					<Field.ErrorText>{submission.result?.errors?.width}</Field.ErrorText>
+				</Show>
 			</Field.Root>
 
 			<Field.Root>
@@ -44,6 +55,9 @@ export const CreateGameForm: Component = () => {
 					name="height"
 					placeholder={t("createBoard.rows.placeholder")}
 				/>
+				<Show when={submission.result?.errors?.height}>
+					<Field.ErrorText>{submission.result?.errors?.height}</Field.ErrorText>
+				</Show>
 			</Field.Root>
 
 			<Field.Root>
@@ -55,11 +69,10 @@ export const CreateGameForm: Component = () => {
 					name="mines"
 					placeholder={t("createBoard.mines.placeholder")}
 				/>
+				<Show when={submission.result?.errors?.mines}>
+					<Field.ErrorText>{submission.result?.errors?.mines}</Field.ErrorText>
+				</Show>
 			</Field.Root>
-
-			<Button type="submit" loading={submission.pending}>
-				{t("createBoard.button")}
-			</Button>
 		</form>
 	);
 };
