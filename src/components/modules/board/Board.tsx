@@ -45,27 +45,40 @@ const BoardCells: Component<BoardCellsProps> = (props) => {
 			.toArray();
 	}, []);
 
-	const neighbors = createMemo(() => {
-		const columns = props.width;
-		const rows = Math.floor(props.code.length / props.width);
-		const cellCodes = props.code.split("");
-
-		return getCellInfos({ cellCodes, columns, rows });
+	const cellInfos = createMemo(() => {
+		return getCellInfos({
+			cellCodes: props.code.split(""),
+			columns: props.width,
+			rows: Math.floor(props.code.length / props.width),
+		});
 	});
 
 	const cellsMap = createMemo(() => {
 		const cellsMap = new Map<number, GameCell>();
-
 		game.value.forEach(([_id, gameCell]) =>
 			cellsMap.set(gameCell.position, gameCell),
 		);
-
 		return cellsMap;
+	});
+
+	const uncovered = createMemo(() => {
+		const uncovered = new Set<number>();
+
+		game.value.forEach(([_id, gameCell]) => {
+			if (gameCell.clicked) {
+				uncovered.add(gameCell.position);
+				const cellInfo = cellInfos().get(gameCell.position);
+				cellInfo?.lake?.forEach((index) => uncovered.add(index));
+			}
+		});
+
+		return uncovered;
 	});
 
 	return (
 		<Stack>
 			<Grid
+				onContextMenu={(e) => e.preventDefault()}
 				style={{ "grid-template-columns": `repeat(${props.width}, 1fr)` }}
 				width="fit-content"
 				gap={0}
@@ -76,14 +89,20 @@ const BoardCells: Component<BoardCellsProps> = (props) => {
 							position={index()}
 							gameId={props.gameId}
 							cellCode={cellCode}
-							cell={cellsMap().get(index())}
+							cellState={cellsMap().get(index())}
+							cellInfo={cellInfos().get(index())}
+							isUncovered={uncovered().has(index())}
 						/>
 					)}
 				</For>
 			</Grid>
-			<pre>
-				{JSON.stringify(Object.fromEntries(neighbors().entries()), null, 2)}
-			</pre>
+			<pre>{JSON.stringify(Array.from(uncovered()), null, 2)}</pre>
+			<details>
+				<summary>Debug</summary>
+				<pre>
+					{JSON.stringify(Object.fromEntries(cellInfos().entries()), null, 2)}
+				</pre>
+			</details>
 			<pre>{JSON.stringify(game.value, null, 2)}</pre>
 		</Stack>
 	);

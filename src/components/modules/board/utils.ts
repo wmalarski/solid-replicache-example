@@ -1,8 +1,9 @@
-type CellInfo = {
+export type CellInfo = {
 	neighbors: number[];
 	crossNeighbors: number[];
 	count: number;
 	lake?: number[];
+	hasMine: boolean;
 };
 
 const getMinePositions = (cellCodes: string[]) => {
@@ -87,6 +88,7 @@ export const getCellInfos = ({
 		cellInfos.set(index, {
 			neighbors: positions,
 			crossNeighbors: crossPositions,
+			hasMine: minePositions.has(index),
 			count,
 		});
 	});
@@ -126,7 +128,7 @@ const updateLakes = ({ positionsWithZero, cellInfos }: UpdateLakesArgs) => {
 			}
 
 			cellInfos.set(index, { ...info, lake });
-			const zeroNeighbors = info.crossNeighbors.filter(
+			const zeroNeighbors = info.neighbors.filter(
 				(neighbor) =>
 					positionsWithZero.includes(neighbor) &&
 					!lake.includes(neighbor) &&
