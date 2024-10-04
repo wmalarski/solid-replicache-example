@@ -7,9 +7,11 @@ import {
 	onCleanup,
 	useContext,
 } from "solid-js";
+import { paths } from "~/utils/paths";
 
 const createWebsocket = () => {
-	const websocket = new WebSocket("http://localhost:3000/_ws");
+	const url = new URL(paths.websocket, window.origin);
+	const websocket = new WebSocket(url);
 
 	onCleanup(() => {
 		websocket.close();

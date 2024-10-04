@@ -6,6 +6,7 @@ import {
 } from "~/server/replicache/db";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
+import { getGameCellKey } from "./utils";
 
 type ProcessPullArgs = {
 	gameId: string;
@@ -39,14 +40,16 @@ export const processPull = async (
 	const patch: PatchOperation[] = [];
 
 	for (const row of changed) {
-		const { id, version: rowVersion, deleted, ...args } = row;
+		const { version: rowVersion, deleted, ...args } = row;
+
+		const key = getGameCellKey(row);
 
 		if (deleted) {
 			if (rowVersion > fromVersion) {
-				patch.push({ op: "del", key: `message/${id}` });
+				patch.push({ op: "del", key });
 			}
 		} else {
-			patch.push({ op: "put", key: `cell/${id}`, value: args });
+			patch.push({ op: "put", key, value: args });
 		}
 	}
 

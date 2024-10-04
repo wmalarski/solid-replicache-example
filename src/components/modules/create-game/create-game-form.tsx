@@ -1,3 +1,4 @@
+import { useSubmission } from "@solidjs/router";
 import type { Component } from "solid-js";
 import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
@@ -5,6 +6,8 @@ import { insertGameAction } from "~/server/replicache/client";
 import { flex } from "~/styled-system/patterns";
 
 export const CreateGameForm: Component = () => {
+	const submission = useSubmission(insertGameAction);
+
 	return (
 		<form
 			action={insertGameAction}
@@ -30,7 +33,9 @@ export const CreateGameForm: Component = () => {
 				<Field.Input min="10" max="90" type="number" name="mines" />
 			</Field.Root>
 
-			<Button>Submit</Button>
+			<Button type="submit" loading={submission.pending}>
+				Submit
+			</Button>
 		</form>
 	);
 };

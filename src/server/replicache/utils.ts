@@ -28,3 +28,21 @@ export const generateServerGameCode = ({
 
 	return code;
 };
+
+export const getGameKey = (gameId: string) => {
+	return `game/${gameId}/`;
+};
+
+type GetGameCellKeyArgs = {
+	gameId: string;
+	positionX: number;
+	positionY: number;
+};
+
+export const getGameCellKey = ({
+	gameId,
+	positionX,
+	positionY,
+}: GetGameCellKeyArgs) => {
+	return `${getGameKey(gameId)}${positionX}/${positionY}`;
+};

@@ -13,27 +13,10 @@ import {
 	useContext,
 } from "solid-js";
 import { createStore, reconcile } from "solid-js/store";
-import type { InsertCellArgs, UpdateCellArgs } from "~/server/cells/db";
+import type {} from "~/server/cells/db";
 import type { GameCell } from "~/server/cells/types";
+import { getGameCellKey, getGameKey } from "~/server/replicache/utils";
 import { createRealtimeSubscription } from "./realtime";
-
-export const getGameKey = (gameId: string) => {
-	return `game/${gameId}/`;
-};
-
-type GetGameCellKeyArgs = {
-	gameId: string;
-	positionX: number;
-	positionY: number;
-};
-
-export const getGameCellKey = ({
-	gameId,
-	positionX,
-	positionY,
-}: GetGameCellKeyArgs) => {
-	return `${getGameKey(gameId)}${positionX}/${positionY}`;
-};
 
 const createReplicache = (playerId: string, gameId: string) => {
 	const replicache = new Replicache({
@@ -44,12 +27,11 @@ const createReplicache = (playerId: string, gameId: string) => {
 		pullURL: `/api/${gameId}/pull`,
 		logLevel: "debug",
 		mutators: {
-			async insertCell(tx: WriteTransaction, args: InsertCellArgs) {
+			async insertCell(tx: WriteTransaction, args: GameCell) {
 				await tx.set(getGameCellKey(args), args);
 			},
-			async updateCell(tx: WriteTransaction, args: UpdateCellArgs) {
-				const withGameId = { ...args, gameId };
-				await tx.set(getGameCellKey(withGameId), withGameId);
+			async updateCell(tx: WriteTransaction, args: GameCell) {
+				await tx.set(getGameCellKey(args), args);
 			},
 			async deleteCells(tx: WriteTransaction) {
 				const cells = await tx
