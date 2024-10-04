@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@ark-ui/solid':
-        specifier: ^4.1.0
-        version: 4.1.0(solid-js@1.9.1)
+        specifier: ^4.2.0
+        version: 4.2.0(solid-js@1.9.1)
       '@libsql/client':
         specifier: ^0.14.0
         version: 0.14.0
@@ -79,8 +79,8 @@ packages:
   '@ark-ui/anatomy@3.5.0':
     resolution: {integrity: sha512-KoROLVVT23BvFHcye/GYhG8NJ2CH0C+CaoJhXrkEjvk8pbEx80Xk5NIUy5gL7xmX+LDD7kY5t3NotBqCu+2L2w==}
 
-  '@ark-ui/solid@4.1.0':
-    resolution: {integrity: sha512-jH7oEmcLoKuc8AAKlS7f/zcGsjwca3uJUKr9Im7SYlNBbAHYm+RI/sHdr7/UeKMnVdMq9a8+/VqGhBd0kalTbA==}
+  '@ark-ui/solid@4.2.0':
+    resolution: {integrity: sha512-LYVzCq2v086HpXaZ/Ex7ZLUWgZgbzjJwdr19BQq5R8UQCRe26S4IVLa+BgA+v1iLecbRh7Ht31WUqbeV8NXIBA==}
     peerDependencies:
       solid-js: '>=1.6.0'
 
@@ -3812,7 +3812,7 @@ snapshots:
     transitivePeerDependencies:
       - '@internationalized/date'
 
-  '@ark-ui/solid@4.1.0(solid-js@1.9.1)':
+  '@ark-ui/solid@4.2.0(solid-js@1.9.1)':
     dependencies:
       '@internationalized/date': 3.5.5
       '@zag-js/accordion': 0.73.0

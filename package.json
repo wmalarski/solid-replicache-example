@@ -14,7 +14,7 @@
 		"db:migrate": "drizzle-kit migrate"
 	},
 	"dependencies": {
-		"@ark-ui/solid": "^4.1.0",
+		"@ark-ui/solid": "^4.2.0",
 		"@libsql/client": "^0.14.0",
 		"@solidjs/meta": "^0.29.4",
 		"@solidjs/router": "^0.14.7",
