@@ -63,6 +63,8 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 				height: 6,
 				"&:focus,\n\t&:hover": { background: "#BCBCBC" },
 			})}
-		/>
+		>
+			{props.position}
+		</button>
 	);
 };
