@@ -38,7 +38,10 @@ type BoardCellsProps = {
 
 const BoardCells: Component<BoardCellsProps> = (props) => {
 	const game = createSubscription(async (tx) => {
-		return tx.scan<GameCell[]>({ prefix: getGameKey(props.gameId) }).toArray();
+		return tx
+			.scan<GameCell>({ prefix: getGameKey(props.gameId) })
+			.entries()
+			.toArray();
 	}, []);
 
 	const cellsMap = createMemo(() => {

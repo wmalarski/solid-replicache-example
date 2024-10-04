@@ -12,4 +12,6 @@ export const POST = async (event: APIEvent) => {
 	await ctx.db.transaction(async (transaction) =>
 		processPush(ctx, transaction, { gameId, push }),
 	);
+
+	return {};
 };
