@@ -3,6 +3,12 @@ import { type Component, Show } from "solid-js";
 import { useI18n } from "~/components/contexts/i18n";
 import { Field } from "~/components/ui/field";
 import { insertGameAction } from "~/server/replicache/client";
+import {
+	BOARD_MAX_MINES,
+	BOARD_MAX_SIZE,
+	BOARD_MIN_MINES,
+	BOARD_MIN_SIZE,
+} from "~/server/replicache/const";
 import { flex } from "~/styled-system/patterns";
 
 type CreateGameFormProps = {
@@ -26,6 +32,7 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 				<Field.Input
 					name="name"
 					placeholder={t("createBoard.name.placeholder")}
+					required
 				/>
 				<Show when={submission.result?.errors?.name}>
 					<Field.ErrorText>{submission.result?.errors?.name}</Field.ErrorText>
@@ -35,11 +42,12 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 			<Field.Root>
 				<Field.Label>{t("createBoard.columns.label")}</Field.Label>
 				<Field.Input
-					min="5"
-					max="20"
+					min={BOARD_MIN_SIZE}
+					max={BOARD_MAX_SIZE}
 					type="number"
 					name="width"
 					placeholder={t("createBoard.columns.placeholder")}
+					required
 				/>
 				<Show when={submission.result?.errors?.width}>
 					<Field.ErrorText>{submission.result?.errors?.width}</Field.ErrorText>
@@ -49,11 +57,12 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 			<Field.Root>
 				<Field.Label>{t("createBoard.rows.label")}</Field.Label>
 				<Field.Input
-					min="5"
-					max="20"
+					min={BOARD_MIN_SIZE}
+					max={BOARD_MAX_SIZE}
 					type="number"
 					name="height"
 					placeholder={t("createBoard.rows.placeholder")}
+					required
 				/>
 				<Show when={submission.result?.errors?.height}>
 					<Field.ErrorText>{submission.result?.errors?.height}</Field.ErrorText>
@@ -63,11 +72,12 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 			<Field.Root>
 				<Field.Label>{t("createBoard.mines.label")}</Field.Label>
 				<Field.Input
-					min="10"
-					max="90"
+					min={BOARD_MIN_MINES}
+					max={BOARD_MAX_MINES}
 					type="number"
 					name="mines"
 					placeholder={t("createBoard.mines.placeholder")}
+					required
 				/>
 				<Show when={submission.result?.errors?.mines}>
 					<Field.ErrorText>{submission.result?.errors?.mines}</Field.ErrorText>

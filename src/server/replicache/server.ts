@@ -5,15 +5,33 @@ import * as v from "valibot";
 import { paths } from "~/utils/paths";
 import { getServerContext } from "../context";
 import { getRequestEventOrThrow, rpcParseIssueResult } from "../utils";
+import {
+	BOARD_MAX_MINES,
+	BOARD_MAX_SIZE,
+	BOARD_MIN_MINES,
+	BOARD_MIN_SIZE,
+} from "./const";
 import { insertGame, selectGame } from "./db";
 
 export const insertGameServerAction = async (formData: FormData) => {
 	const parsed = await v.safeParseAsync(
 		v.object({
-			width: v.number(),
-			height: v.number(),
+			width: v.pipe(
+				v.number(),
+				v.minValue(BOARD_MIN_SIZE),
+				v.maxValue(BOARD_MAX_SIZE),
+			),
+			height: v.pipe(
+				v.number(),
+				v.minValue(BOARD_MIN_SIZE),
+				v.maxValue(BOARD_MAX_SIZE),
+			),
 			name: v.string(),
-			mines: v.number(),
+			mines: v.pipe(
+				v.number(),
+				v.minValue(BOARD_MIN_MINES),
+				v.maxValue(BOARD_MAX_MINES),
+			),
 		}),
 		decode(formData, { numbers: ["mines", "height", "width"] }),
 	);
