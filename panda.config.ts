@@ -8,4 +8,10 @@ export default defineConfig({
 	exclude: [],
 	jsxFramework: "solid",
 	outdir: "src/styled-system",
+	conditions: {
+		extend: {
+			light: "[data-color-mode=light] &",
+			dark: "[data-color-mode=dark] &",
+		},
+	},
 });

@@ -4,6 +4,7 @@
 		"codegen",
 		"formdata",
 		"libsql",
+		"outdir",
 		"pandacss",
 		"Replicache",
 		"solidjs",
