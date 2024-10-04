@@ -6,6 +6,7 @@ import {
 } from "~/components/contexts/replicache";
 import type { GameCell } from "~/server/cells/types";
 import { getGameCellKey } from "~/server/replicache/utils";
+import { css } from "~/styled-system/css";
 
 type BoardCellProps = {
 	cellCode: string;
@@ -48,8 +49,25 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 	};
 
 	return (
-		<button onClick={onClick} type="button">
-			{JSON.stringify({ cell: cell.value, cellCode: props.cellCode }, null, 2)}
-		</button>
+		<button
+			onClick={onClick}
+			type="button"
+			aria-label="block"
+			class={css({
+				background: "#7C7C7C",
+				borderBottom: "4px inset rgba(0,0,0,.5)",
+				borderLeft: "4px inset rgba(0,0,0,.5)",
+				borderRight: "4px inset rgba(255,255,255,.5)",
+				borderTop: "4px inset rgba(255,255,255,.5)",
+				boxSizing: "border-box",
+				color: "white",
+				cursor: "pointer",
+				display: "inline-block",
+				textTransform: "uppercase",
+				width: 6,
+				height: 6,
+				"&:focus,\n\t&:hover": { background: "#BCBCBC" },
+			})}
+		/>
 	);
 };

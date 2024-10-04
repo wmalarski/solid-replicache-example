@@ -33,7 +33,11 @@ type BoardCellsProps = {
 
 const BoardCells: Component<BoardCellsProps> = (props) => {
 	return (
-		<Grid columnCount={props.width}>
+		<Grid
+			style={{ "grid-template-columns": `repeat(${props.width}, 1fr)` }}
+			width="fit-content"
+			gap={0}
+		>
 			<For each={[...props.code]}>
 				{(cellCode, index) => (
 					<BoardCell

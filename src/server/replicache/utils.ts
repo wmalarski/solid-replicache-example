@@ -10,7 +10,7 @@ export const generateServerGameCode = ({
 	width,
 }: GenerateServerGameCodeArgs) => {
 	const all = height * width;
-	const mineCount = Math.max(Math.floor(all * mines), 1);
+	const mineCount = Math.max(Math.floor((all * mines) / 100), 1);
 
 	const mineIndexes = new Set(
 		Array.from({ length: all }, (_v, index) => ({
@@ -24,7 +24,7 @@ export const generateServerGameCode = ({
 
 	const code = Array.from({ length: all }, (_v, index) =>
 		mineIndexes.has(index) ? "X" : "0",
-	).join();
+	).join("");
 
 	return code;
 };
