@@ -6,7 +6,7 @@ import {
 } from "~/components/contexts/replicache";
 import type { GameCell } from "~/server/cells/types";
 import { getGameKey } from "~/server/replicache/utils";
-import { Grid, Stack } from "~/styled-system/jsx";
+import { Grid } from "~/styled-system/jsx";
 import { BoardCell } from "./board-cell";
 import { getCellInfos } from "./utils";
 
@@ -76,34 +76,24 @@ const BoardCells: Component<BoardCellsProps> = (props) => {
 	});
 
 	return (
-		<Stack>
-			<Grid
-				onContextMenu={(e) => e.preventDefault()}
-				style={{ "grid-template-columns": `repeat(${props.width}, 1fr)` }}
-				width="fit-content"
-				gap={0}
-			>
-				<For each={[...props.code]}>
-					{(cellCode, index) => (
-						<BoardCell
-							position={index()}
-							gameId={props.gameId}
-							cellCode={cellCode}
-							cellState={cellsMap().get(index())}
-							cellInfo={cellInfos().get(index())}
-							isUncovered={uncovered().has(index())}
-						/>
-					)}
-				</For>
-			</Grid>
-			<pre>{JSON.stringify(Array.from(uncovered()), null, 2)}</pre>
-			<details>
-				<summary>Debug</summary>
-				<pre>
-					{JSON.stringify(Object.fromEntries(cellInfos().entries()), null, 2)}
-				</pre>
-			</details>
-			<pre>{JSON.stringify(game.value, null, 2)}</pre>
-		</Stack>
+		<Grid
+			onContextMenu={(e) => e.preventDefault()}
+			style={{ "grid-template-columns": `repeat(${props.width}, 1fr)` }}
+			width="fit-content"
+			gap={0}
+		>
+			<For each={[...props.code]}>
+				{(cellCode, index) => (
+					<BoardCell
+						position={index()}
+						gameId={props.gameId}
+						cellCode={cellCode}
+						cellState={cellsMap().get(index())}
+						cellInfo={cellInfos().get(index())}
+						isUncovered={uncovered().has(index())}
+					/>
+				)}
+			</For>
+		</Grid>
 	);
 };

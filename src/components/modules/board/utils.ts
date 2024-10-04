@@ -1,6 +1,5 @@
 export type CellInfo = {
 	neighbors: number[];
-	crossNeighbors: number[];
 	count: number;
 	lake?: number[];
 	hasMine: boolean;
@@ -38,21 +37,17 @@ const getNeighborsPositions = ({
 	const toY = Math.min(rows - 1, cellY + 1);
 
 	const positions: number[] = [];
-	const crossPositions: number[] = [];
 
 	for (let x = fromX; x <= toX; x++) {
 		for (let y = fromY; y <= toY; y++) {
 			const position = y * columns + x;
 			if (position !== index) {
 				positions.push(position);
-				if (x === cellX || y === cellY) {
-					crossPositions.push(position);
-				}
 			}
 		}
 	}
 
-	return { positions, crossPositions };
+	return positions;
 };
 
 type GetCellInfosArgs = {
@@ -71,7 +66,7 @@ export const getCellInfos = ({
 	const positionsWithZero = new Array<number>();
 
 	cellCodes.forEach((_cellCode, index) => {
-		const { crossPositions, positions } = getNeighborsPositions({
+		const positions = getNeighborsPositions({
 			index,
 			columns,
 			rows,
@@ -87,7 +82,6 @@ export const getCellInfos = ({
 
 		cellInfos.set(index, {
 			neighbors: positions,
-			crossNeighbors: crossPositions,
 			hasMine: minePositions.has(index),
 			count,
 		});
