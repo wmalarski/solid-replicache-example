@@ -19,6 +19,6 @@ export const getAppThemeCookie = () => {
 
 export const getAppThemeServerLoader = () => {
 	return Promise.resolve(
-		v.parse(appThemeSchema(), getAppThemeCookie() || "dracula"),
+		v.parse(appThemeSchema(), getAppThemeCookie() || "light"),
 	);
 };
