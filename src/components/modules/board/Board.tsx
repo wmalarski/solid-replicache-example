@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import { type Component, For, createMemo } from "solid-js";
 import { RealtimeProvider } from "~/components/contexts/realtime";
 import {
@@ -39,8 +38,9 @@ type BoardCellsProps = {
 
 type CellInfo = {
 	neighbors: number[];
+	crossNeighbors: number[];
 	count: number;
-	zeroLake?: string;
+	lake?: number[];
 };
 
 const BoardCells: Component<BoardCellsProps> = (props) => {
@@ -76,12 +76,16 @@ const BoardCells: Component<BoardCellsProps> = (props) => {
 			const toY = Math.min(rows - 1, cellY + 1);
 
 			const positions: number[] = [];
+			const crossPositions: number[] = [];
 
 			for (let x = fromX; x <= toX; x++) {
 				for (let y = fromY; y <= toY; y++) {
 					const position = y * columns + x;
 					if (position !== index) {
 						positions.push(position);
+						if (x === cellX || y === cellY) {
+							crossPositions.push(position);
+						}
 					}
 				}
 			}
@@ -94,19 +98,19 @@ const BoardCells: Component<BoardCellsProps> = (props) => {
 				positionsWithZero.push(index);
 			}
 
-			cellInfos.set(index, { neighbors: positions, count });
+			cellInfos.set(index, {
+				neighbors: positions,
+				crossNeighbors: crossPositions,
+				count,
+			});
 		});
 
-		const lakes = new Map<string, number[]>();
-
 		positionsWithZero.forEach((position) => {
-			if (cellInfos.get(position)?.zeroLake) {
+			if (cellInfos.get(position)?.lake) {
 				return;
 			}
 
-			const lakeId = nanoid();
 			const lake = new Array<number>();
-			lakes.set(lakeId, lake);
 			const queue = [position];
 
 			while (queue.length > 0) {
@@ -124,20 +128,24 @@ const BoardCells: Component<BoardCellsProps> = (props) => {
 					continue;
 				}
 
-				cellInfos.set(index, { ...info, zeroLake: lakeId });
-				const zeroNeighbors = info.neighbors.filter(
+				cellInfos.set(index, { ...info, lake });
+				const zeroNeighbors = info.crossNeighbors.filter(
 					(neighbor) =>
 						positionsWithZero.includes(neighbor) &&
 						!lake.includes(neighbor) &&
 						!queue.includes(neighbor),
 				);
 
-				console.log({ zeroNeighbors, index });
-
 				queue.push(...zeroNeighbors);
 			}
 
-			console.log({ lakeId, lake, queue });
+			const all = new Set(
+				lake
+					.flatMap((index) => cellInfos.get(index)?.neighbors ?? [])
+					.filter((index) => !lake.includes(index)),
+			);
+
+			lake.push(...all);
 		});
 
 		return cellInfos;
