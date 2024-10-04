@@ -11,8 +11,8 @@ import { css } from "~/styled-system/css";
 type BoardCellProps = {
 	cellCode: string;
 	gameId: string;
-	positionX: number;
-	positionY: number;
+	position: number;
+	cell?: GameCell;
 };
 
 export const BoardCell: Component<BoardCellProps> = (props) => {
@@ -20,11 +20,7 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 
 	const cell = createSubscription(async (tx) => {
 		return tx.get<GameCell>(
-			getGameCellKey({
-				gameId: props.gameId,
-				positionX: props.positionX,
-				positionY: props.positionY,
-			}),
+			getGameCellKey({ gameId: props.gameId, position: props.position }),
 		);
 	});
 
@@ -35,8 +31,7 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 			id: cell.value?.id || nanoid(),
 			clicked: true,
 			marked: false,
-			positionX: props.positionX,
-			positionY: props.positionY,
+			position: props.position,
 			gameId: props.gameId,
 		};
 

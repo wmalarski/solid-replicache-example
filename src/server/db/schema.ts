@@ -21,8 +21,7 @@ export const ReplicacheClient = sqliteTable("replicache_client", {
 export const Cell = sqliteTable("cell", {
 	id: text("id").primaryKey().unique().notNull(),
 	gameId: text("game_id").notNull(),
-	positionX: integer("position_x").notNull(),
-	positionY: integer("position_y").notNull(),
+	position: integer("position").notNull(),
 	marked: integer("marked", { mode: "boolean" }).notNull(),
 	clicked: integer("clicked", { mode: "boolean" }).notNull(),
 	deleted: integer("deleted", { mode: "boolean" }).notNull(),

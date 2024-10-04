@@ -47,8 +47,6 @@ export type UpdateCellArgs = {
 	id: string;
 	marked: boolean;
 	clicked: boolean;
-	positionX: number;
-	positionY: number;
 };
 
 export const updateCell = (

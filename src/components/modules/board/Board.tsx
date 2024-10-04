@@ -1,7 +1,12 @@
-import { type Component, For } from "solid-js";
+import { type Component, For, createMemo } from "solid-js";
 import { RealtimeProvider } from "~/components/contexts/realtime";
-import { ReplicacheProvider } from "~/components/contexts/replicache";
-import { Grid } from "~/styled-system/jsx";
+import {
+	ReplicacheProvider,
+	createSubscription,
+} from "~/components/contexts/replicache";
+import type { GameCell } from "~/server/cells/types";
+import { getGameKey } from "~/server/replicache/utils";
+import { Grid, Stack } from "~/styled-system/jsx";
 import { BoardCell } from "./board-cell";
 
 type BoardProps = {
@@ -32,22 +37,39 @@ type BoardCellsProps = {
 };
 
 const BoardCells: Component<BoardCellsProps> = (props) => {
+	const game = createSubscription(async (tx) => {
+		return tx.scan<GameCell[]>({ prefix: getGameKey(props.gameId) }).toArray();
+	}, []);
+
+	const cellsMap = createMemo(() => {
+		const cellsMap = new Map<number, GameCell>();
+
+		game.value.forEach(([_id, gameCell]) =>
+			cellsMap.set(gameCell.position, gameCell),
+		);
+
+		return cellsMap;
+	});
+
 	return (
-		<Grid
-			style={{ "grid-template-columns": `repeat(${props.width}, 1fr)` }}
-			width="fit-content"
-			gap={0}
-		>
-			<For each={[...props.code]}>
-				{(cellCode, index) => (
-					<BoardCell
-						positionX={index() % props.width}
-						positionY={Math.floor(index() / props.width)}
-						cellCode={cellCode}
-						gameId={props.gameId}
-					/>
-				)}
-			</For>
-		</Grid>
+		<Stack>
+			<Grid
+				style={{ "grid-template-columns": `repeat(${props.width}, 1fr)` }}
+				width="fit-content"
+				gap={0}
+			>
+				<For each={[...props.code]}>
+					{(cellCode, index) => (
+						<BoardCell
+							position={index()}
+							gameId={props.gameId}
+							cellCode={cellCode}
+							cell={cellsMap().get(index())}
+						/>
+					)}
+				</For>
+			</Grid>
+			<pre>{JSON.stringify(game.value, null, 2)}</pre>
+		</Stack>
 	);
 };

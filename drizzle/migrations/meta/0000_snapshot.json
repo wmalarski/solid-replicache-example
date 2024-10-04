@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "42276445-8b26-44fa-8e69-0139de949b5d",
+  "id": "cccb70e4-99d4-404a-b265-c7c3c9ba2a68",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "cell": {
@@ -21,15 +21,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "position_x": {
-          "name": "position_x",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "position_y": {
-          "name": "position_y",
+        "position": {
+          "name": "position",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,

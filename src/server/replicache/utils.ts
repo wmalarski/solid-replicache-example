@@ -35,14 +35,9 @@ export const getGameKey = (gameId: string) => {
 
 type GetGameCellKeyArgs = {
 	gameId: string;
-	positionX: number;
-	positionY: number;
+	position: number;
 };
 
-export const getGameCellKey = ({
-	gameId,
-	positionX,
-	positionY,
-}: GetGameCellKeyArgs) => {
-	return `${getGameKey(gameId)}${positionX}/${positionY}`;
+export const getGameCellKey = ({ gameId, position }: GetGameCellKeyArgs) => {
+	return `${getGameKey(gameId)}${position}`;
 };

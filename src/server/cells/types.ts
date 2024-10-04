@@ -1,8 +1,7 @@
 export type GameCell = {
 	id: string;
 	gameId: string;
-	positionX: number;
-	positionY: number;
+	position: number;
 	marked: boolean;
 	clicked: boolean;
 };
