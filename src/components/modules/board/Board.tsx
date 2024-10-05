@@ -4,6 +4,7 @@ import { ReplicacheProvider } from "~/components/contexts/replicache";
 import type { SelectGameResult } from "~/server/replicache/db";
 import { HStack, Stack } from "~/styled-system/jsx";
 import { BoardGrid } from "./board-grid";
+import { GameDataProvider } from "./game-provider";
 import { RestartGameDialog } from "./restart-game-dialog";
 
 type BoardProps = {
@@ -16,21 +17,18 @@ export default function Board(props: BoardProps) {
 	return (
 		<RealtimeProvider>
 			<ReplicacheProvider playerId={props.playerId} gameId={props.gameId}>
-				<Stack>
-					<BoardTopBar game={props.game} gameId={props.gameId} />
-					<BoardGrid gameId={props.gameId} game={props.game} />
-				</Stack>
+				<GameDataProvider game={props.game} gameId={props.gameId}>
+					<Stack>
+						<BoardTopBar />
+						<BoardGrid gameId={props.gameId} game={props.game} />
+					</Stack>
+				</GameDataProvider>
 			</ReplicacheProvider>
 		</RealtimeProvider>
 	);
 }
 
-type BoardTopBarProps = {
-	gameId: string;
-	game: SelectGameResult;
-};
-
-const BoardTopBar: Component<BoardTopBarProps> = (props) => {
+const BoardTopBar: Component = () => {
 	// const gameCells = createSubscription(async (tx) => {
 	// 	const array = await tx
 	// 		.scan<GameCell>({ prefix: getGameKey(props.gameId) })
@@ -44,7 +42,7 @@ const BoardTopBar: Component<BoardTopBarProps> = (props) => {
 	return (
 		<HStack>
 			<MinesLeftCounter />
-			<RestartGameDialog initialData={props.game} hasClickedMine />
+			<RestartGameDialog hasClickedMine />
 			<SecondsCounter />
 		</HStack>
 	);

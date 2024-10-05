@@ -1,4 +1,5 @@
 export type CellInfo = {
+	position: number;
 	neighbors: number[];
 	count: number;
 	lake?: number[];
@@ -81,6 +82,7 @@ export const getCellInfos = ({
 		}
 
 		cellInfos.set(index, {
+			position: index,
 			neighbors: positions,
 			hasMine: minePositions.has(index),
 			count,

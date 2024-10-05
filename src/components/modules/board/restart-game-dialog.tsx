@@ -5,18 +5,17 @@ import { Dialog, DialogCloseXTrigger } from "~/components/ui/dialog";
 import { IconButton } from "~/components/ui/icon-button";
 import { FrownIcon, SmileIcon } from "~/components/ui/icons";
 import { Stack } from "~/styled-system/jsx";
-import {
-	CreateGameForm,
-	type CreateGameFormData,
-} from "../create-game/create-game-form";
+import { CreateGameForm } from "../create-game/create-game-form";
+import { useGameData } from "./game-provider";
 
 type RestartGameDialogProps = {
-	initialData: CreateGameFormData;
 	hasClickedMine: boolean;
 };
 
 export const RestartGameDialog: Component<RestartGameDialogProps> = (props) => {
 	const { t } = useI18n();
+
+	const game = useGameData();
 
 	const formId = createUniqueId();
 
@@ -36,7 +35,7 @@ export const RestartGameDialog: Component<RestartGameDialogProps> = (props) => {
 					<Stack gap="8" p="6">
 						<Stack gap="1">
 							<Dialog.Title>{t("createBoard.title")}</Dialog.Title>
-							<CreateGameForm initialData={props.initialData} formId={formId} />
+							<CreateGameForm initialData={game().game} formId={formId} />
 						</Stack>
 						<Stack gap="3" direction="row" width="full">
 							<Button type="submit" form={formId} width="full">
