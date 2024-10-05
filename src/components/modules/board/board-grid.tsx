@@ -13,13 +13,6 @@ type BoardGridProps = {
 };
 
 export const BoardGrid: Component<BoardGridProps> = (props) => {
-	const game = createSubscription(async (tx) => {
-		return tx
-			.scan<GameCell>({ prefix: getGameKey(props.gameId) })
-			.entries()
-			.toArray();
-	}, []);
-
 	const cellInfos = createMemo(() => {
 		return getCellInfos({
 			cellCodes: props.game.code.split(""),
@@ -28,9 +21,17 @@ export const BoardGrid: Component<BoardGridProps> = (props) => {
 		});
 	});
 
+	const gameCells = createSubscription(async (tx) => {
+		const array = await tx
+			.scan<GameCell>({ prefix: getGameKey(props.gameId) })
+			.entries()
+			.toArray();
+		return array.map(([_id, gameCell]) => gameCell);
+	}, []);
+
 	const cellsMap = createMemo(() => {
 		const cellsMap = new Map<number, GameCell>();
-		game.value.forEach(([_id, gameCell]) =>
+		gameCells.value.forEach((gameCell) =>
 			cellsMap.set(gameCell.position, gameCell),
 		);
 		return cellsMap;
@@ -39,7 +40,7 @@ export const BoardGrid: Component<BoardGridProps> = (props) => {
 	const uncovered = createMemo(() => {
 		const uncovered = new Set<number>();
 
-		game.value.forEach(([_id, gameCell]) => {
+		gameCells.value.forEach((gameCell) => {
 			if (gameCell.clicked) {
 				uncovered.add(gameCell.position);
 				const cellInfo = cellInfos().get(gameCell.position);

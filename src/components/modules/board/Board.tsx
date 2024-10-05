@@ -17,7 +17,7 @@ export default function Board(props: BoardProps) {
 		<RealtimeProvider>
 			<ReplicacheProvider playerId={props.playerId} gameId={props.gameId}>
 				<Stack>
-					<BoardTopBar game={props.game} />
+					<BoardTopBar game={props.game} gameId={props.gameId} />
 					<BoardGrid gameId={props.gameId} game={props.game} />
 				</Stack>
 			</ReplicacheProvider>
@@ -26,14 +26,25 @@ export default function Board(props: BoardProps) {
 }
 
 type BoardTopBarProps = {
+	gameId: string;
 	game: SelectGameResult;
 };
 
 const BoardTopBar: Component<BoardTopBarProps> = (props) => {
+	// const gameCells = createSubscription(async (tx) => {
+	// 	const array = await tx
+	// 		.scan<GameCell>({ prefix: getGameKey(props.gameId) })
+	// 		.entries()
+	// 		.toArray();
+
+	//     array.
+	// 	// return array.map(([_id, gameCell]) => gameCell);
+	// }, []);
+
 	return (
 		<HStack>
 			<MinesLeftCounter />
-			<RestartGameDialog initialData={props.game} />
+			<RestartGameDialog initialData={props.game} hasClickedMine />
 			<SecondsCounter />
 		</HStack>
 	);

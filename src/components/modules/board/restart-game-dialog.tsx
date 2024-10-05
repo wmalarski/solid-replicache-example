@@ -1,7 +1,9 @@
-import { type Component, createUniqueId } from "solid-js";
+import { type Component, Show, createUniqueId } from "solid-js";
 import { useI18n } from "~/components/contexts/i18n";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogCloseXTrigger } from "~/components/ui/dialog";
+import { IconButton } from "~/components/ui/icon-button";
+import { FrownIcon, SmileIcon } from "~/components/ui/icons";
 import { Stack } from "~/styled-system/jsx";
 import {
 	CreateGameForm,
@@ -10,6 +12,7 @@ import {
 
 type RestartGameDialogProps = {
 	initialData: CreateGameFormData;
+	hasClickedMine: boolean;
 };
 
 export const RestartGameDialog: Component<RestartGameDialogProps> = (props) => {
@@ -19,8 +22,13 @@ export const RestartGameDialog: Component<RestartGameDialogProps> = (props) => {
 
 	return (
 		<Dialog.Root>
-			<Dialog.Trigger asChild={(props) => <Button {...props()} />}>
-				Open Dialog
+			<Dialog.Trigger
+				asChild={(props) => <IconButton {...props()} />}
+				aria-label="Reset"
+			>
+				<Show when={props.hasClickedMine} fallback={<SmileIcon />}>
+					<FrownIcon />
+				</Show>
 			</Dialog.Trigger>
 			<Dialog.Backdrop />
 			<Dialog.Positioner>
