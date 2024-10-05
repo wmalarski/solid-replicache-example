@@ -1,5 +1,10 @@
 import { nanoid } from "nanoid";
-import { type Component, type ComponentProps, Show } from "solid-js";
+import {
+	type Component,
+	type ComponentProps,
+	Show,
+	createMemo,
+} from "solid-js";
 import {
 	createSubscription,
 	useReplicacheContext,
@@ -7,18 +12,9 @@ import {
 import type { GameCell } from "~/server/cells/types";
 import { getGameCellKey } from "~/server/replicache/utils";
 import { type RecipeVariant, cva } from "~/styled-system/css";
-import type { CellInfo } from "./utils";
+import { useGameData } from "./game-provider";
 
 const RIGHT_BUTTON = 2;
-
-type BoardCellProps = {
-	cellCode: string;
-	gameId: string;
-	position: number;
-	cellState?: GameCell;
-	cellInfo?: CellInfo;
-	isUncovered: boolean;
-};
 
 const buttonStyles = cva({
 	base: {
@@ -57,21 +53,29 @@ const buttonStyles = cva({
 
 type ButtonVariants = RecipeVariant<typeof buttonStyles>;
 
+type BoardCellProps = {
+	position: number;
+	isUncovered: boolean;
+};
+
 export const BoardCell: Component<BoardCellProps> = (props) => {
 	const rep = useReplicacheContext();
+	const game = useGameData();
+
+	const config = createMemo(() => {
+		return game().config.get(props.position);
+	});
 
 	const cell = createSubscription(async (tx) => {
 		return tx.get<GameCell>(
-			getGameCellKey({ gameId: props.gameId, position: props.position }),
+			getGameCellKey({ gameId: game().gameId, position: props.position }),
 		);
 	});
 
 	const onMouseUp: ComponentProps<"button">["onClick"] = async (event) => {
-		const common = { position: props.position, gameId: props.gameId };
+		const common = { position: props.position, gameId: game().gameId };
 
-		console.log("event", props.isUncovered, cell.value, event.button);
-
-		if (props.cellState?.clicked) {
+		if (cell.value?.clicked) {
 			return;
 		}
 
@@ -98,16 +102,14 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 			type="button"
 			aria-label="block"
 			class={buttonStyles({
-				color: (props.cellInfo?.count ?? 0) as ButtonVariants["color"],
+				color: (config()?.count ?? 0) as ButtonVariants["color"],
 				uncovered: props.isUncovered,
 			})}
 		>
-			<Show when={!props.cellState?.marked} fallback="F">
+			<Show when={!cell.value?.marked} fallback="F">
 				<Show when={props.isUncovered}>
-					<Show when={!props.cellInfo?.hasMine} fallback="M">
-						<Show when={props.cellInfo && props.cellInfo?.count > 0}>
-							{props.cellInfo?.count}
-						</Show>
+					<Show when={!config()?.hasMine} fallback="M">
+						<Show when={(config()?.count ?? 0) > 0}>{config()?.count}</Show>
 					</Show>
 				</Show>
 			</Show>

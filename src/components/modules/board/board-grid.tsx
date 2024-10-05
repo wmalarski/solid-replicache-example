@@ -1,5 +1,4 @@
 import { type Component, For, createMemo } from "solid-js";
-import type { GameCell } from "~/server/cells/types";
 import type { SelectGameResult } from "~/server/replicache/db";
 import { Grid } from "~/styled-system/jsx";
 import { BoardCell } from "./board-cell";
@@ -13,24 +12,17 @@ type BoardGridProps = {
 export const BoardGrid: Component<BoardGridProps> = (props) => {
 	const game = useGameData();
 
-	const cellsMap = createMemo(() => {
-		const cellsMap = new Map<number, GameCell>();
-		game().cells.value.forEach((gameCell) =>
-			cellsMap.set(gameCell.position, gameCell),
-		);
-		return cellsMap;
-	});
-
 	const uncovered = createMemo(() => {
 		const uncovered = new Set<number>();
+		const { cells, config } = game();
 
-		game().cells.value.forEach((gameCell) => {
-			if (gameCell.clicked) {
-				uncovered.add(gameCell.position);
-				const cellInfo = game().config.get(gameCell.position);
+		cells.value.forEach((cell) => {
+			if (cell.clicked) {
+				uncovered.add(cell.position);
+				const cellConfig = config.get(cell.position);
 
-				if (!cellInfo?.hasMine) {
-					cellInfo?.lake?.forEach((index) => uncovered.add(index));
+				if (!cellConfig?.hasMine) {
+					cellConfig?.lake?.forEach((index) => uncovered.add(index));
 				}
 			}
 		});
@@ -46,13 +38,9 @@ export const BoardGrid: Component<BoardGridProps> = (props) => {
 			gap={0}
 		>
 			<For each={[...props.game.code]}>
-				{(cellCode, index) => (
+				{(_cellCode, index) => (
 					<BoardCell
 						position={index()}
-						gameId={props.gameId}
-						cellCode={cellCode}
-						cellState={cellsMap().get(index())}
-						cellInfo={game().config.get(index())}
 						isUncovered={uncovered().has(index())}
 					/>
 				)}
