@@ -25,8 +25,7 @@ export default function GamePage() {
 					<Show when={game()}>
 						{(game) => (
 							<Board
-								code={game().code}
-								width={game().width}
+								game={game()}
 								gameId={params.gameId}
 								playerId={player().id}
 							/>

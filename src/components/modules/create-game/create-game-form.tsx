@@ -11,8 +11,16 @@ import {
 } from "~/server/replicache/const";
 import { flex } from "~/styled-system/patterns";
 
+export type CreateGameFormData = {
+	name: string;
+	width: number;
+	height: number;
+	mines: number;
+};
+
 type CreateGameFormProps = {
 	formId: string;
+	initialData?: CreateGameFormData;
 };
 
 export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
@@ -33,6 +41,7 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 					name="name"
 					placeholder={t("createBoard.name.placeholder")}
 					required
+					value={props.initialData?.name}
 				/>
 				<Show when={submission.result?.errors?.name}>
 					<Field.ErrorText>{submission.result?.errors?.name}</Field.ErrorText>
@@ -46,6 +55,7 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 					max={BOARD_MAX_SIZE}
 					type="number"
 					name="width"
+					value={props.initialData?.width}
 					placeholder={t("createBoard.columns.placeholder")}
 					required
 				/>
@@ -61,6 +71,7 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 					max={BOARD_MAX_SIZE}
 					type="number"
 					name="height"
+					value={props.initialData?.height}
 					placeholder={t("createBoard.rows.placeholder")}
 					required
 				/>
@@ -76,6 +87,7 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 					max={BOARD_MAX_MINES}
 					type="number"
 					name="mines"
+					value={props.initialData?.mines}
 					placeholder={t("createBoard.mines.placeholder")}
 					required
 				/>

@@ -187,6 +187,8 @@ export const selectGame = async (
 		.select({
 			name: ctx.schema.ReplicacheServer.name,
 			width: ctx.schema.ReplicacheServer.width,
+			height: ctx.schema.ReplicacheServer.height,
+			mines: ctx.schema.ReplicacheServer.mines,
 			code: ctx.schema.ReplicacheServer.code,
 		})
 		.from(ctx.schema.ReplicacheServer)
@@ -196,6 +198,10 @@ export const selectGame = async (
 
 	return row;
 };
+
+export type SelectGameResult = NonNullable<
+	Awaited<ReturnType<typeof selectGame>>
+>;
 
 type SelectLastMutationIdChangesArgs = {
 	clientGroupId: string;

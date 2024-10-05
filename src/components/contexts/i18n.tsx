@@ -48,6 +48,9 @@ const enDict = {
 			"Solid Minesweeper app is a non-trivial local first demo application built using Solid Start.",
 		title: "Solid Minesweeper",
 	},
+	dialog: {
+		close: "Close dialog",
+	},
 };
 
 export type Locale = "en";
