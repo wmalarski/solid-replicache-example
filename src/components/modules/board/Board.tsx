@@ -1,10 +1,10 @@
-import type { Component } from "solid-js";
+import { type Component, createMemo } from "solid-js";
 import { RealtimeProvider } from "~/components/contexts/realtime";
 import { ReplicacheProvider } from "~/components/contexts/replicache";
 import type { SelectGameResult } from "~/server/replicache/db";
 import { HStack, Stack } from "~/styled-system/jsx";
 import { BoardGrid } from "./board-grid";
-import { GameDataProvider } from "./game-provider";
+import { GameDataProvider, useGameData } from "./game-provider";
 import { RestartGameDialog } from "./restart-game-dialog";
 
 type BoardProps = {
@@ -29,16 +29,6 @@ export default function Board(props: BoardProps) {
 }
 
 const BoardTopBar: Component = () => {
-	// const gameCells = createSubscription(async (tx) => {
-	// 	const array = await tx
-	// 		.scan<GameCell>({ prefix: getGameKey(props.gameId) })
-	// 		.entries()
-	// 		.toArray();
-
-	//     array.
-	// 	// return array.map(([_id, gameCell]) => gameCell);
-	// }, []);
-
 	return (
 		<HStack>
 			<MinesLeftCounter />
@@ -53,5 +43,19 @@ const SecondsCounter: Component = () => {
 };
 
 const MinesLeftCounter: Component = () => {
-	return <span>MinesLeftCounter</span>;
+	const game = useGameData();
+
+	const allMines = createMemo(() => {
+		return Array.from(
+			game()
+				.config.values()
+				.filter((config) => config.hasMine),
+		).length;
+	});
+
+	const minesMarked = createMemo(() => {
+		return allMines() - game().cells.value.filter((cell) => cell.marked).length;
+	});
+
+	return <span>{minesMarked()}</span>;
 };
