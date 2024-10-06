@@ -63,17 +63,20 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 	const game = useGameData();
 
 	const config = createMemo(() => {
-		return game().config.get(props.position);
+		const { configs } = game();
+		return configs.get(props.position);
 	});
 
 	const cell = createSubscription(async (tx) => {
+		const { gameId } = game();
 		return tx.get<GameCell>(
-			getGameCellKey({ gameId: game().gameId, position: props.position }),
+			getGameCellKey({ gameId, position: props.position }),
 		);
 	});
 
 	const onMouseUp: ComponentProps<"button">["onClick"] = async (event) => {
-		const common = { position: props.position, gameId: game().gameId };
+		const { gameId } = game();
+		const common = { position: props.position, gameId };
 
 		if (cell.value?.clicked) {
 			return;

@@ -22,7 +22,7 @@ export type GameCellData = {
 };
 
 const createGameData = ({ game, gameId }: CreateGameDataArgs) => {
-	const config = getCellInfos({
+	const { configs, minePositions } = getCellInfos({
 		cellCodes: game.code.split(""),
 		columns: game.width,
 		rows: Math.floor(game.code.length / game.width),
@@ -37,7 +37,7 @@ const createGameData = ({ game, gameId }: CreateGameDataArgs) => {
 		return array.map(([_id, value]) => value);
 	}, []);
 
-	return { cells, config, game, gameId };
+	return { cells, configs, game, gameId, minePositions };
 };
 
 const GameDataContext = createContext<() => ReturnType<typeof createGameData>>(

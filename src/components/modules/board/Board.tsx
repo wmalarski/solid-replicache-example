@@ -32,7 +32,7 @@ const BoardTopBar: Component = () => {
 	return (
 		<HStack>
 			<MinesLeftCounter />
-			<RestartGameDialog hasClickedMine />
+			<RestartGameDialog />
 			<SecondsCounter />
 		</HStack>
 	);
@@ -45,16 +45,10 @@ const SecondsCounter: Component = () => {
 const MinesLeftCounter: Component = () => {
 	const game = useGameData();
 
-	const allMines = createMemo(() => {
-		return Array.from(
-			game()
-				.config.values()
-				.filter((config) => config.hasMine),
-		).length;
-	});
-
 	const minesMarked = createMemo(() => {
-		return allMines() - game().cells.value.filter((cell) => cell.marked).length;
+		const { cells, minePositions } = game();
+		const marked = cells.value.filter((cell) => cell.marked).length;
+		return minePositions.size - marked;
 	});
 
 	return <span>{minesMarked()}</span>;

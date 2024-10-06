@@ -14,12 +14,12 @@ export const BoardGrid: Component<BoardGridProps> = (props) => {
 
 	const uncovered = createMemo(() => {
 		const uncovered = new Set<number>();
-		const { cells, config } = game();
+		const { cells, configs } = game();
 
 		cells.value.forEach((cell) => {
 			if (cell.clicked) {
 				uncovered.add(cell.position);
-				const cellConfig = config.get(cell.position);
+				const cellConfig = configs.get(cell.position);
 
 				if (!cellConfig?.hasMine) {
 					cellConfig?.lake?.forEach((index) => uncovered.add(index));

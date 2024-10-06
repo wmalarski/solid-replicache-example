@@ -1,4 +1,4 @@
-import { type Component, Show, createUniqueId } from "solid-js";
+import { type Component, Show, createMemo, createUniqueId } from "solid-js";
 import { useI18n } from "~/components/contexts/i18n";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogCloseXTrigger } from "~/components/ui/dialog";
@@ -8,16 +8,17 @@ import { Stack } from "~/styled-system/jsx";
 import { CreateGameForm } from "../create-game/create-game-form";
 import { useGameData } from "./game-provider";
 
-type RestartGameDialogProps = {
-	hasClickedMine: boolean;
-};
-
-export const RestartGameDialog: Component<RestartGameDialogProps> = (props) => {
+export const RestartGameDialog: Component = () => {
 	const { t } = useI18n();
 
 	const game = useGameData();
 
 	const formId = createUniqueId();
+
+	const hasClickedMine = createMemo(() => {
+		const { minePositions, cells } = game();
+		return cells.value.some((cell) => minePositions.has(cell.position));
+	});
 
 	return (
 		<Dialog.Root>
@@ -25,7 +26,7 @@ export const RestartGameDialog: Component<RestartGameDialogProps> = (props) => {
 				asChild={(props) => <IconButton {...props()} />}
 				aria-label="Reset"
 			>
-				<Show when={props.hasClickedMine} fallback={<SmileIcon />}>
+				<Show when={hasClickedMine()} fallback={<SmileIcon />}>
 					<FrownIcon />
 				</Show>
 			</Dialog.Trigger>

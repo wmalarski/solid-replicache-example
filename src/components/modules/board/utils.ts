@@ -62,7 +62,7 @@ export const getCellInfos = ({
 	columns,
 	rows,
 }: GetCellInfosArgs) => {
-	const cellInfos = new Map<number, CellInfo>();
+	const configs = new Map<number, CellInfo>();
 	const minePositions = getMinePositions(cellCodes);
 	const positionsWithZero = new Array<number>();
 
@@ -81,7 +81,7 @@ export const getCellInfos = ({
 			positionsWithZero.push(index);
 		}
 
-		cellInfos.set(index, {
+		configs.set(index, {
 			position: index,
 			neighbors: positions,
 			hasMine: minePositions.has(index),
@@ -89,9 +89,9 @@ export const getCellInfos = ({
 		});
 	});
 
-	updateLakes({ cellInfos, positionsWithZero });
+	updateLakes({ cellInfos: configs, positionsWithZero });
 
-	return cellInfos;
+	return { configs, minePositions };
 };
 
 type UpdateLakesArgs = {
