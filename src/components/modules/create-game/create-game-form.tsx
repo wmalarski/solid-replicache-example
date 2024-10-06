@@ -1,15 +1,14 @@
-import { useSubmission } from "@solidjs/router";
 import { type Component, Show } from "solid-js";
 import { useI18n } from "~/components/contexts/i18n";
 import { Field } from "~/components/ui/field";
-import { insertGameAction } from "~/server/replicache/client";
 import {
 	BOARD_MAX_MINES,
 	BOARD_MAX_SIZE,
 	BOARD_MIN_MINES,
 	BOARD_MIN_SIZE,
 } from "~/server/replicache/const";
-import { flex } from "~/styled-system/patterns";
+import type { RpcResult } from "~/server/utils";
+import { Stack } from "~/styled-system/jsx";
 
 export type CreateGameFormData = {
 	name: string;
@@ -19,22 +18,15 @@ export type CreateGameFormData = {
 };
 
 type CreateGameFormProps = {
-	formId: string;
 	initialData?: CreateGameFormData;
+	result?: RpcResult;
 };
 
 export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 	const { t } = useI18n();
 
-	const submission = useSubmission(insertGameAction);
-
 	return (
-		<form
-			id={props.formId}
-			action={insertGameAction}
-			method="post"
-			class={flex({ gap: "4", flexDirection: "column" })}
-		>
+		<Stack gap={4}>
 			<Field.Root>
 				<Field.Label>{t("createBoard.name.label")}</Field.Label>
 				<Field.Input
@@ -43,8 +35,8 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 					required
 					value={props.initialData?.name}
 				/>
-				<Show when={submission.result?.errors?.name}>
-					<Field.ErrorText>{submission.result?.errors?.name}</Field.ErrorText>
+				<Show when={props.result?.errors?.name}>
+					<Field.ErrorText>{props.result?.errors?.name}</Field.ErrorText>
 				</Show>
 			</Field.Root>
 
@@ -59,8 +51,8 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 					placeholder={t("createBoard.columns.placeholder")}
 					required
 				/>
-				<Show when={submission.result?.errors?.width}>
-					<Field.ErrorText>{submission.result?.errors?.width}</Field.ErrorText>
+				<Show when={props.result?.errors?.width}>
+					<Field.ErrorText>{props.result?.errors?.width}</Field.ErrorText>
 				</Show>
 			</Field.Root>
 
@@ -75,8 +67,8 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 					placeholder={t("createBoard.rows.placeholder")}
 					required
 				/>
-				<Show when={submission.result?.errors?.height}>
-					<Field.ErrorText>{submission.result?.errors?.height}</Field.ErrorText>
+				<Show when={props.result?.errors?.height}>
+					<Field.ErrorText>{props.result?.errors?.height}</Field.ErrorText>
 				</Show>
 			</Field.Root>
 
@@ -91,10 +83,10 @@ export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
 					placeholder={t("createBoard.mines.placeholder")}
 					required
 				/>
-				<Show when={submission.result?.errors?.mines}>
-					<Field.ErrorText>{submission.result?.errors?.mines}</Field.ErrorText>
+				<Show when={props.result?.errors?.mines}>
+					<Field.ErrorText>{props.result?.errors?.mines}</Field.ErrorText>
 				</Show>
 			</Field.Root>
-		</form>
+		</Stack>
 	);
 };

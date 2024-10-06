@@ -1,3 +1,12 @@
+import { decode } from "decode-formdata";
+import * as v from "valibot";
+import {
+	BOARD_MAX_MINES,
+	BOARD_MAX_SIZE,
+	BOARD_MIN_MINES,
+	BOARD_MIN_SIZE,
+} from "./const";
+
 type GenerateServerGameCodeArgs = {
 	width: number;
 	height: number;
@@ -40,4 +49,28 @@ type GetGameCellKeyArgs = {
 
 export const getGameCellKey = ({ gameId, position }: GetGameCellKeyArgs) => {
 	return `${getGameKey(gameId)}${position}`;
+};
+
+export const parseBoardConfig = (formData: FormData) => {
+	return v.safeParseAsync(
+		v.object({
+			width: v.pipe(
+				v.number(),
+				v.minValue(BOARD_MIN_SIZE),
+				v.maxValue(BOARD_MAX_SIZE),
+			),
+			height: v.pipe(
+				v.number(),
+				v.minValue(BOARD_MIN_SIZE),
+				v.maxValue(BOARD_MAX_SIZE),
+			),
+			name: v.string(),
+			mines: v.pipe(
+				v.number(),
+				v.minValue(BOARD_MIN_MINES),
+				v.maxValue(BOARD_MAX_MINES),
+			),
+		}),
+		decode(formData, { numbers: ["mines", "height", "width"] }),
+	);
 };

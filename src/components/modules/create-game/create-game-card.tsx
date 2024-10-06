@@ -19,7 +19,9 @@ export const CreateGameCard: Component = () => {
 				<Card.Title>{t("createBoard.title")}</Card.Title>
 			</Card.Header>
 			<Card.Body>
-				<CreateGameForm formId={formId} />
+				<form id={formId} action={insertGameAction} method="post">
+					<CreateGameForm result={submission.result} />
+				</form>
 			</Card.Body>
 			<Card.Footer>
 				<Button type="submit" form={formId} loading={submission.pending}>

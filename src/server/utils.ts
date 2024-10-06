@@ -18,7 +18,7 @@ export const getRequestEventOrThrow = () => {
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-type RpcResult<T = any> = {
+export type RpcResult<T = any> = {
 	data?: T;
 	error?: string;
 	errors?: Record<string, string>;
