@@ -6,10 +6,10 @@ import {
 } from "~/server/replicache/db";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
-import { getGameCellKey } from "./utils";
+import { selectGames } from "../games/db";
+import { getGameCellKey, getGameKey } from "./utils";
 
 type ProcessPullArgs = {
-	gameId: string;
 	spaceId: string;
 	pull: PullRequestV1;
 };
@@ -17,19 +17,21 @@ type ProcessPullArgs = {
 export const processPull = async (
 	ctx: ServerContext,
 	transaction: Transaction,
-	{ spaceId, gameId, pull }: ProcessPullArgs,
+	{ spaceId, pull }: ProcessPullArgs,
 ) => {
 	const fromVersion = Number(pull.cookie ?? 0);
 
 	// Get current version.
-	const [currentVersion, lastMutationIdChanges, changed] = await Promise.all([
-		selectSpaceVersion(ctx, transaction, { spaceId }),
-		selectLastMutationIdChanges(ctx, transaction, {
-			clientGroupId: pull.clientGroupID,
-			fromVersion,
-		}),
-		selectCells(ctx, transaction, { fromVersion, gameId }),
-	]);
+	const [currentVersion, lastMutationIdChanges, changedCells, changedGames] =
+		await Promise.all([
+			selectSpaceVersion(ctx, transaction, { spaceId }),
+			selectLastMutationIdChanges(ctx, transaction, {
+				clientGroupId: pull.clientGroupID,
+				fromVersion,
+			}),
+			selectCells(ctx, transaction, { fromVersion, spaceId }),
+			selectGames(ctx, transaction, { fromVersion, spaceId }),
+		]);
 
 	if (!currentVersion || fromVersion > currentVersion) {
 		throw new Error(
@@ -40,10 +42,24 @@ export const processPull = async (
 	// Build and return response.
 	const patch: PatchOperation[] = [];
 
-	for (const row of changed) {
+	for (const row of changedCells) {
+		const { version: rowVersion, deleted, ...args } = row.cell;
+
+		const key = getGameCellKey(spaceId, row.cell.gameId, row.cell.position);
+
+		if (deleted) {
+			if (rowVersion > fromVersion) {
+				patch.push({ op: "del", key });
+			}
+		} else {
+			patch.push({ op: "put", key, value: args });
+		}
+	}
+
+	for (const row of changedGames) {
 		const { version: rowVersion, deleted, ...args } = row;
 
-		const key = getGameCellKey(row);
+		const key = getGameKey(row.spaceId, row.id);
 
 		if (deleted) {
 			if (rowVersion > fromVersion) {

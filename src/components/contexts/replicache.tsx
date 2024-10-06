@@ -13,9 +13,8 @@ import {
 	useContext,
 } from "solid-js";
 import { createStore, reconcile } from "solid-js/store";
-import type {} from "~/server/cells/db";
 import type { GameCell } from "~/server/cells/types";
-import { getGameCellKey, getGameKey } from "~/server/replicache/utils";
+import { getGameCellKey } from "~/server/replicache/utils";
 import { createRealtimeSubscription } from "./realtime";
 
 const createReplicache = (playerId: string, spaceId: string) => {
@@ -28,18 +27,10 @@ const createReplicache = (playerId: string, spaceId: string) => {
 		logLevel: "debug",
 		mutators: {
 			async insertCell(tx: WriteTransaction, args: GameCell) {
-				await tx.set(getGameCellKey(args), args);
+				await tx.set(getGameCellKey(spaceId, args.gameId, args.position), args);
 			},
 			async updateCell(tx: WriteTransaction, args: GameCell) {
-				await tx.set(getGameCellKey(args), args);
-			},
-			async deleteCells(tx: WriteTransaction) {
-				const cells = await tx
-					.scan<GameCell>({ prefix: getGameKey(spaceId) })
-					.entries()
-					.toArray();
-
-				await Promise.all(cells.map(([key]) => tx.del(key)));
+				await tx.set(getGameCellKey(spaceId, args.gameId, args.position), args);
 			},
 		},
 	});

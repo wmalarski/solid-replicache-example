@@ -8,7 +8,7 @@ import {
 import { createSubscription } from "~/components/contexts/replicache";
 import type { GameCell } from "~/server/cells/types";
 import type { SelectGameResult } from "~/server/games/db";
-import { getGameKey } from "~/server/replicache/utils";
+import { getGameCellsPrefix } from "~/server/replicache/utils";
 import { type CellInfo, getCellInfos } from "./utils";
 
 export type GameCellData = {
@@ -24,11 +24,8 @@ const createGameData = (game: SelectGameResult) => {
 	});
 
 	const cells = createSubscription(async (tx) => {
-		const array = await tx
-			.scan<GameCell>({ prefix: getGameKey(game.spaceId) })
-			.entries()
-			.toArray();
-
+		const prefix = getGameCellsPrefix(game.spaceId, game.id);
+		const array = await tx.scan<GameCell>({ prefix }).entries().toArray();
 		return array.map(([_id, value]) => value);
 	}, []);
 

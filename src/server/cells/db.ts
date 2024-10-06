@@ -22,22 +22,23 @@ export const insertCell = (
 };
 
 type SelectCellsArgs = {
-	gameId: string;
+	spaceId: string;
 	fromVersion: number;
 };
 
 export const selectCells = (
 	ctx: ServerContext,
 	transaction: Transaction,
-	{ fromVersion, gameId }: SelectCellsArgs,
+	{ fromVersion, spaceId }: SelectCellsArgs,
 ) => {
 	return transaction
 		.select()
 		.from(ctx.schema.Cell)
+		.leftJoin(ctx.schema.Game, eq(ctx.schema.Game.id, ctx.schema.Cell.gameId))
 		.where(
 			and(
 				gt(ctx.schema.Cell.version, fromVersion),
-				eq(ctx.schema.Cell.gameId, gameId),
+				eq(ctx.schema.Game.spaceId, spaceId),
 			),
 		)
 		.all();
@@ -58,21 +59,5 @@ export const updateCell = (
 		.update(ctx.schema.Cell)
 		.set({ clicked, marked, version })
 		.where(eq(ctx.schema.Cell.id, id))
-		.run();
-};
-
-export type DeleteCellsArgs = {
-	gameId: string;
-};
-
-export const deleteCells = (
-	ctx: ServerContext,
-	transaction: Transaction,
-	{ gameId, version }: WithVersion<DeleteCellsArgs>,
-) => {
-	return transaction
-		.update(ctx.schema.Cell)
-		.set({ deleted: true, version })
-		.where(eq(ctx.schema.Cell.gameId, gameId))
 		.run();
 };

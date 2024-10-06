@@ -1,10 +1,8 @@
 "use server";
 import type { MutationV1 } from "replicache";
 import {
-	type DeleteCellsArgs,
 	type InsertCellArgs,
 	type UpdateCellArgs,
-	deleteCells,
 	insertCell,
 	updateCell,
 } from "../cells/db";
@@ -31,12 +29,6 @@ export const processMutation = async (
 		case "updateCell":
 			await updateCell(ctx, transaction, {
 				...(mutation.args as UpdateCellArgs),
-				version: nextVersion,
-			});
-			break;
-		case "resetGame":
-			await deleteCells(ctx, transaction, {
-				...(mutation.args as DeleteCellsArgs),
 				version: nextVersion,
 			});
 			break;

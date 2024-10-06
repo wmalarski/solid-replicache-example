@@ -3,7 +3,7 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 export const ReplicacheSpace = sqliteTable("replicache_space", {
 	id: text("id").primaryKey().unique().notNull(),
 	ipHash: text("ip_hash").notNull().unique(),
-	version: integer("version"),
+	version: integer("version").notNull(),
 });
 
 export const ReplicacheClient = sqliteTable("replicache_client", {
@@ -24,7 +24,7 @@ export const Game = sqliteTable("game", {
 	mines: integer("height").notNull(),
 	code: text("code").notNull(),
 	deleted: integer("deleted", { mode: "boolean" }).notNull(),
-	version: integer("version"),
+	version: integer("version").notNull(),
 });
 
 export const Cell = sqliteTable("cell", {

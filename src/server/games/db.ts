@@ -1,5 +1,5 @@
 "use server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
 import { generateServerGameCode } from "./utils";
@@ -13,7 +13,7 @@ export const selectGame = async (
 	transaction: Transaction,
 	{ spaceId }: SelectGameArgs,
 ) => {
-	const row = await transaction
+	return transaction
 		.select({
 			id: ctx.schema.Game.id,
 			spaceId: ctx.schema.Game.spaceId,
@@ -32,13 +32,33 @@ export const selectGame = async (
 		)
 		.limit(1)
 		.get();
-
-	return row;
 };
 
 export type SelectGameResult = NonNullable<
 	Awaited<ReturnType<typeof selectGame>>
 >;
+
+type SelectGamesArgs = {
+	spaceId: string;
+	fromVersion: number;
+};
+
+export const selectGames = async (
+	ctx: ServerContext,
+	transaction: Transaction,
+	{ fromVersion, spaceId }: SelectGamesArgs,
+) => {
+	return transaction
+		.select()
+		.from(ctx.schema.Game)
+		.where(
+			and(
+				gt(ctx.schema.Cell.version, fromVersion),
+				eq(ctx.schema.Game.spaceId, spaceId),
+			),
+		)
+		.all();
+};
 
 type InsertGameArgs = {
 	width: number;
