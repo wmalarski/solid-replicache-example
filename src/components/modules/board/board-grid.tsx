@@ -1,15 +1,9 @@
 import { type Component, For, createMemo } from "solid-js";
-import type { SelectGameResult } from "~/server/replicache/db";
 import { Grid } from "~/styled-system/jsx";
 import { BoardCell } from "./board-cell";
 import { useGameData } from "./game-provider";
 
-type BoardGridProps = {
-	gameId: string;
-	game: SelectGameResult;
-};
-
-export const BoardGrid: Component<BoardGridProps> = (props) => {
+export const BoardGrid: Component = () => {
 	const game = useGameData();
 
 	const uncovered = createMemo(() => {
@@ -41,11 +35,11 @@ export const BoardGrid: Component<BoardGridProps> = (props) => {
 	return (
 		<Grid
 			onContextMenu={(e) => e.preventDefault()}
-			style={{ "grid-template-columns": `repeat(${props.game.width}, 1fr)` }}
+			style={{ "grid-template-columns": `repeat(${game().game.width}, 1fr)` }}
 			width="fit-content"
 			gap={0}
 		>
-			<For each={[...props.game.code]}>
+			<For each={[...game().game.code]}>
 				{(_cellCode, index) => (
 					<BoardCell
 						position={index()}

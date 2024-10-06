@@ -18,13 +18,13 @@ import type { GameCell } from "~/server/cells/types";
 import { getGameCellKey, getGameKey } from "~/server/replicache/utils";
 import { createRealtimeSubscription } from "./realtime";
 
-const createReplicache = (playerId: string, gameId: string) => {
+const createReplicache = (playerId: string, spaceId: string) => {
 	const replicache = new Replicache({
 		name: playerId,
 		licenseKey: import.meta.env.VITE_REPLICACHE_LICENSE_KEY,
 		pullInterval: 60 * 1000,
-		pushURL: `/api/${gameId}/push`,
-		pullURL: `/api/${gameId}/pull`,
+		pushURL: `/api/${spaceId}/push`,
+		pullURL: `/api/${spaceId}/pull`,
 		logLevel: "debug",
 		mutators: {
 			async insertCell(tx: WriteTransaction, args: GameCell) {
@@ -35,7 +35,7 @@ const createReplicache = (playerId: string, gameId: string) => {
 			},
 			async deleteCells(tx: WriteTransaction) {
 				const cells = await tx
-					.scan<GameCell>({ prefix: getGameKey(gameId) })
+					.scan<GameCell>({ prefix: getGameKey(spaceId) })
 					.entries()
 					.toArray();
 
@@ -59,14 +59,14 @@ export const useReplicacheContext = () => {
 
 type ReplicacheProviderProps = ParentProps<{
 	playerId: string;
-	gameId: string;
+	spaceId: string;
 }>;
 
 export const ReplicacheProvider: Component<ReplicacheProviderProps> = (
 	props,
 ) => {
 	const rep = createMemo(() => {
-		return createReplicache(props.playerId, props.gameId);
+		return createReplicache(props.playerId, props.spaceId);
 	});
 
 	onCleanup(() => {

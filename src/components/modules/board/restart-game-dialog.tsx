@@ -10,7 +10,7 @@ import { Button } from "~/components/ui/button";
 import { Dialog, DialogCloseXTrigger } from "~/components/ui/dialog";
 import { IconButton } from "~/components/ui/icon-button";
 import { FrownIcon, SmileIcon } from "~/components/ui/icons";
-import { parseBoardConfig } from "~/server/replicache/utils";
+import { parseBoardConfig } from "~/server/games/utils";
 import { Stack } from "~/styled-system/jsx";
 import { CreateGameForm } from "../create-game/create-game-form";
 import { useGameData } from "./game-provider";

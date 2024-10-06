@@ -8,7 +8,7 @@ const Board = clientOnly(() => import("~/components/modules/board/board"));
 
 export const route = {
 	load: async ({ params }) => {
-		await Promise.all([getPlayerLoader(), selectGameLoader(params.gameId)]);
+		await Promise.all([getPlayerLoader(), selectGameLoader(params.spaceId)]);
 	},
 } satisfies RouteDefinition;
 
@@ -16,20 +16,14 @@ export default function GamePage() {
 	const params = useParams();
 
 	const player = createAsync(() => getPlayerLoader());
-	const game = createAsync(() => selectGameLoader(params.gameId));
+	const game = createAsync(() => selectGameLoader(params.spaceId));
 
 	return (
 		<main>
 			<Show when={player()}>
 				{(player) => (
 					<Show when={game()}>
-						{(game) => (
-							<Board
-								game={game()}
-								gameId={params.gameId}
-								playerId={player().id}
-							/>
-						)}
+						{(game) => <Board game={game()} playerId={player().id} />}
 					</Show>
 				)}
 			</Show>

@@ -1,7 +1,7 @@
 import { type Component, createMemo } from "solid-js";
 import { RealtimeProvider } from "~/components/contexts/realtime";
 import { ReplicacheProvider } from "~/components/contexts/replicache";
-import type { SelectGameResult } from "~/server/replicache/db";
+import type { SelectGameResult } from "~/server/games/db";
 import { HStack, Stack } from "~/styled-system/jsx";
 import { BoardGrid } from "./board-grid";
 import { GameDataProvider, useGameData } from "./game-provider";
@@ -10,17 +10,19 @@ import { RestartGameDialog } from "./restart-game-dialog";
 type BoardProps = {
 	game: SelectGameResult;
 	playerId: string;
-	gameId: string;
 };
 
 export default function Board(props: BoardProps) {
 	return (
 		<RealtimeProvider>
-			<ReplicacheProvider playerId={props.playerId} gameId={props.gameId}>
-				<GameDataProvider game={props.game} gameId={props.gameId}>
+			<ReplicacheProvider
+				playerId={props.playerId}
+				spaceId={props.game.spaceId}
+			>
+				<GameDataProvider game={props.game}>
 					<Stack>
 						<BoardTopBar />
-						<BoardGrid gameId={props.gameId} game={props.game} />
+						<BoardGrid />
 					</Stack>
 				</GameDataProvider>
 			</ReplicacheProvider>
