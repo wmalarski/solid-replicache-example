@@ -1,8 +1,8 @@
 import type { PatchOperation, PullRequestV1, PullResponse } from "replicache";
 import { selectCells } from "~/server/cells/db";
 import {
-	selectGameVersion,
 	selectLastMutationIdChanges,
+	selectSpaceVersion,
 } from "~/server/replicache/db";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
@@ -10,19 +10,20 @@ import { getGameCellKey } from "./utils";
 
 type ProcessPullArgs = {
 	gameId: string;
+	spaceId: string;
 	pull: PullRequestV1;
 };
 
 export const processPull = async (
 	ctx: ServerContext,
 	transaction: Transaction,
-	{ gameId, pull }: ProcessPullArgs,
+	{ spaceId, gameId, pull }: ProcessPullArgs,
 ) => {
 	const fromVersion = Number(pull.cookie ?? 0);
 
 	// Get current version.
 	const [currentVersion, lastMutationIdChanges, changed] = await Promise.all([
-		selectGameVersion(ctx, transaction, { gameId }),
+		selectSpaceVersion(ctx, transaction, { spaceId }),
 		selectLastMutationIdChanges(ctx, transaction, {
 			clientGroupId: pull.clientGroupID,
 			fromVersion,

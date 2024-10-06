@@ -2,8 +2,8 @@
 import { redirect } from "@solidjs/router";
 import { paths } from "~/utils/paths";
 import { getServerContext } from "../context";
+import { insertSpace } from "../replicache/db";
 import { getRequestEventOrThrow, rpcParseIssueResult } from "../utils";
-import {} from "./const";
 import { insertGame, selectGame } from "./db";
 import { parseBoardConfig } from "./utils";
 
@@ -17,16 +17,21 @@ export const insertGameServerAction = async (formData: FormData) => {
 	const event = getRequestEventOrThrow();
 	const ctx = getServerContext(event);
 
-	const game = await insertGame(ctx, ctx.db, parsed.output);
+	const space = await insertSpace(ctx, ctx.db);
 
-	throw redirect(paths.game(game.id));
+	await insertGame(ctx, ctx.db, {
+		...parsed.output,
+		spaceId: space.id,
+	});
+
+	throw redirect(paths.game(space.id));
 };
 
-export const selectGameServerLoader = async (gameId: string) => {
+export const selectGameServerLoader = async (spaceId: string) => {
 	const event = getRequestEventOrThrow();
 	const ctx = getServerContext(event);
 
-	const game = await selectGame(ctx, ctx.db, { gameId });
+	const game = await selectGame(ctx, ctx.db, { spaceId });
 
 	return game;
 };

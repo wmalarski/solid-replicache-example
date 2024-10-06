@@ -3,29 +3,29 @@ import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
 import { broadcastChannel } from "../realtime/channel";
 import {
-	selectGameVersion,
 	selectLastMutationIds,
+	selectSpaceVersion,
 	setLastMutationId,
-	updateGameVersion,
+	updateSpaceVersion,
 } from "./db";
 import { processMutation } from "./process-mutation";
 
 type ProcessPushArgs = {
-	gameId: string;
+	spaceId: string;
 	push: PushRequestV1;
 };
 
 export const processPush = async (
 	ctx: ServerContext,
 	transaction: Transaction,
-	{ gameId, push }: ProcessPushArgs,
+	{ spaceId, push }: ProcessPushArgs,
 ) => {
-	const previousVersion = await selectGameVersion(ctx, transaction, {
-		gameId,
+	const previousVersion = await selectSpaceVersion(ctx, transaction, {
+		spaceId,
 	});
 
 	if (!previousVersion) {
-		throw new Error(`Unknown game ${gameId}`);
+		throw new Error(`Unknown space ${spaceId}`);
 	}
 
 	const nextVersion = previousVersion + 1;
@@ -82,8 +82,8 @@ export const processPush = async (
 			}),
 		),
 		// Update global version.
-		updateGameVersion(ctx, transaction, {
-			serverId: gameId,
+		updateSpaceVersion(ctx, transaction, {
+			spaceId,
 			version: nextVersion,
 		}),
 	]);

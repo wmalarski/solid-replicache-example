@@ -1,16 +1,17 @@
 "use server";
 import type { FetchEvent } from "@solidjs/start/server";
 import { db } from "./db/db";
-import { Cell, ReplicacheClient, ReplicacheServer } from "./db/schema";
+import { Cell, Game, ReplicacheClient, ReplicacheSpace } from "./db/schema";
 
 export const getServerContext = (event: FetchEvent) => {
 	return {
 		event,
 		db,
 		schema: {
-			ReplicacheServer,
+			ReplicacheSpace,
 			ReplicacheClient,
 			Cell,
+			Game,
 		},
 	};
 };

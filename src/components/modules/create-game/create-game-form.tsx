@@ -6,7 +6,7 @@ import {
 	BOARD_MAX_SIZE,
 	BOARD_MIN_MINES,
 	BOARD_MIN_SIZE,
-} from "~/server/replicache/const";
+} from "~/server/games/const";
 import type { RpcResult } from "~/server/utils";
 import { Stack } from "~/styled-system/jsx";
 

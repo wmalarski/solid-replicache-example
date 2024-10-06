@@ -3,7 +3,59 @@ import bcrypt from "bcryptjs";
 import { and, eq, gt, inArray } from "drizzle-orm";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
-import { generateServerGameCode } from "./utils";
+
+export const insertSpace = async (
+	ctx: ServerContext,
+	transaction: Transaction,
+) => {
+	if (!ctx.event.clientAddress) {
+		throw new Error("Invalid request");
+	}
+
+	const ipHash = await bcrypt.hash(ctx.event.clientAddress, 10);
+
+	return transaction
+		.insert(ctx.schema.ReplicacheSpace)
+		.values({ id: crypto.randomUUID(), ipHash, version: 1 })
+		.returning()
+		.get();
+};
+
+type UpdateSpaceVersionArgs = {
+	version: number;
+	spaceId: string;
+};
+
+export const updateSpaceVersion = async (
+	ctx: ServerContext,
+	transaction: Transaction,
+	{ version, spaceId }: UpdateSpaceVersionArgs,
+) => {
+	await transaction
+		.update(ctx.schema.ReplicacheSpace)
+		.set({ version })
+		.where(eq(ctx.schema.ReplicacheSpace.id, spaceId))
+		.run();
+};
+
+type SelectSpaceVersionArgs = {
+	spaceId: string;
+};
+
+export const selectSpaceVersion = async (
+	ctx: ServerContext,
+	transaction: Transaction,
+	{ spaceId }: SelectSpaceVersionArgs,
+) => {
+	const row = await transaction
+		.select()
+		.from(ctx.schema.ReplicacheSpace)
+		.where(eq(ctx.schema.ReplicacheSpace.id, spaceId))
+		.limit(1)
+		.get();
+
+	return row?.version;
+};
 
 type SetLastMutationIdArgs = {
 	clientId: string;
@@ -59,57 +111,6 @@ export const setLastMutationIds = async (
 	);
 };
 
-type InsertGameArgs = {
-	width: number;
-	height: number;
-	name: string;
-	mines: number;
-};
-
-export const insertGame = async (
-	ctx: ServerContext,
-	transaction: Transaction,
-	{ height, width, mines, name }: InsertGameArgs,
-) => {
-	if (!ctx.event.clientAddress) {
-		throw new Error("Invalid request");
-	}
-
-	const ipHash = await bcrypt.hash(ctx.event.clientAddress, 10);
-
-	return transaction
-		.insert(ctx.schema.ReplicacheServer)
-		.values({
-			id: crypto.randomUUID(),
-			code: generateServerGameCode({ height, mines, width }),
-			height,
-			ipHash,
-			mines,
-			name,
-			width,
-			version: 1,
-		})
-		.returning()
-		.get();
-};
-
-type UpdateGameVersionArgs = {
-	version: number;
-	serverId: string;
-};
-
-export const updateGameVersion = async (
-	ctx: ServerContext,
-	transaction: Transaction,
-	{ version, serverId }: UpdateGameVersionArgs,
-) => {
-	await transaction
-		.update(ctx.schema.ReplicacheServer)
-		.set({ version })
-		.where(eq(ctx.schema.ReplicacheServer.id, serverId))
-		.run();
-};
-
 type SelectLastMutationIdArgs = {
 	clientId: string;
 };
@@ -154,54 +155,6 @@ export const selectLastMutationIds = async (
 
 	return lastIds;
 };
-
-type SelectGameVersionArgs = {
-	gameId: string;
-};
-
-export const selectGameVersion = async (
-	ctx: ServerContext,
-	transaction: Transaction,
-	{ gameId }: SelectGameVersionArgs,
-) => {
-	const row = await transaction
-		.select()
-		.from(ctx.schema.ReplicacheServer)
-		.where(eq(ctx.schema.ReplicacheServer.id, gameId))
-		.limit(1)
-		.get();
-
-	return row?.version;
-};
-
-type SelectGameArgs = {
-	gameId: string;
-};
-
-export const selectGame = async (
-	ctx: ServerContext,
-	transaction: Transaction,
-	{ gameId }: SelectGameArgs,
-) => {
-	const row = await transaction
-		.select({
-			name: ctx.schema.ReplicacheServer.name,
-			width: ctx.schema.ReplicacheServer.width,
-			height: ctx.schema.ReplicacheServer.height,
-			mines: ctx.schema.ReplicacheServer.mines,
-			code: ctx.schema.ReplicacheServer.code,
-		})
-		.from(ctx.schema.ReplicacheServer)
-		.where(eq(ctx.schema.ReplicacheServer.id, gameId))
-		.limit(1)
-		.get();
-
-	return row;
-};
-
-export type SelectGameResult = NonNullable<
-	Awaited<ReturnType<typeof selectGame>>
->;
 
 type SelectLastMutationIdChangesArgs = {
 	clientGroupId: string;

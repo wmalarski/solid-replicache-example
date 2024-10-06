@@ -1,8 +1,8 @@
 import { type RouteDefinition, createAsync, useParams } from "@solidjs/router";
 import { clientOnly } from "@solidjs/start";
 import { Show } from "solid-js";
+import { selectGameLoader } from "~/server/games/client";
 import { getPlayerLoader } from "~/server/player/client";
-import { selectGameLoader } from "~/server/replicache/client";
 
 const Board = clientOnly(() => import("~/components/modules/board/board"));
 

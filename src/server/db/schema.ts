@@ -1,14 +1,9 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const ReplicacheServer = sqliteTable("replicache_server", {
+export const ReplicacheSpace = sqliteTable("replicache_space", {
 	id: text("id").primaryKey().unique().notNull(),
-	version: integer("version"),
-	name: text("name").notNull(),
-	width: integer("width").notNull(),
-	height: integer("height").notNull(),
-	mines: integer("height").notNull(),
-	code: text("code").notNull(),
 	ipHash: text("ip_hash").notNull().unique(),
+	version: integer("version"),
 });
 
 export const ReplicacheClient = sqliteTable("replicache_client", {
@@ -18,9 +13,25 @@ export const ReplicacheClient = sqliteTable("replicache_client", {
 	version: integer("version").notNull(),
 });
 
+export const Game = sqliteTable("game", {
+	id: text("id").primaryKey().unique().notNull(),
+	spaceId: text("id")
+		.notNull()
+		.references(() => ReplicacheSpace.id),
+	name: text("name").notNull(),
+	width: integer("width").notNull(),
+	height: integer("height").notNull(),
+	mines: integer("height").notNull(),
+	code: text("code").notNull(),
+	deleted: integer("deleted", { mode: "boolean" }).notNull(),
+	version: integer("version"),
+});
+
 export const Cell = sqliteTable("cell", {
 	id: text("id").primaryKey().unique().notNull(),
-	gameId: text("game_id").notNull(),
+	gameId: text("game_id")
+		.notNull()
+		.references(() => Game.id),
 	position: integer("position").notNull(),
 	marked: integer("marked", { mode: "boolean" }).notNull(),
 	clicked: integer("clicked", { mode: "boolean" }).notNull(),

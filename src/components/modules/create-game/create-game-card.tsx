@@ -4,7 +4,7 @@ import { useSubmission } from "@solidjs/router";
 import { useI18n } from "~/components/contexts/i18n";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import { insertGameAction } from "~/server/replicache/client";
+import { insertGameAction } from "~/server/games/client";
 import { CreateGameForm } from "./create-game-form";
 
 export const CreateGameCard: Component = () => {
