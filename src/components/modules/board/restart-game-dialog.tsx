@@ -19,12 +19,12 @@ export const RestartGameDialog: Component = () => {
 	const { t } = useI18n();
 
 	// const rep = useReplicacheContext();
-	const game = useGameData();
+	const data = useGameData();
 
 	const formId = createUniqueId();
 
 	const hasClickedMine = createMemo(() => {
-		const { minePositions, cells } = game();
+		const { minePositions, cells } = data();
 		return cells.value.some((cell) => minePositions.has(cell.position));
 	});
 
@@ -60,7 +60,7 @@ export const RestartGameDialog: Component = () => {
 						<Stack gap="1">
 							<Dialog.Title>{t("createBoard.title")}</Dialog.Title>
 							<form id={formId} onSubmit={onSubmit} method="post">
-								<CreateGameForm initialData={game().game} />
+								<CreateGameForm initialData={data().game} />
 							</form>
 						</Stack>
 						<Stack gap="3" direction="row" width="full">

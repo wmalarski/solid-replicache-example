@@ -60,23 +60,23 @@ type BoardCellProps = {
 
 export const BoardCell: Component<BoardCellProps> = (props) => {
 	const rep = useReplicacheContext();
-	const game = useGameData();
+	const data = useGameData();
 
 	const config = createMemo(() => {
-		const { configs } = game();
+		const { configs } = data();
 		return configs.get(props.position);
 	});
 
 	const cell = createSubscription(async (tx) => {
-		const { gameId } = game();
+		const { game } = data();
 		return tx.get<GameCell>(
-			getGameCellKey({ gameId, position: props.position }),
+			getGameCellKey(game.spaceId, game.id, props.position),
 		);
 	});
 
 	const onMouseUp: ComponentProps<"button">["onClick"] = async (event) => {
-		const { gameId } = game();
-		const common = { position: props.position, gameId };
+		const { game } = data();
+		const common = { position: props.position, gameId: game.id };
 
 		if (cell.value?.clicked) {
 			return;

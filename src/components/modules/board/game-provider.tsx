@@ -1,6 +1,7 @@
 import {
 	type Component,
 	type ParentProps,
+	Show,
 	createContext,
 	createMemo,
 	useContext,
@@ -8,13 +9,8 @@ import {
 import { createSubscription } from "~/components/contexts/replicache";
 import type { GameCell } from "~/server/cells/types";
 import type { SelectGameResult } from "~/server/games/db";
-import { getGameCellsPrefix } from "~/server/replicache/utils";
-import { type CellInfo, getCellInfos } from "./utils";
-
-export type GameCellData = {
-	config: CellInfo;
-	value: GameCell;
-};
+import { getGameCellsPrefix, getGamePrefix } from "~/server/replicache/utils";
+import { getCellInfos } from "./utils";
 
 const createGameData = (game: SelectGameResult) => {
 	const { configs, minePositions } = getCellInfos({
@@ -43,17 +39,32 @@ export const useGameData = () => {
 };
 
 type GameDataProviderProps = ParentProps<{
-	game: SelectGameResult;
+	spaceId: string;
 }>;
 
 export const GameDataProvider: Component<GameDataProviderProps> = (props) => {
-	const value = createMemo(() => {
-		return createGameData(props.game);
+	const game = createSubscription(async (tx) => {
+		const prefix = getGamePrefix(props.spaceId);
+		const array = await tx
+			.scan<SelectGameResult>({ prefix, limit: 1 })
+			.entries()
+			.toArray();
+		return array.pop()?.[1];
 	});
 
 	return (
-		<GameDataContext.Provider value={value}>
-			{props.children}
-		</GameDataContext.Provider>
+		<Show when={game.value}>
+			{(game) => {
+				const value = createMemo(() => {
+					return createGameData(game());
+				});
+
+				return (
+					<GameDataContext.Provider value={value}>
+						{props.children}
+					</GameDataContext.Provider>
+				);
+			}}
+		</Show>
 	);
 };

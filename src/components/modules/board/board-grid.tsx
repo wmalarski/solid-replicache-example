@@ -4,11 +4,11 @@ import { BoardCell } from "./board-cell";
 import { useGameData } from "./game-provider";
 
 export const BoardGrid: Component = () => {
-	const game = useGameData();
+	const data = useGameData();
 
 	const uncovered = createMemo(() => {
 		const uncovered = new Set<number>();
-		const { cells, configs, minePositions } = game();
+		const { cells, configs, minePositions } = data();
 
 		let clickedOnMine = false;
 
@@ -35,11 +35,11 @@ export const BoardGrid: Component = () => {
 	return (
 		<Grid
 			onContextMenu={(e) => e.preventDefault()}
-			style={{ "grid-template-columns": `repeat(${game().game.width}, 1fr)` }}
+			style={{ "grid-template-columns": `repeat(${data().game.width}, 1fr)` }}
 			width="fit-content"
 			gap={0}
 		>
-			<For each={[...game().game.code]}>
+			<For each={[...data().game.code]}>
 				{(_cellCode, index) => (
 					<BoardCell
 						position={index()}
