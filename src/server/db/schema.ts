@@ -25,6 +25,7 @@ export const Game = sqliteTable("game", {
 	code: text("code").notNull(),
 	deleted: integer("deleted", { mode: "boolean" }).notNull(),
 	version: integer("version").notNull(),
+	startedAt: integer("started_at"),
 });
 
 export const Cell = sqliteTable("cell", {

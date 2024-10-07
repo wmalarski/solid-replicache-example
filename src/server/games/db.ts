@@ -22,6 +22,7 @@ export const selectGame = async (
 			height: ctx.schema.Game.height,
 			mines: ctx.schema.Game.mines,
 			code: ctx.schema.Game.code,
+			startedAt: ctx.schema.Game.startedAt,
 		})
 		.from(ctx.schema.Game)
 		.where(
@@ -89,6 +90,7 @@ export const insertGame = async (
 			width,
 			version: 1,
 			deleted: false,
+			startedAt: null,
 		})
 		.returning()
 		.get();

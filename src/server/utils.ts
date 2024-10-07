@@ -4,6 +4,7 @@ import * as v from "valibot";
 import { getCookie, type setCookie } from "vinxi/http";
 
 import { paths } from "~/utils/paths";
+import type { ActionResult } from "~/utils/validation";
 
 export type CookieSerializeOptions = Parameters<typeof setCookie>[2];
 
@@ -18,35 +19,13 @@ export const getRequestEventOrThrow = () => {
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export type RpcResult<T = any> = {
-	data?: T;
-	error?: string;
-	errors?: Record<string, string>;
-	success: boolean;
-};
-
-export const rpcParseIssueResult = (
-	issues: v.BaseIssue<unknown>[],
-): RpcResult => {
-	return {
-		errors: Object.fromEntries(
-			issues.map((issue) => [
-				issue.path?.map((item) => item.key).join(".") || "global",
-				issue.message,
-			]),
-		),
-		success: false,
-	};
-};
-
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export const rpcSuccessResult = <T = any>(data?: T): RpcResult => {
+export const rpcSuccessResult = <T = any>(data?: T): ActionResult => {
 	return { data, success: true };
 };
 
 export const rpcErrorResult = <T extends { message: string }>(
 	error: T,
-): RpcResult => {
+): ActionResult => {
 	return { error: error.message, success: false };
 };
 

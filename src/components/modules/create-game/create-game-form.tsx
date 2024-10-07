@@ -7,8 +7,8 @@ import {
 	BOARD_MIN_MINES,
 	BOARD_MIN_SIZE,
 } from "~/server/games/const";
-import type { RpcResult } from "~/server/utils";
 import { Stack } from "~/styled-system/jsx";
+import type { ActionResult } from "~/utils/validation";
 
 export type CreateGameFormData = {
 	name: string;
@@ -19,7 +19,7 @@ export type CreateGameFormData = {
 
 type CreateGameFormProps = {
 	initialData?: CreateGameFormData;
-	result?: RpcResult;
+	result?: ActionResult;
 };
 
 export const CreateGameForm: Component<CreateGameFormProps> = (props) => {
