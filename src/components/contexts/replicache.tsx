@@ -41,10 +41,14 @@ const createReplicache = (playerId: string, spaceId: string) => {
 			async insertGame(tx: WriteTransaction, args: SelectGameResult) {
 				await tx.set(getGameKey(spaceId, args.id), args);
 			},
-			async resetGame(tx: WriteTransaction, args: ResetGameArgs) {
-				const cellsPrefix = getGameCellsPrefix(spaceId, args.id);
+			async resetGame(
+				tx: WriteTransaction,
+				{ previousGameId, ...args }: ResetGameArgs,
+			) {
+				const cellsPrefix = getGameCellsPrefix(spaceId, previousGameId);
 				const [cellsKeys] = await Promise.all([
 					tx.scan({ prefix: cellsPrefix }).keys().toArray(),
+					tx.del(getGameKey(spaceId, previousGameId)),
 					tx.set(getGameKey(spaceId, args.id), args),
 				]);
 				await Promise.all(cellsKeys.map((cellKey) => tx.del(cellKey)));

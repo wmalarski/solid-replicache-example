@@ -5,7 +5,6 @@ import {
 	createUniqueId,
 } from "solid-js";
 
-import { useAction, useNavigate, useSubmission } from "@solidjs/router";
 import { useI18n } from "~/components/contexts/i18n";
 import { useReplicacheContext } from "~/components/contexts/replicache";
 import {
@@ -14,21 +13,19 @@ import {
 } from "~/components/modules/create-game/utils";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import { insertSpaceAction } from "~/server/replicache/client";
-import { paths } from "~/utils/paths";
 import { type ActionResult, parseValibotIssues } from "~/utils/validation";
 import { CreateGameForm } from "./create-game-form";
 
-export const CreateGameCard: Component = () => {
-	const { t } = useI18n();
+type CreateGameCardProps = {
+	spaceId: string;
+};
 
-	const navigate = useNavigate();
+export const CreateGameCard: Component<CreateGameCardProps> = (props) => {
+	const { t } = useI18n();
 
 	const rep = useReplicacheContext();
 
 	const formId = createUniqueId();
-	const submission = useSubmission(insertSpaceAction);
-	const action = useAction(insertSpaceAction);
 
 	const [result, setResult] = createSignal<ActionResult>();
 
@@ -44,17 +41,13 @@ export const CreateGameCard: Component = () => {
 			return;
 		}
 
-		const result = await action();
-
 		await rep().mutate.insertGame({
 			...parsed.output,
 			id: crypto.randomUUID(),
-			spaceId: result.id,
+			spaceId: props.spaceId,
 			code: generateServerGameCode(parsed.output),
 			startedAt: null,
 		});
-
-		navigate(paths.space(result.id));
 	};
 
 	return (
@@ -68,7 +61,7 @@ export const CreateGameCard: Component = () => {
 				</form>
 			</Card.Body>
 			<Card.Footer>
-				<Button type="submit" form={formId} loading={submission.pending}>
+				<Button type="submit" form={formId}>
 					{t("createBoard.button")}
 				</Button>
 			</Card.Footer>

@@ -10,6 +10,7 @@ import { createSubscription } from "~/components/contexts/replicache";
 import type { GameCell } from "~/server/cells/types";
 import type { SelectGameResult } from "~/server/games/db";
 import { getGameCellsPrefix, getGamePrefix } from "~/server/replicache/utils";
+import { CreateGameCard } from "../create-game/create-game-card";
 import { getCellInfos } from "./utils";
 
 const createGameData = (game: SelectGameResult) => {
@@ -53,7 +54,10 @@ export const GameDataProvider: Component<GameDataProviderProps> = (props) => {
 	});
 
 	return (
-		<Show when={game.value}>
+		<Show
+			when={game.value}
+			fallback={<CreateGameCard spaceId={props.spaceId} />}
+		>
 			{(game) => {
 				const value = createMemo(() => {
 					return createGameData(game());

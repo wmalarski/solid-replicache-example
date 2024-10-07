@@ -3,13 +3,13 @@ import {
 	PageFooter,
 	PageTitle,
 } from "~/components/modules/common/layout";
-import { CreateGameCard } from "~/components/modules/create-game/create-game-card";
+import { CreateSpaceCard } from "~/components/modules/spaces/create-space-card";
 
 export default function Home() {
 	return (
 		<FormLayout>
 			<PageTitle />
-			<CreateGameCard />
+			<CreateSpaceCard />
 			<PageFooter />
 		</FormLayout>
 	);
