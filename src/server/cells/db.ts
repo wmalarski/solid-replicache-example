@@ -2,11 +2,8 @@
 import { and, eq, gt } from "drizzle-orm";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
+import type { WithVersion } from "../utils";
 import type { GameCell } from "./types";
-
-type WithVersion<T> = T & {
-	version: number;
-};
 
 export type InsertCellArgs = GameCell;
 
@@ -15,10 +12,9 @@ export const insertCell = (
 	transaction: Transaction,
 	args: WithVersion<InsertCellArgs>,
 ) => {
-	return transaction.insert(ctx.schema.Cell).values({
-		...args,
-		deleted: false,
-	});
+	return transaction
+		.insert(ctx.schema.Cell)
+		.values({ ...args, deleted: false });
 };
 
 type SelectCellsArgs = {
@@ -59,5 +55,22 @@ export const updateCell = (
 		.update(ctx.schema.Cell)
 		.set({ clicked, marked, version })
 		.where(eq(ctx.schema.Cell.id, id))
+		.run();
+};
+
+export type UpdateCellsArgs = {
+	gameId: string;
+	deleted: boolean;
+};
+
+export const updateCells = (
+	ctx: ServerContext,
+	transaction: Transaction,
+	{ deleted, gameId, version }: WithVersion<UpdateCellsArgs>,
+) => {
+	return transaction
+		.update(ctx.schema.Cell)
+		.set({ deleted, version })
+		.where(eq(ctx.schema.Cell.gameId, gameId))
 		.run();
 };

@@ -2,13 +2,13 @@
 import { and, eq, gt } from "drizzle-orm";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
-import { generateServerGameCode } from "./utils";
+import type { WithVersion } from "../utils";
 
 type SelectGameArgs = {
 	spaceId: string;
 };
 
-export const selectGame = async (
+export const selectGame = (
 	ctx: ServerContext,
 	transaction: Transaction,
 	{ spaceId }: SelectGameArgs,
@@ -44,7 +44,7 @@ type SelectGamesArgs = {
 	fromVersion: number;
 };
 
-export const selectGames = async (
+export const selectGames = (
 	ctx: ServerContext,
 	transaction: Transaction,
 	{ fromVersion, spaceId }: SelectGamesArgs,
@@ -61,7 +61,9 @@ export const selectGames = async (
 		.all();
 };
 
-type InsertGameArgs = {
+export type InsertGameArgs = {
+	id: string;
+	code: string;
 	width: number;
 	height: number;
 	name: string;
@@ -69,29 +71,32 @@ type InsertGameArgs = {
 	spaceId: string;
 };
 
-export const insertGame = async (
+export const insertGame = (
 	ctx: ServerContext,
 	transaction: Transaction,
-	{ height, width, mines, name, spaceId }: InsertGameArgs,
+	args: WithVersion<InsertGameArgs>,
 ) => {
-	if (!ctx.event.clientAddress) {
-		throw new Error("Invalid request");
-	}
-
 	return transaction
 		.insert(ctx.schema.Game)
-		.values({
-			id: crypto.randomUUID(),
-			spaceId,
-			code: generateServerGameCode({ height, mines, width }),
-			height,
-			mines,
-			name,
-			width,
-			version: 1,
-			deleted: false,
-			startedAt: null,
-		})
+		.values({ ...args, deleted: false, startedAt: null })
 		.returning()
 		.get();
+};
+
+export type UpdateGameArgs = {
+	id: string;
+	deleted?: boolean;
+	startedAt?: number | null;
+};
+
+export const updateGame = (
+	ctx: ServerContext,
+	transaction: Transaction,
+	{ id, deleted, startedAt, version }: WithVersion<UpdateGameArgs>,
+) => {
+	return transaction
+		.update(ctx.schema.Game)
+		.set({ deleted, startedAt, version })
+		.where(eq(ctx.schema.Game.id, id))
+		.run();
 };

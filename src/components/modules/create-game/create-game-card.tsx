@@ -5,17 +5,26 @@ import {
 	createUniqueId,
 } from "solid-js";
 
-import { useAction, useSubmission } from "@solidjs/router";
+import { useAction, useNavigate, useSubmission } from "@solidjs/router";
 import { useI18n } from "~/components/contexts/i18n";
+import { useReplicacheContext } from "~/components/contexts/replicache";
+import {
+	generateServerGameCode,
+	parseBoardConfig,
+} from "~/components/modules/create-game/utils";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import { parseBoardConfig } from "~/server/games/utils";
 import { insertSpaceAction } from "~/server/replicache/client";
+import { paths } from "~/utils/paths";
 import { type ActionResult, parseValibotIssues } from "~/utils/validation";
 import { CreateGameForm } from "./create-game-form";
 
 export const CreateGameCard: Component = () => {
 	const { t } = useI18n();
+
+	const navigate = useNavigate();
+
+	const rep = useReplicacheContext();
 
 	const formId = createUniqueId();
 	const submission = useSubmission(insertSpaceAction);
@@ -35,7 +44,17 @@ export const CreateGameCard: Component = () => {
 			return;
 		}
 
-		await action();
+		const result = await action();
+
+		await rep().mutate.insertGame({
+			...parsed.output,
+			id: crypto.randomUUID(),
+			spaceId: result.id,
+			code: generateServerGameCode(parsed.output),
+			startedAt: null,
+		});
+
+		navigate(paths.space(result.id));
 	};
 
 	return (

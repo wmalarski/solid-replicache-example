@@ -8,6 +8,10 @@ import type { ActionResult } from "~/utils/validation";
 
 export type CookieSerializeOptions = Parameters<typeof setCookie>[2];
 
+export type WithVersion<T> = T & {
+	version: number;
+};
+
 export const getRequestEventOrThrow = () => {
 	const event = getRequestEvent();
 

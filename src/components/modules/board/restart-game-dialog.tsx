@@ -3,25 +3,29 @@ import {
 	type ComponentProps,
 	Show,
 	createMemo,
+	createSignal,
 	createUniqueId,
 } from "solid-js";
 import { useI18n } from "~/components/contexts/i18n";
+import { useReplicacheContext } from "~/components/contexts/replicache";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogCloseXTrigger } from "~/components/ui/dialog";
 import { IconButton } from "~/components/ui/icon-button";
 import { FrownIcon, SmileIcon } from "~/components/ui/icons";
-import { parseBoardConfig } from "~/server/games/utils";
 import { Stack } from "~/styled-system/jsx";
+import { type ActionResult, parseValibotIssues } from "~/utils/validation";
 import { CreateGameForm } from "../create-game/create-game-form";
+import { generateServerGameCode, parseBoardConfig } from "../create-game/utils";
 import { useGameData } from "./game-provider";
 
 export const RestartGameDialog: Component = () => {
 	const { t } = useI18n();
 
-	// const rep = useReplicacheContext();
+	const rep = useReplicacheContext();
 	const data = useGameData();
 
 	const formId = createUniqueId();
+	const [result, setResult] = createSignal<ActionResult>();
 
 	const hasClickedMine = createMemo(() => {
 		const { minePositions, cells } = data();
@@ -31,16 +35,23 @@ export const RestartGameDialog: Component = () => {
 	const onSubmit: ComponentProps<"form">["onSubmit"] = async (event) => {
 		event.preventDefault();
 
+		const { game } = data();
+
 		const formData = new FormData(event.currentTarget);
 		const parsed = await parseBoardConfig(formData);
 
-		console.log("parsed", parsed);
-
 		if (!parsed.success) {
+			setResult(parseValibotIssues(parsed.issues));
 			return;
 		}
 
-		// rep().mutate.deleteCells
+		await rep().mutate.resetGame({
+			...parsed.output,
+			id: crypto.randomUUID(),
+			spaceId: game.spaceId,
+			code: generateServerGameCode(parsed.output),
+			previousGameId: game.id,
+		});
 	};
 
 	return (
@@ -60,7 +71,7 @@ export const RestartGameDialog: Component = () => {
 						<Stack gap="1">
 							<Dialog.Title>{t("createBoard.title")}</Dialog.Title>
 							<form id={formId} onSubmit={onSubmit} method="post">
-								<CreateGameForm initialData={data().game} />
+								<CreateGameForm initialData={data().game} result={result()} />
 							</form>
 						</Stack>
 						<Stack gap="3" direction="row" width="full">
