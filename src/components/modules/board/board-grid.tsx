@@ -1,10 +1,36 @@
-import { type Component, For, createMemo } from "solid-js";
+import {
+	type Component,
+	type ComponentProps,
+	For,
+	createMemo,
+	createSignal,
+} from "solid-js";
 import { Grid } from "~/styled-system/jsx";
-import { BoardCell } from "./board-cell";
+import { BoardCell, DATA_POSITION_ATTRIBUTE } from "./board-cell";
 import { useGameData } from "./game-provider";
+import { getNeighborsPositions } from "./utils";
 
 export const BoardGrid: Component = () => {
 	const data = useGameData();
+
+	const [pushedDownCell, setPushedDownCell] = createSignal<number | null>(null);
+
+	const pushedNeighbors = createMemo(() => {
+		const { game } = data();
+		const index = pushedDownCell();
+
+		if (!index && index !== 0) {
+			return new Set<number>();
+		}
+
+		return new Set(
+			getNeighborsPositions({
+				columns: game.width,
+				index,
+				rows: game.height,
+			}),
+		);
+	});
 
 	const uncovered = createMemo(() => {
 		const uncovered = new Set<number>();
@@ -32,11 +58,30 @@ export const BoardGrid: Component = () => {
 		return uncovered;
 	});
 
+	const getElementPosition = (target: Element) => {
+		const attribute = target.getAttribute(DATA_POSITION_ATTRIBUTE);
+		return attribute ? { value: Number(attribute) } : null;
+	};
+
+	const onMouseDown: ComponentProps<"div">["onMouseDown"] = (event) => {
+		const position = getElementPosition(event.target);
+		if (!position) {
+			return;
+		}
+		setPushedDownCell(position.value);
+	};
+
+	const onMouseUp: ComponentProps<"div">["onMouseUp"] = () => {
+		setPushedDownCell(null);
+	};
+
 	return (
 		<Grid
 			onContextMenu={(e) => e.preventDefault()}
 			style={{ "grid-template-columns": `repeat(${data().game.width}, 1fr)` }}
 			width="fit-content"
+			onMouseDown={onMouseDown}
+			onMouseUp={onMouseUp}
 			gap={0}
 		>
 			<For each={[...data().game.code]}>
@@ -44,6 +89,7 @@ export const BoardGrid: Component = () => {
 					<BoardCell
 						position={index()}
 						isUncovered={uncovered().has(index())}
+						isPushed={pushedNeighbors().has(index())}
 					/>
 				)}
 			</For>

@@ -24,7 +24,7 @@ type GetNeighborsPositionsArgs = {
 	rows: number;
 };
 
-const getNeighborsPositions = ({
+export const getNeighborsPositions = ({
 	columns,
 	index,
 	rows,

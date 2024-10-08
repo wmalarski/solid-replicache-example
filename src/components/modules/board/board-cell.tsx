@@ -14,6 +14,7 @@ import { getGameCellKey } from "~/server/replicache/utils";
 import { type RecipeVariant, cva } from "~/styled-system/css";
 import { useGameData } from "./game-provider";
 
+export const DATA_POSITION_ATTRIBUTE = "data-position";
 const RIGHT_BUTTON = 2;
 
 const buttonStyles = cva({
@@ -56,6 +57,7 @@ type ButtonVariants = RecipeVariant<typeof buttonStyles>;
 type BoardCellProps = {
 	position: number;
 	isUncovered: boolean;
+	isPushed: boolean;
 };
 
 export const BoardCell: Component<BoardCellProps> = (props) => {
@@ -116,6 +118,7 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 
 	return (
 		<button
+			{...{ [DATA_POSITION_ATTRIBUTE]: config()?.position }}
 			onMouseUp={onMouseUp}
 			type="button"
 			aria-label="block"
