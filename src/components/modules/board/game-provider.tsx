@@ -59,10 +59,7 @@ export const GameDataProvider: Component<GameDataProviderProps> = (props) => {
 			fallback={<CreateGameCard spaceId={props.spaceId} />}
 		>
 			{(game) => {
-				const value = createMemo(() => {
-					return createGameData(game());
-				});
-
+				const value = createMemo(() => createGameData(game()));
 				return (
 					<GameDataContext.Provider value={value}>
 						{props.children}

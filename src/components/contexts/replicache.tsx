@@ -41,6 +41,9 @@ const createReplicache = (playerId: string, spaceId: string) => {
 			async insertGame(tx: WriteTransaction, args: SelectGameResult) {
 				await tx.set(getGameKey(spaceId, args.id), args);
 			},
+			async updateGame(tx: WriteTransaction, args: SelectGameResult) {
+				await tx.set(getGameKey(spaceId, args.id), args);
+			},
 			async resetGame(
 				tx: WriteTransaction,
 				{ previousGameId, ...args }: ResetGameArgs,

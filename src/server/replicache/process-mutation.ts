@@ -9,7 +9,12 @@ import {
 } from "../cells/db";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
-import { type InsertGameArgs, insertGame, updateGame } from "../games/db";
+import {
+	type InsertGameArgs,
+	type SelectGameResult,
+	insertGame,
+	updateGame,
+} from "../games/db";
 
 export type ResetGameArgs = InsertGameArgs & {
 	previousGameId: string;
@@ -44,6 +49,15 @@ export const processMutation = async (
 				version: nextVersion,
 			});
 			break;
+		case "updateGame": {
+			const { id, startedAt } = mutation.args as SelectGameResult;
+			await updateGame(ctx, transaction, {
+				id,
+				startedAt,
+				version: nextVersion,
+			});
+			break;
+		}
 		case "resetGame": {
 			const { previousGameId, ...args } = mutation.args as ResetGameArgs;
 			await Promise.all([

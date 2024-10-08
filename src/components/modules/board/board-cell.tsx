@@ -74,6 +74,19 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 		);
 	});
 
+	const updateStartedAt = async () => {
+		const { game } = data();
+
+		if (!game.startedAt) {
+			return;
+		}
+
+		await rep().mutate.updateGame({
+			...game,
+			startedAt: new Date().getTime(),
+		});
+	};
+
 	const onMouseUp: ComponentProps<"button">["onClick"] = async (event) => {
 		const { game } = data();
 		const common = { position: props.position, gameId: game.id };
@@ -97,6 +110,8 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 				clicked: event.button !== RIGHT_BUTTON,
 			});
 		}
+
+		await updateStartedAt();
 	};
 
 	return (
