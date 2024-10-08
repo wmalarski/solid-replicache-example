@@ -1,10 +1,9 @@
-import { type Component, createMemo } from "solid-js";
 import { RealtimeProvider } from "~/components/contexts/realtime";
 import { ReplicacheProvider } from "~/components/contexts/replicache";
-import { HStack, Stack } from "~/styled-system/jsx";
+import { Stack } from "~/styled-system/jsx";
 import { BoardGrid } from "./board-grid";
-import { GameDataProvider, useGameData } from "./game-provider";
-import { RestartGameDialog } from "./restart-game-dialog";
+import { BoardTopBar } from "./board-top-board";
+import { GameDataProvider } from "./game-provider";
 
 type BoardProps = {
 	spaceId: string;
@@ -25,29 +24,3 @@ export default function Board(props: BoardProps) {
 		</RealtimeProvider>
 	);
 }
-
-const BoardTopBar: Component = () => {
-	return (
-		<HStack>
-			<MinesLeftCounter />
-			<RestartGameDialog />
-			<SecondsCounter />
-		</HStack>
-	);
-};
-
-const SecondsCounter: Component = () => {
-	return <span>SecondsCounter</span>;
-};
-
-const MinesLeftCounter: Component = () => {
-	const data = useGameData();
-
-	const minesMarked = createMemo(() => {
-		const { cells, minePositions } = data();
-		const marked = cells.value.filter((cell) => cell.marked).length;
-		return minePositions.size - marked;
-	});
-
-	return <span>{minesMarked()}</span>;
-};
