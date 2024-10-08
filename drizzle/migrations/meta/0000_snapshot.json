@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "f4b81ad2-a56b-4404-9c33-e50234a12d25",
+  "id": "8f3072e7-c438-4a54-9429-2ec88161c1ed",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "cell": {
@@ -90,6 +90,13 @@
         "id": {
           "name": "id",
           "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "space_id": {
+          "name": "space_id",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -154,12 +161,12 @@
         }
       },
       "foreignKeys": {
-        "game_id_replicache_space_id_fk": {
-          "name": "game_id_replicache_space_id_fk",
+        "game_space_id_replicache_space_id_fk": {
+          "name": "game_space_id_replicache_space_id_fk",
           "tableFrom": "game",
           "tableTo": "replicache_space",
           "columnsFrom": [
-            "id"
+            "space_id"
           ],
           "columnsTo": [
             "id"

@@ -15,7 +15,7 @@ export const ReplicacheClient = sqliteTable("replicache_client", {
 
 export const Game = sqliteTable("game", {
 	id: text("id").primaryKey().unique().notNull(),
-	spaceId: text("id")
+	spaceId: text("space_id")
 		.notNull()
 		.references(() => ReplicacheSpace.id),
 	name: text("name").notNull(),

@@ -11,7 +11,8 @@ CREATE TABLE `cell` (
 --> statement-breakpoint
 CREATE UNIQUE INDEX `cell_id_unique` ON `cell` (`id`);--> statement-breakpoint
 CREATE TABLE `game` (
-	`id` text NOT NULL,
+	`id` text PRIMARY KEY NOT NULL,
+	`space_id` text NOT NULL,
 	`name` text NOT NULL,
 	`width` integer NOT NULL,
 	`height` integer NOT NULL,
@@ -19,7 +20,7 @@ CREATE TABLE `game` (
 	`deleted` integer NOT NULL,
 	`version` integer NOT NULL,
 	`started_at` integer,
-	FOREIGN KEY (`id`) REFERENCES `replicache_space`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`space_id`) REFERENCES `replicache_space`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `game_id_unique` ON `game` (`id`);--> statement-breakpoint

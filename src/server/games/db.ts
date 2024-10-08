@@ -54,7 +54,7 @@ export const selectGames = (
 		.from(ctx.schema.Game)
 		.where(
 			and(
-				gt(ctx.schema.Cell.version, fromVersion),
+				gt(ctx.schema.Game.version, fromVersion),
 				eq(ctx.schema.Game.spaceId, spaceId),
 			),
 		)

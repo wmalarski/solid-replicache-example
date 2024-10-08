@@ -25,6 +25,7 @@ export const RestartGameDialog: Component = () => {
 	const data = useGameData();
 
 	const formId = createUniqueId();
+	const [isOpen, setIsOpen] = createSignal(false);
 	const [result, setResult] = createSignal<ActionResult>();
 
 	const hasClickedMine = createMemo(() => {
@@ -52,10 +53,12 @@ export const RestartGameDialog: Component = () => {
 			code: generateServerGameCode(parsed.output),
 			previousGameId: game.id,
 		});
+
+		setIsOpen(false);
 	};
 
 	return (
-		<Dialog.Root>
+		<Dialog.Root open={isOpen()} onOpenChange={setIsOpen}>
 			<Dialog.Trigger
 				asChild={(props) => <IconButton {...props()} />}
 				aria-label="Reset"
