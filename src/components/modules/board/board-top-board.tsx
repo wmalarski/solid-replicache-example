@@ -1,6 +1,7 @@
 import {
 	type Component,
 	Show,
+	createEffect,
 	createMemo,
 	createSignal,
 	onCleanup,
@@ -25,6 +26,10 @@ const formatMsDifference = (ms: number) => {
 
 const SecondsCounter: Component = () => {
 	const data = useGameData();
+
+	createEffect(() => {
+		console.log("data().game", data().game, data().game.startedAt);
+	});
 
 	return (
 		<Show when={data().game.startedAt} fallback={<span>0</span>}>

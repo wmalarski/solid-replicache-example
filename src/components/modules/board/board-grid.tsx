@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import {
 	type Component,
 	type ComponentProps,
@@ -5,13 +6,15 @@ import {
 	createMemo,
 	createSignal,
 } from "solid-js";
+import { useReplicacheContext } from "~/components/contexts/replicache";
 import { Grid } from "~/styled-system/jsx";
 import { BoardCell, DATA_POSITION_ATTRIBUTE } from "./board-cell";
 import { useGameData } from "./game-provider";
-import { getNeighborsPositions } from "./utils";
+import { RIGHT_BUTTON, getNeighborsPositions } from "./utils";
 
 export const BoardGrid: Component = () => {
 	const data = useGameData();
+	const rep = useReplicacheContext();
 
 	const [pushedDownCell, setPushedDownCell] = createSignal<number | null>(null);
 
@@ -71,8 +74,54 @@ export const BoardGrid: Component = () => {
 		setPushedDownCell(position.value);
 	};
 
-	const onMouseUp: ComponentProps<"div">["onMouseUp"] = () => {
+	const updateStartedAt = async () => {
+		const { game } = data();
+
+		if (!game.startedAt) {
+			return;
+		}
+
+		await rep().mutate.updateGame({
+			...game,
+			startedAt: new Date().getTime(),
+		});
+	};
+
+	const onMouseUp: ComponentProps<"div">["onMouseUp"] = async (event) => {
+		const { game, cellsMap } = data();
+
 		setPushedDownCell(null);
+
+		const position = getElementPosition(event.target);
+		if (!position) {
+			return;
+		}
+
+		const cell = cellsMap().get(position.value);
+
+		if (cell?.clicked) {
+			return;
+		}
+
+		const common = { position: position.value, gameId: game.id };
+
+		if (cell && event.button === RIGHT_BUTTON) {
+			await rep().mutate.updateCell({
+				...common,
+				id: cell.id,
+				marked: !cell.marked,
+				clicked: false,
+			});
+		} else if (!cell || event.button === RIGHT_BUTTON) {
+			await rep().mutate.insertCell({
+				...common,
+				id: nanoid(),
+				marked: event.button === RIGHT_BUTTON,
+				clicked: event.button !== RIGHT_BUTTON,
+			});
+		}
+
+		await updateStartedAt();
 	};
 
 	return (

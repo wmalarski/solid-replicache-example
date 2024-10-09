@@ -1,3 +1,5 @@
+export const RIGHT_BUTTON = 2;
+
 export type CellInfo = {
 	position: number;
 	neighbors: number[];

@@ -26,7 +26,13 @@ const createGameData = (game: SelectGameResult) => {
 		return array.map(([_id, value]) => value);
 	}, []);
 
-	return { cells, configs, game, minePositions };
+	const cellsMap = createMemo(() => {
+		const map = new Map<number, GameCell>();
+		cells.value.forEach((value) => map.set(value.position, value));
+		return map;
+	});
+
+	return { cells, cellsMap, configs, game, minePositions };
 };
 
 const GameDataContext = createContext<() => ReturnType<typeof createGameData>>(

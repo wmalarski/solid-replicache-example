@@ -1,21 +1,11 @@
-import { nanoid } from "nanoid";
-import {
-	type Component,
-	type ComponentProps,
-	Show,
-	createMemo,
-} from "solid-js";
-import {
-	createSubscription,
-	useReplicacheContext,
-} from "~/components/contexts/replicache";
+import { type Component, Show, createMemo } from "solid-js";
+import { createSubscription } from "~/components/contexts/replicache";
 import type { GameCell } from "~/server/cells/types";
 import { getGameCellKey } from "~/server/replicache/utils";
 import { type RecipeVariant, cva } from "~/styled-system/css";
 import { useGameData } from "./game-provider";
 
 export const DATA_POSITION_ATTRIBUTE = "data-position";
-const RIGHT_BUTTON = 2;
 
 const buttonStyles = cva({
 	base: {
@@ -61,7 +51,6 @@ type BoardCellProps = {
 };
 
 export const BoardCell: Component<BoardCellProps> = (props) => {
-	const rep = useReplicacheContext();
 	const data = useGameData();
 
 	const config = createMemo(() => {
@@ -76,50 +65,9 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 		);
 	});
 
-	const updateStartedAt = async () => {
-		const { game } = data();
-
-		if (!game.startedAt) {
-			return;
-		}
-
-		await rep().mutate.updateGame({
-			...game,
-			startedAt: new Date().getTime(),
-		});
-	};
-
-	const onMouseUp: ComponentProps<"button">["onClick"] = async (event) => {
-		const { game } = data();
-		const common = { position: props.position, gameId: game.id };
-
-		if (cell.value?.clicked) {
-			return;
-		}
-
-		if (cell.value && event.button === RIGHT_BUTTON) {
-			await rep().mutate.updateCell({
-				...common,
-				id: cell.value.id,
-				marked: !cell.value.marked,
-				clicked: false,
-			});
-		} else if (!cell.value || event.button === RIGHT_BUTTON) {
-			await rep().mutate.insertCell({
-				...common,
-				id: nanoid(),
-				marked: event.button === RIGHT_BUTTON,
-				clicked: event.button !== RIGHT_BUTTON,
-			});
-		}
-
-		await updateStartedAt();
-	};
-
 	return (
 		<button
 			{...{ [DATA_POSITION_ATTRIBUTE]: config()?.position }}
-			onMouseUp={onMouseUp}
 			type="button"
 			aria-label="block"
 			class={buttonStyles({
