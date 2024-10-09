@@ -1,5 +1,6 @@
-import type { GameDataContextData } from "./game-provider";
+import type { GameCell } from "~/server/cells/types";
 
+export const LEFT_BUTTON = 0;
 export const RIGHT_BUTTON = 2;
 
 export type CellInfo = {
@@ -148,16 +149,16 @@ const updateLakes = ({ positionsWithZero, cellInfos }: UpdateLakesArgs) => {
 	});
 };
 
-export const getUncovered = ({
-	cells,
-	configs,
-	minePositions,
-	clickedOnMine,
-}: GameDataContextData) => {
+type GetUncoveredArgs = {
+	cells: GameCell[];
+	configs: Map<number, CellInfo>;
+};
+
+export const getUncovered = ({ cells, configs }: GetUncoveredArgs) => {
 	const uncovered = new Set<number>();
 
-	cells.value.forEach((cell) => {
-		if (cell.clicked) {
+	cells.forEach((cell) => {
+		if (cell.clicked && !uncovered.has(cell.position)) {
 			uncovered.add(cell.position);
 			const cellConfig = configs.get(cell.position);
 
@@ -166,10 +167,6 @@ export const getUncovered = ({
 			}
 		}
 	});
-
-	if (clickedOnMine()) {
-		minePositions.forEach((position) => uncovered.add(position));
-	}
 
 	return uncovered;
 };

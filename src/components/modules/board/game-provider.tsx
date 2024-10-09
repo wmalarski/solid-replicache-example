@@ -11,7 +11,7 @@ import type { GameCell } from "~/server/cells/types";
 import type { SelectGameResult } from "~/server/games/db";
 import { getGameCellsPrefix, getGamePrefix } from "~/server/replicache/utils";
 import { CreateGameCard } from "../create-game/create-game-card";
-import { getCellInfos } from "./utils";
+import { getCellInfos, getUncovered } from "./utils";
 
 const createGameData = (game: SelectGameResult) => {
 	const { configs, minePositions } = getCellInfos({
@@ -38,7 +38,22 @@ const createGameData = (game: SelectGameResult) => {
 		);
 	});
 
-	return { cells, cellsMap, configs, game, minePositions, clickedOnMine };
+	const uncovered = createMemo(() =>
+		getUncovered({
+			cells: cells.value,
+			configs,
+		}),
+	);
+
+	return {
+		cells,
+		cellsMap,
+		configs,
+		game,
+		minePositions,
+		clickedOnMine,
+		uncovered,
+	};
 };
 
 export type GameDataContextData = ReturnType<typeof createGameData>;

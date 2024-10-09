@@ -72,7 +72,7 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 			aria-label="block"
 			class={buttonStyles({
 				color: (config()?.count ?? 0) as ButtonVariants["color"],
-				uncovered: props.isUncovered,
+				uncovered: props.isUncovered || (props.isPushed && !cell.value?.marked),
 			})}
 		>
 			<Show when={!cell.value?.marked} fallback="F">

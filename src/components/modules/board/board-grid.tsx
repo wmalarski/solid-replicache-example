@@ -10,7 +10,7 @@ import { useReplicacheContext } from "~/components/contexts/replicache";
 import { Grid } from "~/styled-system/jsx";
 import { BoardCell, DATA_POSITION_ATTRIBUTE } from "./board-cell";
 import { useGameData } from "./game-provider";
-import { RIGHT_BUTTON, getNeighborsPositions, getUncovered } from "./utils";
+import { LEFT_BUTTON, RIGHT_BUTTON, getNeighborsPositions } from "./utils";
 
 export const BoardGrid: Component = () => {
 	const data = useGameData();
@@ -18,19 +18,22 @@ export const BoardGrid: Component = () => {
 
 	const { pushedNeighbors, setPushedCell } = createPushedNeighbors();
 
-	const uncovered = createMemo(() => getUncovered(data()));
-
 	const getElementPosition = (target: Element) => {
 		const attribute = target.getAttribute(DATA_POSITION_ATTRIBUTE);
 		return attribute ? { value: Number(attribute) } : null;
 	};
 
 	const onMouseDown: ComponentProps<"div">["onMouseDown"] = (event) => {
+		const { uncovered } = data();
+
 		const position = getElementPosition(event.target);
-		if (!position) {
-			return;
+		if (
+			position &&
+			event.button === LEFT_BUTTON &&
+			uncovered().has(position.value)
+		) {
+			setPushedCell(position.value);
 		}
-		setPushedCell(position.value);
 	};
 
 	const updateStartedAt = async () => {
@@ -47,7 +50,7 @@ export const BoardGrid: Component = () => {
 	};
 
 	const onMouseUp: ComponentProps<"div">["onMouseUp"] = async (event) => {
-		const { game, cellsMap } = data();
+		const { game, cellsMap, uncovered } = data();
 
 		setPushedCell(null);
 
@@ -57,26 +60,28 @@ export const BoardGrid: Component = () => {
 		}
 
 		const cell = cellsMap().get(position.value);
+		const isUncovered = uncovered().has(position.value);
 
-		if (cell?.clicked) {
+		if (isUncovered) {
 			return;
 		}
 
 		const common = { position: position.value, gameId: game.id };
+		const isMarking = event.button === RIGHT_BUTTON;
 
-		if (cell && event.button === RIGHT_BUTTON) {
+		if (cell && isMarking) {
 			await rep().mutate.updateCell({
 				...common,
 				id: cell.id,
 				marked: !cell.marked,
 				clicked: false,
 			});
-		} else if (!cell || event.button === RIGHT_BUTTON) {
+		} else if (!cell || isMarking) {
 			await rep().mutate.insertCell({
 				...common,
 				id: nanoid(),
-				marked: event.button === RIGHT_BUTTON,
-				clicked: event.button !== RIGHT_BUTTON,
+				marked: isMarking,
+				clicked: !isMarking,
 			});
 		}
 
@@ -96,7 +101,7 @@ export const BoardGrid: Component = () => {
 				{(_cellCode, index) => (
 					<BoardCell
 						position={index()}
-						isUncovered={uncovered().has(index())}
+						isUncovered={data().uncovered().has(index())}
 						isPushed={pushedNeighbors().has(index())}
 					/>
 				)}
