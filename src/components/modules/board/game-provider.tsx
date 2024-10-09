@@ -26,33 +26,30 @@ const createGameData = (game: SelectGameResult) => {
 		return array.map(([_id, value]) => value);
 	}, []);
 
-	const cellsMap = createMemo(() => {
-		const map = new Map<number, GameCell>();
-		cells.value.forEach((value) => map.set(value.position, value));
-		return map;
-	});
-
 	const clickedOnMine = createMemo(() => {
 		return cells.value.some(
 			(cell) => cell.clicked && minePositions.has(cell.position),
 		);
 	});
 
-	const uncovered = createMemo(() =>
-		getUncovered({
-			cells: cells.value,
-			configs,
-		}),
-	);
+	const positionsMarked = createMemo(() => {
+		return new Set(
+			cells.value.filter((cell) => cell.marked).map((cell) => cell.position),
+		);
+	});
+
+	const uncovered = createMemo(() => {
+		return getUncovered({ cells: cells.value, configs });
+	});
 
 	return {
 		cells,
-		cellsMap,
 		configs,
 		game,
 		minePositions,
 		clickedOnMine,
 		uncovered,
+		positionsMarked,
 	};
 };
 

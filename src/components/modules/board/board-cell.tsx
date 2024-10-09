@@ -1,7 +1,5 @@
 import { type Component, Show, createMemo } from "solid-js";
-import { createSubscription } from "~/components/contexts/replicache";
-import type { GameCell } from "~/server/cells/types";
-import { getGameCellKey } from "~/server/replicache/utils";
+import { BombIcon, FlagTriangleRightIcon } from "~/components/ui/icons";
 import { type RecipeVariant, cva } from "~/styled-system/css";
 import { useGameData } from "./game-provider";
 
@@ -9,30 +7,38 @@ export const DATA_POSITION_ATTRIBUTE = "data-position";
 
 const buttonStyles = cva({
 	base: {
-		background: "#7C7C7C",
 		fontFamily: "monospace",
-		fontSize: "xl",
-		fontWeight: "bolder",
-		boxSizing: "border-box",
+		fontSize: "3xl",
+		fontWeight: "extrabold",
 		color: "white",
 		cursor: "pointer",
-		display: "inline-block",
-		textTransform: "uppercase",
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
 		width: 7,
 		height: 7,
 		"&:focus,\n\t&:hover": { background: "#BCBCBC" },
 	},
 	variants: {
 		color: {
-			1: { color: "indigo" },
+			0: { color: "#ffffff" },
+			1: { color: "#75C7F0" },
+			2: { color: "#71D083" },
+			3: { color: "#EC6142" },
+			4: { color: "#3E63DD" },
+			5: { color: "#883447" },
+			6: { color: "#246854" },
+			7: { color: "#B5B3AD" },
+			8: { color: "#EEEEF0" },
 		},
 		uncovered: {
 			true: {
-				background: "gray.10",
+				background: "gray.2",
 				borderRight: "1px inset rgba(255,255,255,.25)",
 				borderTop: "1px inset rgba(255,255,255,.25)",
 			},
 			false: {
+				background: "gray.5",
 				borderBottom: "4px inset rgba(0,0,0,.5)",
 				borderLeft: "4px inset rgba(0,0,0,.5)",
 				borderRight: "4px inset rgba(255,255,255,.5)",
@@ -46,7 +52,6 @@ type ButtonVariants = RecipeVariant<typeof buttonStyles>;
 
 type BoardCellProps = {
 	position: number;
-	isUncovered: boolean;
 	isPushed: boolean;
 };
 
@@ -58,30 +63,43 @@ export const BoardCell: Component<BoardCellProps> = (props) => {
 		return configs.get(props.position);
 	});
 
-	const cell = createSubscription(async (tx) => {
-		const { game } = data();
-		return tx.get<GameCell>(
-			getGameCellKey(game.spaceId, game.id, props.position),
-		);
+	const isMarked = createMemo(() => {
+		return data().positionsMarked().has(props.position);
+	});
+
+	const isUncovered = createMemo(() => {
+		return data().uncovered().has(props.position);
+	});
+
+	const count = createMemo(() => {
+		return config()?.count ?? 0;
 	});
 
 	return (
-		<button
-			{...{ [DATA_POSITION_ATTRIBUTE]: config()?.position }}
-			type="button"
-			aria-label="block"
-			class={buttonStyles({
-				color: (config()?.count ?? 0) as ButtonVariants["color"],
-				uncovered: props.isUncovered || (props.isPushed && !cell.value?.marked),
-			})}
+		<Show
+			when={!data().clickedOnMine() || !config()?.hasMine}
+			fallback={
+				<span class={buttonStyles({ uncovered: true })}>
+					<BombIcon />
+				</span>
+			}
 		>
-			<Show when={!cell.value?.marked} fallback="F">
-				<Show when={props.isUncovered}>
-					<Show when={!config()?.hasMine} fallback="M">
-						<Show when={(config()?.count ?? 0) > 0}>{config()?.count}</Show>
-					</Show>
+			<button
+				{...{ [DATA_POSITION_ATTRIBUTE]: props.position }}
+				type="button"
+				aria-label="block"
+				class={buttonStyles({
+					color: isMarked() ? 0 : (count() as ButtonVariants["color"]),
+					uncovered: isUncovered() || props.isPushed,
+				})}
+			>
+				<Show
+					when={isMarked()}
+					fallback={<Show when={isUncovered() && count() > 0}>{count()}</Show>}
+				>
+					<FlagTriangleRightIcon stroke-width={3} />
 				</Show>
-			</Show>
-		</button>
+			</button>
+		</Show>
 	);
 };

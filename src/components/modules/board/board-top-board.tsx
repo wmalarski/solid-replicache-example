@@ -54,11 +54,10 @@ const SecondsCounter: Component = () => {
 const MinesLeftCounter: Component = () => {
 	const data = useGameData();
 
-	const minesMarked = createMemo(() => {
-		const { cells, minePositions } = data();
-		const marked = cells.value.filter((cell) => cell.marked).length;
-		return minePositions.size - marked;
+	const minesNotMarked = createMemo(() => {
+		const { minePositions, positionsMarked } = data();
+		return minePositions.size - positionsMarked().size;
 	});
 
-	return <span>{minesMarked()}</span>;
+	return <span>{minesNotMarked()}</span>;
 };

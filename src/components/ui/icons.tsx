@@ -177,3 +177,47 @@ export const FrownIcon: Component<ComponentProps<"svg">> = (props) => {
 		</svg>
 	);
 };
+
+export const FlagTriangleRightIcon: Component<ComponentProps<"svg">> = (
+	props,
+) => {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			{...props}
+		>
+			<title>Flag Triangle Right Icon</title>
+			<path d="M7 22V2l10 5-10 5" />
+		</svg>
+	);
+};
+
+export const BombIcon: Component<ComponentProps<"svg">> = (props) => {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			{...props}
+		>
+			<title>Bomb Icon</title>
+			<circle cx="11" cy="13" r="9" />
+			<path d="M14.35 4.65 16.3 2.7a2.41 2.41 0 0 1 3.4 0l1.6 1.6a2.4 2.4 0 0 1 0 3.4l-1.95 1.95" />
+			<path d="m22 2-1.5 1.5" />
+		</svg>
+	);
+};
