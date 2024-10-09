@@ -1,3 +1,5 @@
+import type { GameDataContextData } from "./game-provider";
+
 export const RIGHT_BUTTON = 2;
 
 export type CellInfo = {
@@ -144,4 +146,30 @@ const updateLakes = ({ positionsWithZero, cellInfos }: UpdateLakesArgs) => {
 
 		lake.push(...all);
 	});
+};
+
+export const getUncovered = ({
+	cells,
+	configs,
+	minePositions,
+	clickedOnMine,
+}: GameDataContextData) => {
+	const uncovered = new Set<number>();
+
+	cells.value.forEach((cell) => {
+		if (cell.clicked) {
+			uncovered.add(cell.position);
+			const cellConfig = configs.get(cell.position);
+
+			if (!cellConfig?.hasMine) {
+				cellConfig?.lake?.forEach((index) => uncovered.add(index));
+			}
+		}
+	});
+
+	if (clickedOnMine()) {
+		minePositions.forEach((position) => uncovered.add(position));
+	}
+
+	return uncovered;
 };

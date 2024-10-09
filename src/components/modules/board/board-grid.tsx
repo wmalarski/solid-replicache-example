@@ -10,56 +10,15 @@ import { useReplicacheContext } from "~/components/contexts/replicache";
 import { Grid } from "~/styled-system/jsx";
 import { BoardCell, DATA_POSITION_ATTRIBUTE } from "./board-cell";
 import { useGameData } from "./game-provider";
-import { RIGHT_BUTTON, getNeighborsPositions } from "./utils";
+import { RIGHT_BUTTON, getNeighborsPositions, getUncovered } from "./utils";
 
 export const BoardGrid: Component = () => {
 	const data = useGameData();
 	const rep = useReplicacheContext();
 
-	const [pushedDownCell, setPushedDownCell] = createSignal<number | null>(null);
+	const { pushedNeighbors, setPushedCell } = createPushedNeighbors();
 
-	const pushedNeighbors = createMemo(() => {
-		const { game } = data();
-		const index = pushedDownCell();
-
-		if (!index && index !== 0) {
-			return new Set<number>();
-		}
-
-		return new Set(
-			getNeighborsPositions({
-				columns: game.width,
-				index,
-				rows: game.height,
-			}),
-		);
-	});
-
-	const uncovered = createMemo(() => {
-		const uncovered = new Set<number>();
-		const { cells, configs, minePositions } = data();
-
-		let clickedOnMine = false;
-
-		cells.value.forEach((cell) => {
-			if (cell.clicked) {
-				uncovered.add(cell.position);
-				const cellConfig = configs.get(cell.position);
-
-				if (cellConfig?.hasMine) {
-					clickedOnMine = true;
-				} else {
-					cellConfig?.lake?.forEach((index) => uncovered.add(index));
-				}
-			}
-		});
-
-		if (clickedOnMine) {
-			minePositions.forEach((position) => uncovered.add(position));
-		}
-
-		return uncovered;
-	});
+	const uncovered = createMemo(() => getUncovered(data()));
 
 	const getElementPosition = (target: Element) => {
 		const attribute = target.getAttribute(DATA_POSITION_ATTRIBUTE);
@@ -71,13 +30,13 @@ export const BoardGrid: Component = () => {
 		if (!position) {
 			return;
 		}
-		setPushedDownCell(position.value);
+		setPushedCell(position.value);
 	};
 
 	const updateStartedAt = async () => {
 		const { game } = data();
 
-		if (!game.startedAt) {
+		if (game.startedAt) {
 			return;
 		}
 
@@ -90,7 +49,7 @@ export const BoardGrid: Component = () => {
 	const onMouseUp: ComponentProps<"div">["onMouseUp"] = async (event) => {
 		const { game, cellsMap } = data();
 
-		setPushedDownCell(null);
+		setPushedCell(null);
 
 		const position = getElementPosition(event.target);
 		if (!position) {
@@ -144,4 +103,29 @@ export const BoardGrid: Component = () => {
 			</For>
 		</Grid>
 	);
+};
+
+export const createPushedNeighbors = () => {
+	const data = useGameData();
+
+	const [pushedCell, setPushedCell] = createSignal<number | null>(null);
+
+	const pushedNeighbors = createMemo(() => {
+		const { game } = data();
+		const index = pushedCell();
+
+		if (!index && index !== 0) {
+			return new Set<number>();
+		}
+
+		return new Set(
+			getNeighborsPositions({
+				columns: game.width,
+				index,
+				rows: game.height,
+			}),
+		);
+	});
+
+	return { pushedCell, pushedNeighbors, setPushedCell };
 };

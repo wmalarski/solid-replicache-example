@@ -32,14 +32,20 @@ const createGameData = (game: SelectGameResult) => {
 		return map;
 	});
 
-	return { cells, cellsMap, configs, game, minePositions };
+	const clickedOnMine = createMemo(() => {
+		return cells.value.some(
+			(cell) => cell.clicked && minePositions.has(cell.position),
+		);
+	});
+
+	return { cells, cellsMap, configs, game, minePositions, clickedOnMine };
 };
 
-const GameDataContext = createContext<() => ReturnType<typeof createGameData>>(
-	() => {
-		throw new Error("GameDataContext not defined");
-	},
-);
+export type GameDataContextData = ReturnType<typeof createGameData>;
+
+const GameDataContext = createContext<() => GameDataContextData>(() => {
+	throw new Error("GameDataContext not defined");
+});
 
 export const useGameData = () => {
 	return useContext(GameDataContext);
