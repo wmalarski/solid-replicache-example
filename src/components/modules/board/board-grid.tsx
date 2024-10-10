@@ -10,7 +10,7 @@ import { useReplicacheContext } from "~/components/contexts/replicache";
 import { Grid } from "~/styled-system/jsx";
 import { BoardCell, DATA_POSITION_ATTRIBUTE } from "./board-cell";
 import { useGameData } from "./game-provider";
-import { LEFT_BUTTON, RIGHT_BUTTON, getNeighborsPositions } from "./utils";
+import { LEFT_BUTTON, RIGHT_BUTTON } from "./utils";
 
 export const BoardGrid: Component = () => {
 	const data = useGameData();
@@ -51,9 +51,11 @@ export const BoardGrid: Component = () => {
 	};
 
 	const onMouseUp: ComponentProps<"div">["onMouseUp"] = async () => {
-		const { game, cells, uncovered } = data();
+		const { game, cells, uncovered, configs } = data();
 
 		const pushed = pushedCell();
+		const { covered, marked } = pushedNeighbors();
+
 		setPushedCell(null);
 
 		if (!pushed) {
@@ -63,10 +65,17 @@ export const BoardGrid: Component = () => {
 		const cell = cells.value.find((cell) => cell.position === pushed.position);
 		const isUncovered = uncovered().has(pushed.position);
 
-		console.log("isUncovered", isUncovered);
-
 		if (isUncovered) {
-			// const neighbors = pushedNeighbors()
+			const count = configs.get(pushed.position)?.count ?? 0;
+			if (marked.size === count) {
+			}
+
+			console.log("isUncovered", {
+				isUncovered,
+				marked: Array.from(marked),
+				covered: Array.from(covered),
+				count,
+			});
 
 			return;
 		}
@@ -106,7 +115,7 @@ export const BoardGrid: Component = () => {
 				{(_cellCode, index) => (
 					<BoardCell
 						position={index()}
-						isPushed={pushedNeighbors().has(index())}
+						isPushed={pushedNeighbors().covered.has(index())}
 					/>
 				)}
 			</For>
@@ -125,24 +134,29 @@ const createPushedNeighbors = () => {
 	const [pushedCell, setPushedCell] = createSignal<PushedCell | null>(null);
 
 	const pushedNeighbors = createMemo(() => {
-		const { game, positionsMarked, uncovered } = data();
+		const { positionsMarked, uncovered, configs } = data();
 		const cell = pushedCell();
+		const marked = new Set<number>();
+		const covered = new Set<number>();
 
 		if (
 			!cell ||
 			!uncovered().has(cell.position) ||
 			cell.button !== LEFT_BUTTON
 		) {
-			return new Set<number>();
+			return { marked, covered };
 		}
 
-		return new Set(
-			getNeighborsPositions({
-				columns: game.width,
-				index: cell.position,
-				rows: game.height,
-			}).filter((position) => !positionsMarked().has(position)),
-		);
+		const config = configs.get(cell.position);
+
+		config?.neighbors.forEach((neighbor) => {
+			const isMarked = positionsMarked().has(neighbor);
+			const isUncovered = uncovered().has(neighbor);
+			isMarked && marked.add(neighbor);
+			!isUncovered && !isMarked && covered.add(neighbor);
+		});
+
+		return { marked, covered };
 	});
 
 	return { pushedCell, pushedNeighbors, setPushedCell };
