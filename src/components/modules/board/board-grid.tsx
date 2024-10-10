@@ -49,55 +49,42 @@ export const BoardGrid: Component = () => {
 		});
 	};
 
+	const updateCell = async (position: string, isMarking: boolean) => {
+		const { game, cells } = data();
+		const cell = cells.value.find((cell) => cell.id === position);
+		const common = { id: position, clicked: !isMarking, gameId: game.id };
+
+		if (cell) {
+			const marked = isMarking ? !cell.marked : false;
+			await rep().mutate.updateCell({ ...common, marked });
+			return;
+		}
+		await rep().mutate.insertCell({ ...common, marked: isMarking });
+	};
+
 	const onMouseUp: ComponentProps<"div">["onMouseUp"] = async () => {
-		const { game, cells, uncovered, configs } = data();
+		const { uncovered, configs } = data();
 
-		const pushed = pushedCell();
 		const { covered, marked } = pushedNeighbors();
-
+		const pushed = pushedCell();
 		setPushedCell(null);
 
 		if (!pushed) {
 			return;
 		}
 
-		const cell = cells.value.find((cell) => cell.id === pushed.position);
-		const isUncovered = uncovered().has(pushed.position);
-
-		if (isUncovered) {
+		if (uncovered().has(pushed.position)) {
 			const count = configs.get(pushed.position)?.count ?? 0;
+
 			if (marked.size === count) {
+				for (const position of covered) {
+					await updateCell(position, false);
+				}
 			}
-
-			console.log("isUncovered", {
-				ids: cells.value.map((cell) => cell.id),
-				isUncovered,
-				marked: Array.from(marked),
-				covered: Array.from(covered),
-				count,
-			});
-
 			return;
 		}
 
-		const isMarking = pushed.button === RIGHT_BUTTON;
-
-		if (cell) {
-			await rep().mutate.updateCell({
-				id: cell.id,
-				marked: isMarking ? !cell.marked : false,
-				clicked: !isMarking,
-				gameId: game.id,
-			});
-		} else {
-			await rep().mutate.insertCell({
-				id: pushed.position,
-				marked: isMarking,
-				clicked: !isMarking,
-				gameId: game.id,
-			});
-		}
-
+		await updateCell(pushed.position, pushed.button === RIGHT_BUTTON);
 		await updateStartedAt();
 	};
 
