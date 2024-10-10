@@ -78,9 +78,8 @@ export const getCellInfos = ({
 			rows,
 		});
 
-		const count = positions.filter((position) =>
-			minePositions.has(position),
-		).length;
+		const mines = positions.filter((position) => minePositions.has(position));
+		const count = mines.length;
 
 		if (count < 1) {
 			positionsWithZero.push(index);

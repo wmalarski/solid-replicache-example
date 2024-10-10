@@ -74,7 +74,7 @@ export const GameDataProvider: Component<GameDataProviderProps> = (props) => {
 			.scan<SelectGameResult>({ prefix, limit: 1 })
 			.entries()
 			.toArray();
-		return array.pop()?.[1];
+		return { value: array.pop()?.[1] };
 	});
 
 	return (
@@ -82,14 +82,21 @@ export const GameDataProvider: Component<GameDataProviderProps> = (props) => {
 			when={game.value}
 			fallback={<CreateGameCard spaceId={props.spaceId} />}
 		>
-			{(game) => {
-				const value = createMemo(() => createGameData(game()));
-				return (
-					<GameDataContext.Provider value={value}>
-						{props.children}
-					</GameDataContext.Provider>
-				);
-			}}
+			{(game) => (
+				<Show
+					when={game().value}
+					fallback={<CreateGameCard spaceId={props.spaceId} />}
+				>
+					{(game) => {
+						const value = createMemo(() => createGameData(game()));
+						return (
+							<GameDataContext.Provider value={value}>
+								{props.children}
+							</GameDataContext.Provider>
+						);
+					}}
+				</Show>
+			)}
 		</Show>
 	);
 };

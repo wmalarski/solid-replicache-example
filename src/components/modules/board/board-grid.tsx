@@ -16,28 +16,25 @@ export const BoardGrid: Component = () => {
 	const data = useGameData();
 	const rep = useReplicacheContext();
 
-	const { pushedNeighbors, setPushedCell } = createPushedNeighbors();
-
-	const getElementPosition = (target: Element) => {
-		const attribute = target.getAttribute(DATA_POSITION_ATTRIBUTE);
-		return attribute ? { value: Number(attribute) } : null;
-	};
+	const { pushedNeighbors, setPushedCell, pushedCell } =
+		createPushedNeighbors();
 
 	const onMouseDown: ComponentProps<"div">["onMouseDown"] = (event) => {
-		const { uncovered, clickedOnMine } = data();
+		const { clickedOnMine } = data();
 
 		if (clickedOnMine()) {
 			return;
 		}
 
-		const position = getElementPosition(event.target);
-		if (
-			position &&
-			event.button === LEFT_BUTTON &&
-			uncovered().has(position.value)
-		) {
-			setPushedCell(position.value);
-		}
+		const attribute = event.target
+			.closest(`[${DATA_POSITION_ATTRIBUTE}]`)
+			?.getAttribute(DATA_POSITION_ATTRIBUTE);
+
+		const position = attribute
+			? { position: Number(attribute), button: event.button }
+			: null;
+
+		setPushedCell(position);
 	};
 
 	const updateStartedAt = async () => {
@@ -53,29 +50,29 @@ export const BoardGrid: Component = () => {
 		});
 	};
 
-	const onMouseUp: ComponentProps<"div">["onMouseUp"] = async (event) => {
-		const { game, cells, uncovered, clickedOnMine } = data();
+	const onMouseUp: ComponentProps<"div">["onMouseUp"] = async () => {
+		const { game, cells, uncovered } = data();
 
-		if (clickedOnMine()) {
-			return;
-		}
-
+		const pushed = pushedCell();
 		setPushedCell(null);
 
-		const position = getElementPosition(event.target);
-		if (!position) {
+		if (!pushed) {
 			return;
 		}
 
-		const cell = cells.value.find((cell) => cell.position === position.value);
-		const isUncovered = uncovered().has(position.value);
+		const cell = cells.value.find((cell) => cell.position === pushed.position);
+		const isUncovered = uncovered().has(pushed.position);
+
+		console.log("isUncovered", isUncovered);
 
 		if (isUncovered) {
+			// const neighbors = pushedNeighbors()
+
 			return;
 		}
 
-		const common = { position: position.value, gameId: game.id };
-		const isMarking = event.button === RIGHT_BUTTON;
+		const common = { position: pushed.position, gameId: game.id };
+		const isMarking = pushed.button === RIGHT_BUTTON;
 
 		if (cell && isMarking) {
 			await rep().mutate.updateCell({
@@ -117,23 +114,32 @@ export const BoardGrid: Component = () => {
 	);
 };
 
-export const createPushedNeighbors = () => {
+type PushedCell = {
+	position: number;
+	button: number;
+};
+
+const createPushedNeighbors = () => {
 	const data = useGameData();
 
-	const [pushedCell, setPushedCell] = createSignal<number | null>(null);
+	const [pushedCell, setPushedCell] = createSignal<PushedCell | null>(null);
 
 	const pushedNeighbors = createMemo(() => {
-		const { game, positionsMarked } = data();
-		const index = pushedCell();
+		const { game, positionsMarked, uncovered } = data();
+		const cell = pushedCell();
 
-		if (!index && index !== 0) {
+		if (
+			!cell ||
+			!uncovered().has(cell.position) ||
+			cell.button !== LEFT_BUTTON
+		) {
 			return new Set<number>();
 		}
 
 		return new Set(
 			getNeighborsPositions({
 				columns: game.width,
-				index,
+				index: cell.position,
 				rows: game.height,
 			}).filter((position) => !positionsMarked().has(position)),
 		);

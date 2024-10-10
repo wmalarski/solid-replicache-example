@@ -1,6 +1,7 @@
 import { RealtimeProvider } from "~/components/contexts/realtime";
 import { ReplicacheProvider } from "~/components/contexts/replicache";
 import { Stack } from "~/styled-system/jsx";
+import { PageLayout } from "../common/layout";
 import { BoardGrid } from "./board-grid";
 import { BoardTopBar } from "./board-top-board";
 import { GameDataProvider } from "./game-provider";
@@ -15,10 +16,12 @@ export default function Board(props: BoardProps) {
 		<RealtimeProvider>
 			<ReplicacheProvider playerId={props.playerId} spaceId={props.spaceId}>
 				<GameDataProvider spaceId={props.spaceId}>
-					<Stack>
-						<BoardTopBar />
-						<BoardGrid />
-					</Stack>
+					<PageLayout>
+						<Stack>
+							<BoardTopBar />
+							<BoardGrid />
+						</Stack>
+					</PageLayout>
 				</GameDataProvider>
 			</ReplicacheProvider>
 		</RealtimeProvider>
