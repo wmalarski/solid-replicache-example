@@ -19,9 +19,9 @@ export const BoardGrid: Component = () => {
 		createPushedNeighbors();
 
 	const onMouseDown: ComponentProps<"div">["onMouseDown"] = (event) => {
-		const { clickedOnMine } = data();
+		const { clickedOnMine, isSuccess } = data();
 
-		if (clickedOnMine()) {
+		if (clickedOnMine() || isSuccess()) {
 			return;
 		}
 

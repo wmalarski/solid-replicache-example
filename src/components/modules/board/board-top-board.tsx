@@ -1,22 +1,29 @@
+import { createWritableMemo } from "@solid-primitives/memo";
 import {
 	type Component,
-	Show,
+	type ParentProps,
 	createEffect,
 	createMemo,
-	createSignal,
 	onCleanup,
 } from "solid-js";
-import { HStack } from "~/styled-system/jsx";
+import { Grid } from "~/styled-system/jsx";
+import { flex } from "~/styled-system/patterns";
 import { useGameData } from "./game-provider";
 import { RestartGameDialog } from "./restart-game-dialog";
 
 export const BoardTopBar: Component = () => {
 	return (
-		<HStack justifyContent="center" gap={4}>
+		<Grid
+			gridTemplateColumns={3}
+			gap={4}
+			alignItems="center"
+			marginX="auto"
+			padding={2}
+		>
 			<MinesLeftCounter />
 			<RestartGameDialog />
 			<SecondsCounter />
-		</HStack>
+		</Grid>
 	);
 };
 
@@ -27,28 +34,36 @@ const formatMsDifference = (ms: number) => {
 const SecondsCounter: Component = () => {
 	const data = useGameData();
 
-	createEffect(() => {
-		console.log("data().game", data().game, data().game.startedAt);
+	const [counter, setCounter] = createWritableMemo(() => {
+		const { game } = data();
+		const startedAt = game.startedAt;
+
+		if (!startedAt) {
+			return 0;
+		}
+
+		const now = new Date().getTime();
+		return formatMsDifference(now - startedAt);
 	});
 
-	return (
-		<Show when={data().game.startedAt} fallback={<span>0</span>}>
-			{(startedAt) => {
-				const [counter, setCounter] = createSignal(0);
+	createEffect(() => {
+		const { game, isSuccess } = data();
+		const startedAt = game.startedAt;
+		if (!startedAt || isSuccess()) {
+			return;
+		}
 
-				const timeout = setTimeout(() => {
-					const now = new Date().getTime();
-					setCounter(formatMsDifference(now - startedAt()));
-				}, 1000);
+		const timeout = setInterval(() => {
+			const now = new Date().getTime();
+			setCounter(formatMsDifference(now - startedAt));
+		}, 1000);
 
-				onCleanup(() => {
-					clearTimeout(timeout);
-				});
+		onCleanup(() => {
+			clearTimeout(timeout);
+		});
+	});
 
-				return <span>{counter()}</span>;
-			}}
-		</Show>
-	);
+	return <CounterText>{counter()}</CounterText>;
 };
 
 const MinesLeftCounter: Component = () => {
@@ -59,5 +74,22 @@ const MinesLeftCounter: Component = () => {
 		return minePositions.size - positionsMarked().size;
 	});
 
-	return <span>{minesNotMarked()}</span>;
+	return <CounterText>{minesNotMarked()}</CounterText>;
+};
+
+const CounterText: Component<ParentProps> = (props) => {
+	return (
+		<span
+			class={flex({
+				fontFamily: "monospace",
+				fontSize: "xl",
+				backgroundColor: "gray.2",
+				alignItems: "center",
+				padding: 2,
+				justifyContent: "center",
+			})}
+		>
+			{props.children}
+		</span>
+	);
 };
