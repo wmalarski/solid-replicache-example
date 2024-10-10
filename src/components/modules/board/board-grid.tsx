@@ -82,14 +82,14 @@ export const BoardGrid: Component = () => {
 
 		const isMarking = pushed.button === RIGHT_BUTTON;
 
-		if (cell && isMarking) {
+		if (cell) {
 			await rep().mutate.updateCell({
 				id: cell.id,
-				marked: !cell.marked,
-				clicked: false,
+				marked: isMarking ? !cell.marked : false,
+				clicked: !isMarking,
 				gameId: game.id,
 			});
-		} else if (!cell || isMarking) {
+		} else {
 			await rep().mutate.insertCell({
 				id: pushed.position,
 				marked: isMarking,
