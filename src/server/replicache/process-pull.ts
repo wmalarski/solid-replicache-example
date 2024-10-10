@@ -7,7 +7,7 @@ import {
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
 import { selectGames } from "../games/db";
-import { getGameCellKey, getGameKey } from "./utils";
+import { getGameCellKey, getGameKey, parseCellId } from "./utils";
 
 type ProcessPullArgs = {
 	spaceId: string;
@@ -45,7 +45,8 @@ export const processPull = async (
 	for (const row of changedCells) {
 		const { version: rowVersion, deleted, ...args } = row.cell;
 
-		const key = getGameCellKey(spaceId, row.cell.gameId, row.cell.position);
+		const { gameId, position } = parseCellId(row.cell.id);
+		const key = getGameCellKey(spaceId, gameId, position);
 
 		if (deleted) {
 			if (rowVersion > fromVersion) {

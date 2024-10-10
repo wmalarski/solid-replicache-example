@@ -1,7 +1,6 @@
 CREATE TABLE `cell` (
 	`id` text PRIMARY KEY NOT NULL,
 	`game_id` text NOT NULL,
-	`position` integer NOT NULL,
 	`marked` integer NOT NULL,
 	`clicked` integer NOT NULL,
 	`deleted` integer NOT NULL,

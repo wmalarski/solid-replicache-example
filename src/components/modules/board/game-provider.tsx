@@ -14,10 +14,11 @@ import { CreateGameCard } from "../create-game/create-game-card";
 import { getCellInfos, getUncovered } from "./utils";
 
 const createGameData = (game: SelectGameResult) => {
-	const { configs, minePositions } = getCellInfos({
+	const { configs, minePositions, positions } = getCellInfos({
 		cellCodes: game.code.split(""),
 		columns: game.width,
 		rows: Math.floor(game.code.length / game.width),
+		gameId: game.id,
 	});
 
 	const cells = createSubscription(async (tx) => {
@@ -28,13 +29,13 @@ const createGameData = (game: SelectGameResult) => {
 
 	const clickedOnMine = createMemo(() => {
 		return cells.value.some(
-			(cell) => cell.clicked && minePositions.has(cell.position),
+			(cell) => cell.clicked && minePositions.has(cell.id),
 		);
 	});
 
 	const positionsMarked = createMemo(() => {
 		return new Set(
-			cells.value.filter((cell) => cell.marked).map((cell) => cell.position),
+			cells.value.filter((cell) => cell.marked).map((cell) => cell.id),
 		);
 	});
 
@@ -47,6 +48,7 @@ const createGameData = (game: SelectGameResult) => {
 		configs,
 		game,
 		minePositions,
+		positions,
 		clickedOnMine,
 		uncovered,
 		positionsMarked,

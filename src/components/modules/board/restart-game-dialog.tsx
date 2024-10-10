@@ -30,7 +30,7 @@ export const RestartGameDialog: Component = () => {
 
 	const hasClickedMine = createMemo(() => {
 		const { minePositions, cells } = data();
-		return cells.value.some((cell) => minePositions.has(cell.position));
+		return cells.value.some((cell) => minePositions.has(cell.id));
 	});
 
 	const onSubmit: ComponentProps<"form">["onSubmit"] = async (event) => {

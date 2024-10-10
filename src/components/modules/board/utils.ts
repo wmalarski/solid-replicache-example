@@ -1,23 +1,22 @@
 import type { GameCell } from "~/server/cells/types";
+import { stringifyCellId } from "~/server/replicache/utils";
 
 export const LEFT_BUTTON = 0;
 export const RIGHT_BUTTON = 2;
 
 export type CellInfo = {
-	position: number;
-	neighbors: number[];
+	position: string;
+	neighbors: string[];
 	count: number;
-	lake?: number[];
+	lake?: string[];
 	hasMine: boolean;
 };
 
-const getMinePositions = (cellCodes: string[]) => {
-	const minePositions = new Set<number>();
+const getMinePositions = (cellCodes: string[], gameId: string) => {
+	const minePositions = new Set<string>();
 
 	cellCodes.forEach((cellCode, index) => {
-		if (cellCode === "X") {
-			minePositions.add(index);
-		}
+		cellCode === "X" && minePositions.add(stringifyCellId(gameId, index));
 	});
 
 	return minePositions;
@@ -27,12 +26,14 @@ type GetNeighborsPositionsArgs = {
 	index: number;
 	columns: number;
 	rows: number;
+	gameId: string;
 };
 
 export const getNeighborsPositions = ({
 	columns,
 	index,
 	rows,
+	gameId,
 }: GetNeighborsPositionsArgs) => {
 	const cellX = index % columns;
 	const cellY = Math.floor(index / columns);
@@ -42,92 +43,90 @@ export const getNeighborsPositions = ({
 	const fromY = Math.max(0, cellY - 1);
 	const toY = Math.min(rows - 1, cellY + 1);
 
-	const positions: number[] = [];
+	const neighbors: string[] = [];
 
 	for (let x = fromX; x <= toX; x++) {
 		for (let y = fromY; y <= toY; y++) {
-			const position = y * columns + x;
-			if (position !== index) {
-				positions.push(position);
+			const neighbor = y * columns + x;
+			if (neighbor !== index) {
+				neighbors.push(stringifyCellId(gameId, neighbor));
 			}
 		}
 	}
 
-	return positions;
+	return neighbors;
 };
 
 type GetCellInfosArgs = {
 	cellCodes: string[];
 	columns: number;
 	rows: number;
+	gameId: string;
 };
 
 export const getCellInfos = ({
 	cellCodes,
 	columns,
 	rows,
+	gameId,
 }: GetCellInfosArgs) => {
-	const configs = new Map<number, CellInfo>();
-	const minePositions = getMinePositions(cellCodes);
-	const positionsWithZero = new Array<number>();
+	const configs = new Map<string, CellInfo>();
+	const minePositions = getMinePositions(cellCodes, gameId);
+	const positionsWithZero: string[] = [];
+	const positions: string[] = [];
 
 	cellCodes.forEach((_cellCode, index) => {
-		const positions = getNeighborsPositions({
-			index,
-			columns,
-			rows,
-		});
+		const position = stringifyCellId(gameId, index);
+		const neighbors = getNeighborsPositions({ index, columns, rows, gameId });
 
-		const mines = positions.filter((position) => minePositions.has(position));
+		const hasMine = minePositions.has(position);
+		const mines = neighbors.filter((position) => minePositions.has(position));
 		const count = mines.length;
 
 		if (count < 1) {
-			positionsWithZero.push(index);
+			positionsWithZero.push(position);
 		}
 
-		configs.set(index, {
-			position: index,
-			neighbors: positions,
-			hasMine: minePositions.has(index),
-			count,
-		});
+		positions.push(position);
+		configs.set(position, { position, neighbors, hasMine, count });
 	});
 
-	updateLakes({ cellInfos: configs, positionsWithZero });
+	updateLakes({ configs, positionsWithZero });
 
-	return { configs, minePositions };
+	return { configs, minePositions, positions };
 };
 
 type UpdateLakesArgs = {
-	positionsWithZero: number[];
-	cellInfos: Map<number, CellInfo>;
+	positionsWithZero: string[];
+	configs: Map<string, CellInfo>;
 };
 
-const updateLakes = ({ positionsWithZero, cellInfos }: UpdateLakesArgs) => {
+const updateLakes = ({ positionsWithZero, configs }: UpdateLakesArgs) => {
 	positionsWithZero.forEach((position) => {
-		if (cellInfos.get(position)?.lake) {
+		if (configs.get(position)?.lake) {
 			return;
 		}
 
-		const lake = new Array<number>();
+		const lake: string[] = [];
 		const queue = [position];
 
 		while (queue.length > 0) {
 			const index = queue.pop();
 
-			if (index === undefined) {
+			if (!index) {
 				continue;
 			}
 
 			lake.push(index);
 
-			const info = cellInfos.get(index);
+			const info = configs.get(index);
 
 			if (!info) {
 				continue;
 			}
 
-			cellInfos.set(index, { ...info, lake });
+			configs.set(index, { ...info, lake });
+
 			const zeroNeighbors = info.neighbors.filter(
 				(neighbor) =>
 					positionsWithZero.includes(neighbor) &&
@@ -140,7 +139,7 @@ const updateLakes = ({ positionsWithZero, cellInfos }: UpdateLakesArgs) => {
 
 		const all = new Set(
 			lake
-				.flatMap((index) => cellInfos.get(index)?.neighbors ?? [])
+				.flatMap((index) => configs.get(index)?.neighbors ?? [])
 				.filter((index) => !lake.includes(index)),
 		);
 
@@ -150,16 +149,16 @@ const updateLakes = ({ positionsWithZero, cellInfos }: UpdateLakesArgs) => {
 
 type GetUncoveredArgs = {
 	cells: GameCell[];
-	configs: Map<number, CellInfo>;
+	configs: Map<string, CellInfo>;
 };
 
 export const getUncovered = ({ cells, configs }: GetUncoveredArgs) => {
-	const uncovered = new Set<number>();
+	const uncovered = new Set<string>();
 
 	cells.forEach((cell) => {
-		if (cell.clicked && !uncovered.has(cell.position)) {
-			uncovered.add(cell.position);
-			const cellConfig = configs.get(cell.position);
+		if (cell.clicked && !uncovered.has(cell.id)) {
+			uncovered.add(cell.id);
+			const cellConfig = configs.get(cell.id);
 
 			if (!cellConfig?.hasMine) {
 				cellConfig?.lake?.forEach((index) => uncovered.add(index));

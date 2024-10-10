@@ -33,7 +33,6 @@ export const Cell = sqliteTable("cell", {
 	gameId: text("game_id")
 		.notNull()
 		.references(() => Game.id),
-	position: integer("position").notNull(),
 	marked: integer("marked", { mode: "boolean" }).notNull(),
 	clicked: integer("clicked", { mode: "boolean" }).notNull(),
 	deleted: integer("deleted", { mode: "boolean" }).notNull(),

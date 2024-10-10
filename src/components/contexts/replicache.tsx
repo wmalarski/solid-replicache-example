@@ -20,6 +20,7 @@ import {
 	getGameCellKey,
 	getGameCellsPrefix,
 	getGameKey,
+	parseCellId,
 } from "~/server/replicache/utils";
 import { createRealtimeSubscription } from "./realtime";
 
@@ -33,10 +34,12 @@ const createReplicache = (playerId: string, spaceId: string) => {
 		logLevel: "debug",
 		mutators: {
 			async insertCell(tx: WriteTransaction, args: GameCell) {
-				await tx.set(getGameCellKey(spaceId, args.gameId, args.position), args);
+				const { gameId, position } = parseCellId(args.id);
+				await tx.set(getGameCellKey(spaceId, gameId, position), args);
 			},
 			async updateCell(tx: WriteTransaction, args: GameCell) {
-				await tx.set(getGameCellKey(spaceId, args.gameId, args.position), args);
+				const { gameId, position } = parseCellId(args.id);
+				await tx.set(getGameCellKey(spaceId, gameId, position), args);
 			},
 			async insertGame(tx: WriteTransaction, args: SelectGameResult) {
 				await tx.set(getGameKey(spaceId, args.id), args);

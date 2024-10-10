@@ -51,7 +51,7 @@ const buttonStyles = cva({
 type ButtonVariants = RecipeVariant<typeof buttonStyles>;
 
 type BoardCellProps = {
-	position: number;
+	position: string;
 	isPushed: boolean;
 };
 

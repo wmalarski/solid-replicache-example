@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import {
 	type Component,
 	type ComponentProps,
@@ -31,7 +30,7 @@ export const BoardGrid: Component = () => {
 			?.getAttribute(DATA_POSITION_ATTRIBUTE);
 
 		const position = attribute
-			? { position: Number(attribute), button: event.button }
+			? { position: attribute, button: event.button }
 			: null;
 
 		setPushedCell(position);
@@ -62,7 +61,7 @@ export const BoardGrid: Component = () => {
 			return;
 		}
 
-		const cell = cells.value.find((cell) => cell.position === pushed.position);
+		const cell = cells.value.find((cell) => cell.id === pushed.position);
 		const isUncovered = uncovered().has(pushed.position);
 
 		if (isUncovered) {
@@ -71,6 +70,7 @@ export const BoardGrid: Component = () => {
 			}
 
 			console.log("isUncovered", {
+				ids: cells.value.map((cell) => cell.id),
 				isUncovered,
 				marked: Array.from(marked),
 				covered: Array.from(covered),
@@ -80,22 +80,21 @@ export const BoardGrid: Component = () => {
 			return;
 		}
 
-		const common = { position: pushed.position, gameId: game.id };
 		const isMarking = pushed.button === RIGHT_BUTTON;
 
 		if (cell && isMarking) {
 			await rep().mutate.updateCell({
-				...common,
 				id: cell.id,
 				marked: !cell.marked,
 				clicked: false,
+				gameId: game.id,
 			});
 		} else if (!cell || isMarking) {
 			await rep().mutate.insertCell({
-				...common,
-				id: nanoid(),
+				id: pushed.position,
 				marked: isMarking,
 				clicked: !isMarking,
+				gameId: game.id,
 			});
 		}
 
@@ -111,11 +110,11 @@ export const BoardGrid: Component = () => {
 			onMouseUp={onMouseUp}
 			gap={0}
 		>
-			<For each={[...data().game.code]}>
-				{(_cellCode, index) => (
+			<For each={data().positions}>
+				{(position) => (
 					<BoardCell
-						position={index()}
-						isPushed={pushedNeighbors().covered.has(index())}
+						position={position}
+						isPushed={pushedNeighbors().covered.has(position)}
 					/>
 				)}
 			</For>
@@ -124,7 +123,7 @@ export const BoardGrid: Component = () => {
 };
 
 type PushedCell = {
-	position: number;
+	position: string;
 	button: number;
 };
 
@@ -136,8 +135,8 @@ const createPushedNeighbors = () => {
 	const pushedNeighbors = createMemo(() => {
 		const { positionsMarked, uncovered, configs } = data();
 		const cell = pushedCell();
-		const marked = new Set<number>();
-		const covered = new Set<number>();
+		const marked = new Set<string>();
+		const covered = new Set<string>();
 
 		if (
 			!cell ||
