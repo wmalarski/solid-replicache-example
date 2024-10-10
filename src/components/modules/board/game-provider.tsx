@@ -43,6 +43,10 @@ const createGameData = (game: SelectGameResult) => {
 		return getUncovered({ cells: cells.value, configs });
 	});
 
+	const isSuccess = createMemo(() => {
+		return uncovered().size + positionsMarked().size === positions.length;
+	});
+
 	return {
 		cells,
 		configs,
@@ -52,6 +56,7 @@ const createGameData = (game: SelectGameResult) => {
 		clickedOnMine,
 		uncovered,
 		positionsMarked,
+		isSuccess,
 	};
 };
 

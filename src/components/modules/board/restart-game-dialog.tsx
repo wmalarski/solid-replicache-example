@@ -1,8 +1,8 @@
 import {
 	type Component,
 	type ComponentProps,
-	Show,
-	createMemo,
+	Match,
+	Switch,
 	createSignal,
 	createUniqueId,
 } from "solid-js";
@@ -11,7 +11,7 @@ import { useReplicacheContext } from "~/components/contexts/replicache";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogCloseXTrigger } from "~/components/ui/dialog";
 import { IconButton } from "~/components/ui/icon-button";
-import { FrownIcon, SmileIcon } from "~/components/ui/icons";
+import { FrownIcon, LaughIcon, SmileIcon } from "~/components/ui/icons";
 import { Stack } from "~/styled-system/jsx";
 import { type ActionResult, parseValibotIssues } from "~/utils/validation";
 import { CreateGameForm } from "../create-game/create-game-form";
@@ -27,11 +27,6 @@ export const RestartGameDialog: Component = () => {
 	const formId = createUniqueId();
 	const [isOpen, setIsOpen] = createSignal(false);
 	const [result, setResult] = createSignal<ActionResult>();
-
-	const hasClickedMine = createMemo(() => {
-		const { minePositions, cells } = data();
-		return cells.value.some((cell) => minePositions.has(cell.id));
-	});
 
 	const onSubmit: ComponentProps<"form">["onSubmit"] = async (event) => {
 		event.preventDefault();
@@ -63,9 +58,14 @@ export const RestartGameDialog: Component = () => {
 				asChild={(props) => <IconButton {...props()} />}
 				aria-label="Reset"
 			>
-				<Show when={hasClickedMine()} fallback={<SmileIcon />}>
-					<FrownIcon />
-				</Show>
+				<Switch fallback={<SmileIcon />}>
+					<Match when={data().clickedOnMine()}>
+						<FrownIcon />
+					</Match>
+					<Match when={data().isSuccess()}>
+						<LaughIcon />
+					</Match>
+				</Switch>
 			</Dialog.Trigger>
 			<Dialog.Backdrop />
 			<Dialog.Positioner>

@@ -12,7 +12,7 @@ import { RestartGameDialog } from "./restart-game-dialog";
 
 export const BoardTopBar: Component = () => {
 	return (
-		<HStack>
+		<HStack justifyContent="center" gap={4}>
 			<MinesLeftCounter />
 			<RestartGameDialog />
 			<SecondsCounter />
