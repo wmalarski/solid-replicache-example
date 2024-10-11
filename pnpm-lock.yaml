@@ -32,6 +32,9 @@ importers:
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
+      canvas-confetti:
+        specifier: ^1.9.3
+        version: 1.9.3
       cookie-es:
         specifier: ^1.2.2
         version: 1.2.2
@@ -69,6 +72,9 @@ importers:
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
+      '@types/canvas-confetti':
+        specifier: ^1.6.4
+        version: 1.6.4
       '@types/node':
         specifier: ^22.7.5
         version: 22.7.5
@@ -1337,6 +1343,9 @@ packages:
   '@types/braces@3.0.4':
     resolution: {integrity: sha512-0WR3b8eaISjEW7RpZnclONaLFDf7buaowRHdqLp4vLj54AsSAYWfh3DRbfiYJY9XDxMgx1B4sE1Afw2PGpuHOA==}
 
+  '@types/canvas-confetti@1.6.4':
+    resolution: {integrity: sha512-fNyZ/Fdw/Y92X0vv7B+BD6ysHL4xVU5dJcgzgxLdGbn8O3PezZNIJpml44lKM0nsGur+o/6+NZbZeNTt00U1uA==}
+
   '@types/estree@1.0.5':
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
 
@@ -1979,6 +1988,9 @@ packages:
 
   caniuse-lite@1.0.30001663:
     resolution: {integrity: sha512-o9C3X27GLKbLeTYZ6HBOLU1tsAcBZsLis28wrVzddShCS16RujjHp9GDHKZqrB3meE0YjhawvMFsGb/igqiPzA==}
+
+  canvas-confetti@1.9.3:
+    resolution: {integrity: sha512-rFfTURMvmVEX1gyXFgn5QMn81bYk70qa0HLzcIOSVEyl57n6o9ItHeBtUSWdvKAPY0xlvBHno4/v3QPrT83q9g==}
 
   chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
@@ -4993,6 +5005,8 @@ snapshots:
 
   '@types/braces@3.0.4': {}
 
+  '@types/canvas-confetti@1.6.4': {}
+
   '@types/estree@1.0.5': {}
 
   '@types/estree@1.0.6': {}
@@ -6277,6 +6291,8 @@ snapshots:
       lodash.uniq: 4.5.0
 
   caniuse-lite@1.0.30001663: {}
+
+  canvas-confetti@1.9.3: {}
 
   chalk@2.4.2:
     dependencies:

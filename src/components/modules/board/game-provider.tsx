@@ -44,7 +44,11 @@ const createGameData = (game: SelectGameResult) => {
 	});
 
 	const isSuccess = createMemo(() => {
-		return uncovered().size + positionsMarked().size === positions.length;
+		return (
+			uncovered().size +
+				Math.min(positionsMarked().size, minePositions.size) ===
+			positions.length
+		);
 	});
 
 	return {

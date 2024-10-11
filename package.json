@@ -22,6 +22,7 @@
 		"@solidjs/router": "^0.14.8",
 		"@solidjs/start": "^1.0.8",
 		"bcryptjs": "^2.4.3",
+		"canvas-confetti": "^1.9.3",
 		"cookie-es": "^1.2.2",
 		"decode-formdata": "^0.8.0",
 		"drizzle-orm": "^0.34.1",
@@ -36,6 +37,7 @@
 		"@pandacss/dev": "^0.46.1",
 		"@park-ui/panda-preset": "^0.42.0",
 		"@types/bcryptjs": "^2.4.6",
+		"@types/canvas-confetti": "^1.6.4",
 		"@types/node": "^22.7.5",
 		"drizzle-kit": "^0.25.0"
 	},

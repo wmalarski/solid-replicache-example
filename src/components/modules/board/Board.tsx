@@ -5,6 +5,7 @@ import { PageLayout } from "../common/layout";
 import { BoardGrid } from "./board-grid";
 import { BoardTopBar } from "./board-top-board";
 import { GameDataProvider } from "./game-provider";
+import { SuccessConfetti } from "./success-confetti";
 
 type BoardProps = {
 	spaceId: string;
@@ -22,6 +23,7 @@ export default function Board(props: BoardProps) {
 							<BoardGrid />
 						</Stack>
 					</PageLayout>
+					<SuccessConfetti />
 				</GameDataProvider>
 			</ReplicacheProvider>
 		</RealtimeProvider>
