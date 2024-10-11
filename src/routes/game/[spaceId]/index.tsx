@@ -18,7 +18,7 @@ export default function GamePage() {
 
 	return (
 		<Show when={player()}>
-			{(player) => <Board spaceId={params.spaceId} playerId={player().id} />}
+			{(player) => <Board spaceId={params.spaceId} player={player()} />}
 		</Show>
 	);
 }

@@ -14,14 +14,14 @@ const CHANNEL_NAME = "rooms:broadcast";
 const CURSOR_EVENT_NAME = "rooms:cursor";
 
 type BroadcastProviderProps = {
-	boardId: string;
+	spaceId: string;
 };
 
 export const BroadcastProvider: Component<BroadcastProviderProps> = (props) => {
 	const cursors = usePlayerCursors();
 
 	const supabase = getClientSupabase();
-	const channelName = `${CHANNEL_NAME}:${props.boardId}`;
+	const channelName = `${CHANNEL_NAME}:${props.spaceId}`;
 	const channel = supabase.channel(channelName);
 
 	channel
