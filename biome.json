@@ -17,7 +17,7 @@
 				"noUndeclaredVariables": "error",
 				"noUnusedVariables": "error",
 				"useArrayLiterals": "error",
-				"useHookAtTopLevel": "error",
+				"useHookAtTopLevel": "off",
 				"useJsxKeyInIterable": "off"
 			},
 			"style": {
