@@ -10,14 +10,13 @@ const buttonStyles = cva({
 		fontFamily: "monospace",
 		fontSize: "3xl",
 		fontWeight: "extrabold",
-		color: "white",
 		cursor: "pointer",
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
 		width: 7,
 		height: 7,
-		"&:focus,\n\t&:hover": { background: "#BCBCBC" },
+		userSelect: "none",
 	},
 	variants: {
 		color: {

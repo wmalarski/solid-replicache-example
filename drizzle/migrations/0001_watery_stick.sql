@@ -1,0 +1,1 @@
+ALTER TABLE `game` ADD `mines` integer DEFAULT 10 NOT NULL;

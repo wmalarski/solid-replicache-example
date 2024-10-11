@@ -17,10 +17,8 @@ export default function GamePage() {
 	const player = createAsync(() => getPlayerLoader());
 
 	return (
-		<main>
-			<Show when={player()}>
-				{(player) => <Board spaceId={params.spaceId} playerId={player().id} />}
-			</Show>
-		</main>
+		<Show when={player()}>
+			{(player) => <Board spaceId={params.spaceId} playerId={player().id} />}
+		</Show>
 	);
 }

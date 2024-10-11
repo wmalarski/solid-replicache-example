@@ -1,5 +1,6 @@
 import {
 	type Component,
+	type JSX,
 	type ParentProps,
 	Show,
 	createContext,
@@ -10,7 +11,6 @@ import { createSubscription } from "~/components/contexts/replicache";
 import type { GameCell } from "~/server/cells/types";
 import type { SelectGameResult } from "~/server/games/db";
 import { getGameCellsPrefix, getGamePrefix } from "~/server/replicache/utils";
-import { CreateGameCard } from "../create-game/create-game-card";
 import { getCellInfos, getUncovered } from "./utils";
 
 const createGameData = (game: SelectGameResult) => {
@@ -76,6 +76,8 @@ export const useGameData = () => {
 
 type GameDataProviderProps = ParentProps<{
 	spaceId: string;
+	loadingPlaceholder: JSX.Element;
+	emptyPlaceholder: JSX.Element;
 }>;
 
 export const GameDataProvider: Component<GameDataProviderProps> = (props) => {
@@ -89,15 +91,9 @@ export const GameDataProvider: Component<GameDataProviderProps> = (props) => {
 	});
 
 	return (
-		<Show
-			when={game.value}
-			fallback={<CreateGameCard spaceId={props.spaceId} />}
-		>
+		<Show when={game.value} fallback={props.loadingPlaceholder}>
 			{(game) => (
-				<Show
-					when={game().value}
-					fallback={<CreateGameCard spaceId={props.spaceId} />}
-				>
+				<Show when={game().value} fallback={props.emptyPlaceholder}>
 					{(game) => {
 						const value = createMemo(() => createGameData(game()));
 						return (

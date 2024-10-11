@@ -25,7 +25,6 @@ export const RestartGameDialog: Component = () => {
 	const data = useGameData();
 
 	const formId = createUniqueId();
-	const [isOpen, setIsOpen] = createSignal(false);
 	const [result, setResult] = createSignal<ActionResult>();
 
 	const onSubmit: ComponentProps<"form">["onSubmit"] = async (event) => {
@@ -48,12 +47,10 @@ export const RestartGameDialog: Component = () => {
 			code: generateServerGameCode(parsed.output),
 			previousGameId: game.id,
 		});
-
-		setIsOpen(false);
 	};
 
 	return (
-		<Dialog.Root open={isOpen()} onOpenChange={setIsOpen}>
+		<Dialog.Root>
 			<Dialog.Trigger
 				asChild={(props) => <IconButton {...props()} />}
 				aria-label="Reset"
@@ -78,9 +75,18 @@ export const RestartGameDialog: Component = () => {
 							</form>
 						</Stack>
 						<Stack gap="3" direction="row" width="full">
-							<Button type="submit" form={formId} width="full">
+							<Dialog.CloseTrigger
+								asChild={(props) => (
+									<Button
+										{...props()}
+										type="submit"
+										form={formId}
+										width="full"
+									/>
+								)}
+							>
 								{t("createBoard.button")}
-							</Button>
+							</Dialog.CloseTrigger>
 						</Stack>
 					</Stack>
 					<DialogCloseXTrigger />

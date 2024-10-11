@@ -21,7 +21,7 @@ export const Game = sqliteTable("game", {
 	name: text("name").notNull(),
 	width: integer("width").notNull(),
 	height: integer("height").notNull(),
-	mines: integer("height").notNull(),
+	mines: integer("mines").default(10).notNull(),
 	code: text("code").notNull(),
 	deleted: integer("deleted", { mode: "boolean" }).notNull(),
 	version: integer("version").notNull(),

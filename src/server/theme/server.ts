@@ -14,11 +14,10 @@ export type AppTheme = v.InferOutput<ReturnType<typeof appThemeSchema>>;
 
 export const getAppThemeCookie = () => {
 	const event = getRequestEventOrThrow();
-	return getCookie(event.nativeEvent, APP_THEME_COOKIE_NAME) as AppTheme;
+	const cookie = getCookie(event.nativeEvent, APP_THEME_COOKIE_NAME);
+	return (cookie || "dark") as AppTheme;
 };
 
 export const getAppThemeServerLoader = () => {
-	return Promise.resolve(
-		v.parse(appThemeSchema(), getAppThemeCookie() || "light"),
-	);
+	return Promise.resolve(v.parse(appThemeSchema(), getAppThemeCookie()));
 };

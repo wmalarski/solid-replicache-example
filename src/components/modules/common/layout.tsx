@@ -54,6 +54,7 @@ export const FormLayout: Component<ParentProps> = (props) => {
 			})}
 		>
 			{props.children}
+			<PageFooter />
 		</main>
 	);
 };
@@ -68,6 +69,7 @@ export const PageLayout: Component<ParentProps> = (props) => {
 			})}
 		>
 			{props.children}
+			<PageFooter />
 		</main>
 	);
 };
