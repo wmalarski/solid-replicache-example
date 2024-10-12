@@ -7,20 +7,28 @@ import {
 	onCleanup,
 } from "solid-js";
 import { MousePointerIcon } from "~/components/ui/icons";
-import { css } from "~/styled-system/css";
+import { flex } from "~/styled-system/patterns";
 import { getTextColor } from "~/utils/colors";
 import { type PlayerCursorState, usePlayerCursors } from "./cursor-provider";
 import { type PlayerState, usePlayerPresence } from "./presence-provider";
 
-type CursorGraphicsProps = {
+type CursorProps = {
 	state: PlayerCursorState;
 	player: PlayerState;
 };
 
-const CursorGraphics: Component<CursorGraphicsProps> = (props) => {
+const Cursor: Component<CursorProps> = (props) => {
 	return (
 		<div
-			class={css({ position: "absolute" })}
+			class={flex({
+				position: "absolute",
+				gap: 1,
+				padding: 0.5,
+				paddingRight: 2,
+				borderRadius: "full",
+				fontSize: "md",
+				fontFamily: "monospace",
+			})}
 			style={{
 				top: `${props.state.y * window.innerHeight}px`,
 				left: `${props.state.x * window.innerWidth}px`,
@@ -29,7 +37,7 @@ const CursorGraphics: Component<CursorGraphicsProps> = (props) => {
 			}}
 		>
 			<MousePointerIcon />
-			<span>{props.player.name}</span>
+			{props.player.name}
 		</div>
 	);
 };
@@ -41,8 +49,8 @@ export const RemoteCursors: Component = () => {
 	createEffect(() => {
 		const listener = (event: MouseEvent) => {
 			cursors().send({
-				x: event.x / window.innerWidth,
-				y: event.y / window.innerHeight,
+				x: event.clientX / window.innerWidth,
+				y: event.clientY / window.innerHeight,
 			});
 		};
 
@@ -63,7 +71,7 @@ export const RemoteCursors: Component = () => {
 				<Show when={cursors().cursors[playerId]}>
 					{(state) => (
 						<Show when={presence()[playerId]}>
-							{(player) => <CursorGraphics player={player()} state={state()} />}
+							{(player) => <Cursor player={player()} state={state()} />}
 						</Show>
 					)}
 				</Show>
