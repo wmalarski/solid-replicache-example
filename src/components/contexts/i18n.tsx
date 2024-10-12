@@ -30,6 +30,14 @@ const enDict = {
 		},
 		title: "Create board",
 	},
+	updatePlayer: {
+		button: "Start",
+		name: {
+			label: "Name",
+			placeholder: "Enter your name",
+		},
+		title: "Join",
+	},
 	error: {
 		description: "Something went wrong: {{message}}",
 		home: "Home",

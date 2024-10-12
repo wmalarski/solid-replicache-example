@@ -5,7 +5,7 @@ import {
 	BOARD_MAX_SIZE,
 	BOARD_MIN_MINES,
 	BOARD_MIN_SIZE,
-} from "../../../server/games/const";
+} from "~/server/games/const";
 
 type GenerateServerGameCodeArgs = {
 	width: number;

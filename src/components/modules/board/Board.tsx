@@ -5,6 +5,7 @@ import type { Player } from "~/server/player/utils";
 import { Stack } from "~/styled-system/jsx";
 import { FormLayout, PageLayout } from "../common/layout";
 import { CreateGameCard } from "../create-game/create-game-card";
+import { UpdatePlayerDialog } from "../player/update-player-dialog";
 import { BroadcastProvider } from "../realtime/broadcast-provider";
 import { PlayerCursorProvider } from "../realtime/cursor-provider";
 import { PlayerPresenceProvider } from "../realtime/presence-provider";
@@ -47,6 +48,7 @@ export default function Board(props: BoardProps) {
 							</PageLayout>
 							<SuccessConfetti />
 							<RemoteCursors />
+							<UpdatePlayerDialog player={props.player} />
 						</GameDataProvider>
 					</PlayerPresenceProvider>
 				</PlayerCursorProvider>
