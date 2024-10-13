@@ -23,7 +23,7 @@ type BoardProps = {
 export default function Board(props: BoardProps) {
 	return (
 		<ReplicacheProvider playerId={props.player.id} spaceId={props.spaceId}>
-			<PlayerCursorProvider playerId={props.player.id}>
+			<PlayerCursorProvider playerId={props.player.id} spaceId={props.spaceId}>
 				<PlayerPresenceProvider spaceId={props.spaceId} player={props.player}>
 					<SyncPushProvider>
 						<BroadcastProvider spaceId={props.spaceId} />

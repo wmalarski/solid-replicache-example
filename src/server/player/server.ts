@@ -1,5 +1,5 @@
 "use server";
-import { revalidate } from "@solidjs/router";
+import { reload } from "@solidjs/router";
 import type { CookieSerializeOptions } from "cookie-es";
 import { decode } from "decode-formdata";
 import type { RequestEvent } from "solid-js/web";
@@ -16,14 +16,12 @@ const PLAYER_COOKIE_OPTIONS: CookieSerializeOptions = {
 	sameSite: "lax",
 };
 
-export const getPlayerIdServerAction = async (): Promise<Player> => {
+export const getPlayerIdServerLoader = async (): Promise<Player> => {
 	const event = getRequestEventOrThrow();
 
-	const player = await getParsedCookie(
-		event,
-		PLAYER_COOKIE_NAME,
-		playerSchema(),
-	);
+	const player =
+		event.locals.updatedPlayer ??
+		(await getParsedCookie(event, PLAYER_COOKIE_NAME, playerSchema()));
 
 	if (player) {
 		return player;
@@ -65,10 +63,19 @@ export const setPlayerDetailsServerAction = async (formData: FormData) => {
 		return parseValibotIssues(result.issues);
 	}
 
-	setPlayerCookie(event, {
+	const updatedPlayer: Player = {
 		...player,
 		...result.output,
-	});
+	};
 
-	throw revalidate(PLAYER_CACHE_KEY);
+	event.locals.updatedPlayer = updatedPlayer;
+	setPlayerCookie(event, updatedPlayer);
+
+	throw reload({ revalidate: PLAYER_CACHE_KEY });
 };
+
+declare module "@solidjs/start/server" {
+	interface RequestEventLocals {
+		updatedPlayer?: Player;
+	}
+}

@@ -10,6 +10,7 @@ import {
 	createEffect,
 	createMemo,
 	onCleanup,
+	untrack,
 	useContext,
 } from "solid-js";
 import { createStore, produce } from "solid-js/store";
@@ -23,22 +24,28 @@ import { usePlayerCursors } from "./cursor-provider";
 type PlayersState = Record<string, Player | undefined>;
 
 const PRESENCE_CHANNEL_NAME = "rooms";
+const COLOR = randomHexColor();
 
 const createPlayerPresenceState = (player: Player, spaceId: string) => {
 	const [players, setPlayers] = createStore<PlayersState>({});
 	const cursors = usePlayerCursors();
 
-	createEffect(() => {
-		if (!player.name) {
-			return;
-		}
-
+	const presenceChannel = createMemo(() => {
 		const supabase = getClientSupabase();
 		const channelName = `${PRESENCE_CHANNEL_NAME}:${spaceId}`;
 
-		const channel = supabase.channel(channelName, {
+		return supabase.channel(channelName, {
 			config: { presence: { key: spaceId } },
 		});
+	});
+
+	const subscriptionPayload = createMemo(() => {
+		return { color: COLOR, name: player.name, id: player.id };
+	});
+
+	createEffect(() => {
+		const untrackedPayload = untrack(() => subscriptionPayload());
+		const channel = presenceChannel();
 
 		const subscription = channel
 			.on(
@@ -67,7 +74,7 @@ const createPlayerPresenceState = (player: Player, spaceId: string) => {
 					setPlayers(
 						produce((state) => {
 							newPresences.forEach((presence) => {
-								state[presence.playerId] = {
+								state[presence.id] = {
 									color: presence.color,
 									name: presence.name,
 									id: presence.id,
@@ -81,7 +88,7 @@ const createPlayerPresenceState = (player: Player, spaceId: string) => {
 				REALTIME_LISTEN_TYPES.PRESENCE,
 				{ event: REALTIME_PRESENCE_LISTEN_EVENTS.LEAVE },
 				({ leftPresences }) => {
-					const leftIds = leftPresences.map((presence) => presence.playerId);
+					const leftIds = leftPresences.map((presence) => presence.id);
 
 					cursors().leave(leftIds);
 
@@ -96,11 +103,7 @@ const createPlayerPresenceState = (player: Player, spaceId: string) => {
 			)
 			.subscribe(async (status) => {
 				if (status === REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
-					await channel.track({
-						color: randomHexColor(),
-						name: player.name,
-						playerId: player.id,
-					});
+					await channel.track(untrackedPayload);
 				}
 			});
 
@@ -108,11 +111,14 @@ const createPlayerPresenceState = (player: Player, spaceId: string) => {
 			const untrackPresence = async () => {
 				await subscription.unsubscribe();
 				await channel.untrack();
-				await supabase.removeChannel(channel);
 			};
 
 			untrackPresence();
 		});
+	});
+
+	createEffect(() => {
+		presenceChannel().updateJoinPayload(subscriptionPayload());
 	});
 
 	return players;
