@@ -90,13 +90,6 @@ export const ReplicacheProvider: Component<ReplicacheProviderProps> = (
 		rep().close();
 	});
 
-	// createRealtimeSubscription(() => ({
-	// 	type: "message",
-	// 	callback() {
-	// 		rep().pull();
-	// 	},
-	// }));
-
 	return (
 		<ReplicacheContext.Provider value={rep}>
 			{props.children}

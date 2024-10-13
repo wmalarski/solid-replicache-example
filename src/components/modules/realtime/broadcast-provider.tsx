@@ -5,15 +5,17 @@ import {
 } from "@supabase/supabase-js";
 import { type Component, onCleanup } from "solid-js";
 
-import { getClientSupabase } from "~/utils/supabase";
+import {
+	CURSOR_EVENT_NAME,
+	SYNC_PUSH_EVENT_NAME,
+	getClientSupabase,
+	getSpaceChannelName,
+} from "~/utils/supabase";
 
-import { REALTIME_THROTTLE_TIME } from "./const";
 import { type PlayerCursorPayload, usePlayerCursors } from "./cursor-provider";
 import { useSyncPushContext } from "./sync-push-provider";
 
-const CHANNEL_NAME = "rooms:broadcast";
-const CURSOR_EVENT_NAME = "rooms:cursor";
-const SYNC_PUSH_EVENT_NAME = "rooms:sync";
+const REALTIME_THROTTLE_TIME = 100;
 
 type BroadcastProviderProps = {
 	spaceId: string;
@@ -24,7 +26,7 @@ export const BroadcastProvider: Component<BroadcastProviderProps> = (props) => {
 	const pushSync = useSyncPushContext();
 
 	const supabase = getClientSupabase();
-	const channelName = `${CHANNEL_NAME}:${props.spaceId}`;
+	const channelName = getSpaceChannelName(props.spaceId);
 	const channel = supabase.channel(channelName);
 
 	channel
@@ -45,17 +47,17 @@ export const BroadcastProvider: Component<BroadcastProviderProps> = (props) => {
 				throttle((payload) => {
 					channel.send({
 						event: CURSOR_EVENT_NAME,
-						payload,
 						type: REALTIME_LISTEN_TYPES.BROADCAST,
+						payload,
 					});
 				}, REALTIME_THROTTLE_TIME),
 			);
 
 			pushSync().setRemoteSender(() => {
-				console.log("SEND event");
 				channel.send({
 					event: SYNC_PUSH_EVENT_NAME,
 					type: REALTIME_LISTEN_TYPES.BROADCAST,
+					payload: {},
 				});
 			});
 		});

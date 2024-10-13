@@ -1,4 +1,3 @@
-import { RealtimeProvider } from "~/components/contexts/realtime";
 import { ReplicacheProvider } from "~/components/contexts/replicache";
 import { Spinner } from "~/components/ui/spinner";
 import type { Player } from "~/server/player/utils";
@@ -23,39 +22,37 @@ type BoardProps = {
 
 export default function Board(props: BoardProps) {
 	return (
-		<RealtimeProvider>
-			<ReplicacheProvider playerId={props.player.id} spaceId={props.spaceId}>
-				<PlayerCursorProvider playerId={props.player.id}>
-					<PlayerPresenceProvider spaceId={props.spaceId} player={props.player}>
-						<SyncPushProvider>
-							<BroadcastProvider spaceId={props.spaceId} />
-							<GameDataProvider
-								spaceId={props.spaceId}
-								loadingPlaceholder={
-									<Stack alignItems="center" p={10} width="full">
-										<Spinner size="lg" />
-									</Stack>
-								}
-								emptyPlaceholder={
-									<FormLayout>
-										<CreateGameCard spaceId={props.spaceId} />
-									</FormLayout>
-								}
-							>
-								<PageLayout>
-									<Stack>
-										<BoardTopBar />
-										<BoardGrid />
-									</Stack>
-								</PageLayout>
-								<SuccessConfetti />
-								<RemoteCursors />
-								<UpdatePlayerDialog player={props.player} />
-							</GameDataProvider>
-						</SyncPushProvider>
-					</PlayerPresenceProvider>
-				</PlayerCursorProvider>
-			</ReplicacheProvider>
-		</RealtimeProvider>
+		<ReplicacheProvider playerId={props.player.id} spaceId={props.spaceId}>
+			<PlayerCursorProvider playerId={props.player.id}>
+				<PlayerPresenceProvider spaceId={props.spaceId} player={props.player}>
+					<SyncPushProvider>
+						<BroadcastProvider spaceId={props.spaceId} />
+						<GameDataProvider
+							spaceId={props.spaceId}
+							loadingPlaceholder={
+								<Stack alignItems="center" p={10} width="full">
+									<Spinner size="lg" />
+								</Stack>
+							}
+							emptyPlaceholder={
+								<FormLayout>
+									<CreateGameCard spaceId={props.spaceId} />
+								</FormLayout>
+							}
+						>
+							<PageLayout>
+								<Stack>
+									<BoardTopBar />
+									<BoardGrid />
+								</Stack>
+							</PageLayout>
+							<SuccessConfetti />
+							<RemoteCursors />
+							<UpdatePlayerDialog player={props.player} />
+						</GameDataProvider>
+					</SyncPushProvider>
+				</PlayerPresenceProvider>
+			</PlayerCursorProvider>
+		</ReplicacheProvider>
 	);
 }

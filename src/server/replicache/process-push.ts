@@ -1,8 +1,12 @@
+import { REALTIME_LISTEN_TYPES } from "@supabase/supabase-js";
 import type { PushRequestV1 } from "replicache";
-import { getClientSupabase } from "~/utils/supabase";
+import {
+	SYNC_PUSH_EVENT_NAME,
+	getClientSupabase,
+	getSpaceChannelName,
+} from "~/utils/supabase";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
-import { broadcastChannel } from "../realtime/channel";
 import {
 	selectLastMutationIds,
 	selectSpaceVersion,
@@ -93,12 +97,12 @@ export const processPush = async (
 };
 
 const sendPoke = async (spaceId: string) => {
-	const channel = getClientSupabase().channel(`rooms:broadcast:${spaceId}`);
+	const channelName = getSpaceChannelName(spaceId);
+	const channel = getClientSupabase().channel(channelName);
+
 	await channel.send({
-		type: "broadcast",
-		event: "rooms:sync",
+		type: REALTIME_LISTEN_TYPES.BROADCAST,
+		event: SYNC_PUSH_EVENT_NAME,
 		payload: {},
 	});
-
-	broadcastChannel.postMessage({ kind: "poke" });
 };
