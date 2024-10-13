@@ -47,9 +47,9 @@ const SecondsCounter: Component = () => {
 	});
 
 	createEffect(() => {
-		const { game, isSuccess } = data();
+		const { game, isSuccess, clickedOnMine } = data();
 		const startedAt = game.startedAt;
-		if (!startedAt || isSuccess()) {
+		if (!startedAt || isSuccess() || clickedOnMine()) {
 			return;
 		}
 
