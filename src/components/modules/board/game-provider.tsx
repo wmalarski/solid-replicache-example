@@ -78,6 +78,7 @@ type GameDataProviderProps = ParentProps<{
 	spaceId: string;
 	loadingPlaceholder: JSX.Element;
 	emptyPlaceholder: JSX.Element;
+	initialGame?: SelectGameResult;
 }>;
 
 export const GameDataProvider: Component<GameDataProviderProps> = (props) => {
@@ -87,23 +88,22 @@ export const GameDataProvider: Component<GameDataProviderProps> = (props) => {
 			.scan<SelectGameResult>({ prefix, limit: 1 })
 			.entries()
 			.toArray();
-		return { value: array.pop()?.[1] };
+
+		return array.pop()?.[1];
 	});
 
 	return (
-		<Show when={game.value} fallback={props.loadingPlaceholder}>
-			{(game) => (
-				<Show when={game().value} fallback={props.emptyPlaceholder}>
-					{(game) => {
-						const value = createMemo(() => createGameData(game()));
-						return (
-							<GameDataContext.Provider value={value}>
-								{props.children}
-							</GameDataContext.Provider>
-						);
-					}}
-				</Show>
-			)}
+		<Show when={props.initialGame} fallback={props.emptyPlaceholder}>
+			<Show when={game.value} fallback={props.loadingPlaceholder}>
+				{(game) => {
+					const value = createMemo(() => createGameData(game()));
+					return (
+						<GameDataContext.Provider value={value}>
+							{props.children}
+						</GameDataContext.Provider>
+					);
+				}}
+			</Show>
 		</Show>
 	);
 };

@@ -1,5 +1,6 @@
 import { ReplicacheProvider } from "~/components/contexts/replicache";
 import { Spinner } from "~/components/ui/spinner";
+import type { SelectGameResult } from "~/server/games/db";
 import type { Player } from "~/server/player/utils";
 import { Stack } from "~/styled-system/jsx";
 import { FormLayout, PageLayout } from "../common/layout";
@@ -18,6 +19,7 @@ import { SuccessConfetti } from "./success-confetti";
 type BoardProps = {
 	spaceId: string;
 	player: Player;
+	game?: SelectGameResult;
 };
 
 export default function Board(props: BoardProps) {
@@ -28,6 +30,7 @@ export default function Board(props: BoardProps) {
 					<PlayerCursorProvider playerId={props.player.id}>
 						<SyncPushProvider />
 						<GameDataProvider
+							initialGame={props.game}
 							spaceId={props.spaceId}
 							loadingPlaceholder={
 								<Stack alignItems="center" p={10} width="full">
