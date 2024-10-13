@@ -27,6 +27,7 @@
 		"canvas-confetti": "^1.9.3",
 		"cookie-es": "^1.2.2",
 		"decode-formdata": "^0.8.0",
+		"dotenv": "^16.4.5",
 		"drizzle-orm": "^0.34.1",
 		"nanoid": "^5.0.7",
 		"replicache": "^15.0.1",
