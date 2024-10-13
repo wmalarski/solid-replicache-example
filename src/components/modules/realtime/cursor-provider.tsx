@@ -21,13 +21,15 @@ export type PlayerCursorState = {
 	y: number;
 };
 
-export type PlayerCursorPayload = {
+type PlayerCursorPayload = {
 	playerId: string;
 } & PlayerCursorState;
 
 type PlayersCursorState = Record<string, PlayerCursorState | undefined>;
 
 const createPlayerCursorState = (spaceId: string, playerId: string) => {
+	const [cursors, setCursors] = createStore<PlayersCursorState>({});
+
 	const supabase = getClientSupabase();
 	const channelName = getSpaceChannelName(spaceId);
 	const channel = supabase.channel(channelName);
@@ -58,8 +60,6 @@ const createPlayerCursorState = (spaceId: string, playerId: string) => {
 		{ event: CURSOR_EVENT_NAME },
 		({ payload }) => setRemoteCursor(payload),
 	);
-
-	const [cursors, setCursors] = createStore<PlayersCursorState>({});
 
 	const send = throttle((state: PlayerCursorState) => {
 		channel.send({

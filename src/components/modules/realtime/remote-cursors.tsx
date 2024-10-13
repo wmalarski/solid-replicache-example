@@ -67,16 +67,6 @@ export const RemoteCursors: Component = () => {
 		return Object.keys(cursors().cursors);
 	});
 
-	createEffect(() => {
-		console.log(
-			JSON.stringify(
-				{ cursors: cursors().cursors, presence: presence() },
-				null,
-				2,
-			),
-		);
-	});
-
 	return (
 		<For each={playerIds()}>
 			{(playerId) => (

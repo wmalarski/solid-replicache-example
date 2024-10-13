@@ -1,49 +1,30 @@
-import {
-	type Component,
-	type ParentProps,
-	createContext,
-	createMemo,
-	createSignal,
-	useContext,
-} from "solid-js";
+import { REALTIME_LISTEN_TYPES } from "@supabase/supabase-js";
+import { type Component, createEffect } from "solid-js";
 import { useReplicacheContext } from "~/components/contexts/replicache";
+import {
+	SYNC_PUSH_EVENT_NAME,
+	getClientSupabase,
+	getSpaceChannelName,
+} from "~/utils/supabase";
 
-const createSyncPushState = () => {
-	const rep = useReplicacheContext();
-
-	const [sender, setSender] = createSignal<() => void>(() => void 0);
-
-	const send = () => {
-		sender()();
-	};
-
-	const setRemoteSender = (sender: () => void) => {
-		setSender(() => sender);
-	};
-
-	const syncData = () => {
-		rep().pull();
-	};
-
-	return { send, syncData, setRemoteSender };
+type SyncPushProviderProps = {
+	spaceId: string;
 };
 
-type SyncPushContextState = ReturnType<typeof createSyncPushState>;
+export const SyncPushProvider: Component<SyncPushProviderProps> = (props) => {
+	createEffect(() => {
+		const rep = useReplicacheContext();
 
-const SyncPushContext = createContext<() => SyncPushContextState>(() => {
-	throw new Error("SyncPushContext not defined");
-});
+		const supabase = getClientSupabase();
+		const channelName = getSpaceChannelName(props.spaceId);
+		const channel = supabase.channel(channelName);
 
-export const SyncPushProvider: Component<ParentProps> = (props) => {
-	const value = createMemo(() => createSyncPushState());
+		channel.on(
+			REALTIME_LISTEN_TYPES.BROADCAST,
+			{ event: SYNC_PUSH_EVENT_NAME },
+			() => rep().pull(),
+		);
+	});
 
-	return (
-		<SyncPushContext.Provider value={value}>
-			{props.children}
-		</SyncPushContext.Provider>
-	);
-};
-
-export const useSyncPushContext = () => {
-	return useContext(SyncPushContext);
+	return null;
 };
