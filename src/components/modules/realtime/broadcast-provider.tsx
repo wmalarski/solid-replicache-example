@@ -9,9 +9,11 @@ import { getClientSupabase } from "~/utils/supabase";
 
 import { REALTIME_THROTTLE_TIME } from "./const";
 import { type PlayerCursorPayload, usePlayerCursors } from "./cursor-provider";
+import { useSyncPushContext } from "./sync-push-provider";
 
 const CHANNEL_NAME = "rooms:broadcast";
 const CURSOR_EVENT_NAME = "rooms:cursor";
+const SYNC_PUSH_EVENT_NAME = "rooms:sync";
 
 type BroadcastProviderProps = {
 	spaceId: string;
@@ -19,6 +21,7 @@ type BroadcastProviderProps = {
 
 export const BroadcastProvider: Component<BroadcastProviderProps> = (props) => {
 	const cursors = usePlayerCursors();
+	const pushSync = useSyncPushContext();
 
 	const supabase = getClientSupabase();
 	const channelName = `${CHANNEL_NAME}:${props.spaceId}`;
@@ -29,6 +32,9 @@ export const BroadcastProvider: Component<BroadcastProviderProps> = (props) => {
 			REALTIME_LISTEN_TYPES.BROADCAST,
 			{ event: CURSOR_EVENT_NAME },
 			({ payload }) => cursors().setRemoteCursor(payload),
+		)
+		.on(REALTIME_LISTEN_TYPES.BROADCAST, { event: SYNC_PUSH_EVENT_NAME }, () =>
+			pushSync().syncData(),
 		)
 		.subscribe((status) => {
 			if (status !== REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
@@ -44,6 +50,14 @@ export const BroadcastProvider: Component<BroadcastProviderProps> = (props) => {
 					});
 				}, REALTIME_THROTTLE_TIME),
 			);
+
+			pushSync().setRemoteSender(() => {
+				console.log("SEND event");
+				channel.send({
+					event: SYNC_PUSH_EVENT_NAME,
+					type: REALTIME_LISTEN_TYPES.BROADCAST,
+				});
+			});
 		});
 
 	onCleanup(() => {

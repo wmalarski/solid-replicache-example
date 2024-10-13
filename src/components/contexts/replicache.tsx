@@ -22,7 +22,6 @@ import {
 	getGameKey,
 	parseCellId,
 } from "~/server/replicache/utils";
-import { createRealtimeSubscription } from "./realtime";
 
 const createReplicache = (playerId: string, spaceId: string) => {
 	const replicache = new Replicache({
@@ -91,12 +90,12 @@ export const ReplicacheProvider: Component<ReplicacheProviderProps> = (
 		rep().close();
 	});
 
-	createRealtimeSubscription(() => ({
-		type: "message",
-		callback() {
-			rep().pull();
-		},
-	}));
+	// createRealtimeSubscription(() => ({
+	// 	type: "message",
+	// 	callback() {
+	// 		rep().pull();
+	// 	},
+	// }));
 
 	return (
 		<ReplicacheContext.Provider value={rep}>

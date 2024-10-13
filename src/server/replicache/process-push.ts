@@ -1,4 +1,5 @@
 import type { PushRequestV1 } from "replicache";
+import { getClientSupabase } from "~/utils/supabase";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
 import { broadcastChannel } from "../realtime/channel";
@@ -88,9 +89,16 @@ export const processPush = async (
 		}),
 	]);
 
-	sendPoke();
+	sendPoke(spaceId);
 };
 
-const sendPoke = () => {
+const sendPoke = async (spaceId: string) => {
+	const channel = getClientSupabase().channel(`rooms:broadcast:${spaceId}`);
+	await channel.send({
+		type: "broadcast",
+		event: "rooms:sync",
+		payload: {},
+	});
+
 	broadcastChannel.postMessage({ kind: "poke" });
 };
