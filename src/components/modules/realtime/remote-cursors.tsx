@@ -20,27 +20,29 @@ type CursorProps = {
 
 const Cursor: Component<CursorProps> = (props) => {
 	return (
-		<div
-			class={flex({
-				position: "absolute",
-				gap: 1,
-				padding: 0.5,
-				paddingRight: 2,
-				borderRadius: "full",
-				fontSize: "md",
-				fontFamily: "monospace",
-				whiteSpace: "nowrap",
-			})}
-			style={{
-				top: `${props.state.y * window.innerHeight}px`,
-				left: `${props.state.x * window.innerWidth}px`,
-				"background-color": props.player.color,
-				color: props.player.color && getTextColor(props.player.color),
-			}}
-		>
-			<MousePointerIcon />
-			{props.player.name}
-		</div>
+		<Show when={props.player.name}>
+			<div
+				class={flex({
+					position: "absolute",
+					gap: 1,
+					padding: 0.5,
+					paddingRight: 2,
+					borderRadius: "full",
+					fontSize: "md",
+					fontFamily: "monospace",
+					whiteSpace: "nowrap",
+				})}
+				style={{
+					top: `${props.state.y * window.innerHeight}px`,
+					left: `${props.state.x * window.innerWidth}px`,
+					"background-color": props.player.color,
+					color: props.player.color && getTextColor(props.player.color),
+				}}
+			>
+				<MousePointerIcon />
+				{props.player.name}
+			</div>
+		</Show>
 	);
 };
 
@@ -72,7 +74,7 @@ export const RemoteCursors: Component = () => {
 			{(playerId) => (
 				<Show when={cursors().cursors[playerId]}>
 					{(state) => (
-						<Show when={presence()[playerId]}>
+						<Show when={presence().players[playerId]}>
 							{(player) => <Cursor player={player()} state={state()} />}
 						</Show>
 					)}

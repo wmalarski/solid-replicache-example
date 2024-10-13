@@ -2,8 +2,8 @@ import { REALTIME_LISTEN_TYPES } from "@supabase/supabase-js";
 import type { PushRequestV1 } from "replicache";
 import {
 	SYNC_PUSH_EVENT_NAME,
+	getBroadcastChannelName,
 	getClientSupabase,
-	getSpaceChannelName,
 } from "~/utils/supabase";
 import type { ServerContext } from "../context";
 import type { Transaction } from "../db/db";
@@ -97,7 +97,7 @@ export const processPush = async (
 };
 
 const sendPoke = async (spaceId: string) => {
-	const channelName = getSpaceChannelName(spaceId);
+	const channelName = getBroadcastChannelName(spaceId);
 	const channel = getClientSupabase().channel(channelName);
 
 	await channel.send({

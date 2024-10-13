@@ -1,11 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import * as v from "valibot";
 
-export const BROADCAST_CHANNEL_NAME = "space:broadcast";
-export const CURSOR_EVENT_NAME = "space:cursor";
+const BROADCAST_CHANNEL_NAME = "space:broadcast";
 export const SYNC_PUSH_EVENT_NAME = "space:sync";
 
-export const getSpaceChannelName = (spaceId: string) => {
+export const getBroadcastChannelName = (spaceId: string) => {
 	return `${BROADCAST_CHANNEL_NAME}:${spaceId}`;
 };
 

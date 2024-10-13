@@ -1,25 +1,17 @@
 import { REALTIME_LISTEN_TYPES } from "@supabase/supabase-js";
 import { type Component, createEffect } from "solid-js";
 import { useReplicacheContext } from "~/components/contexts/replicache";
-import {
-	SYNC_PUSH_EVENT_NAME,
-	getClientSupabase,
-	getSpaceChannelName,
-} from "~/utils/supabase";
+import { SYNC_PUSH_EVENT_NAME } from "~/utils/supabase";
+import { useBroadcastContext } from "./broadcast-provider";
 
-type SyncPushProviderProps = {
-	spaceId: string;
-};
+export const SyncPushProvider: Component = () => {
+	const rep = useReplicacheContext();
+	const channel = useBroadcastContext();
 
-export const SyncPushProvider: Component<SyncPushProviderProps> = (props) => {
 	createEffect(() => {
-		const rep = useReplicacheContext();
+		const broadcastChannel = channel();
 
-		const supabase = getClientSupabase();
-		const channelName = getSpaceChannelName(props.spaceId);
-		const channel = supabase.channel(channelName);
-
-		channel.on(
+		broadcastChannel.on(
 			REALTIME_LISTEN_TYPES.BROADCAST,
 			{ event: SYNC_PUSH_EVENT_NAME },
 			() => rep().pull(),

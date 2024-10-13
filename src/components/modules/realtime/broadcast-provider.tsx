@@ -1,15 +1,18 @@
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
-import { type Component, onCleanup } from "solid-js";
+import {
+	type Component,
+	type ParentProps,
+	createContext,
+	createMemo,
+	onCleanup,
+	useContext,
+} from "solid-js";
 
-import { getClientSupabase, getSpaceChannelName } from "~/utils/supabase";
+import { getBroadcastChannelName, getClientSupabase } from "~/utils/supabase";
 
-type BroadcastProviderProps = {
-	spaceId: string;
-};
-
-export const BroadcastProvider: Component<BroadcastProviderProps> = (props) => {
+const createBroadcastState = (spaceId: string) => {
 	const supabase = getClientSupabase();
-	const channelName = getSpaceChannelName(props.spaceId);
+	const channelName = getBroadcastChannelName(spaceId);
 	const channel = supabase.channel(channelName);
 
 	channel.subscribe((status) => {
@@ -22,5 +25,29 @@ export const BroadcastProvider: Component<BroadcastProviderProps> = (props) => {
 		supabase.removeChannel(channel);
 	});
 
-	return null;
+	return channel;
+};
+
+type BroadcastContextState = ReturnType<typeof createBroadcastState>;
+
+const BroadcastContext = createContext<() => BroadcastContextState>(() => {
+	throw new Error("BroadcastContext not defined");
+});
+
+type BroadcastProviderProps = ParentProps<{
+	spaceId: string;
+}>;
+
+export const BroadcastProvider: Component<BroadcastProviderProps> = (props) => {
+	const value = createMemo(() => createBroadcastState(props.spaceId));
+
+	return (
+		<BroadcastContext.Provider value={value}>
+			{props.children}
+		</BroadcastContext.Provider>
+	);
+};
+
+export const useBroadcastContext = () => {
+	return useContext(BroadcastContext);
 };
