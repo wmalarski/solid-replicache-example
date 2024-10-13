@@ -8,7 +8,7 @@ interface ImportMetaEnv {
 	SESSION_SECRET: string;
 }
 
-// biome-ignore lint/correctness/noUnusedVariables: <explanation>
+// biome-ignore lint/correctness/noUnusedVariables: Needed
 interface ImportMeta {
 	readonly env: ImportMetaEnv;
 }

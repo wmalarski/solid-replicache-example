@@ -1,274 +1,256 @@
 {
-  "version": "6",
-  "dialect": "sqlite",
-  "id": "11eb7732-a3cb-47a2-a2fe-6b34377596af",
-  "prevId": "00000000-0000-0000-0000-000000000000",
-  "tables": {
-    "cell": {
-      "name": "cell",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "game_id": {
-          "name": "game_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "marked": {
-          "name": "marked",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "clicked": {
-          "name": "clicked",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "deleted": {
-          "name": "deleted",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "version": {
-          "name": "version",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "cell_id_unique": {
-          "name": "cell_id_unique",
-          "columns": [
-            "id"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "cell_game_id_game_id_fk": {
-          "name": "cell_game_id_game_id_fk",
-          "tableFrom": "cell",
-          "tableTo": "game",
-          "columnsFrom": [
-            "game_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "game": {
-      "name": "game",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "space_id": {
-          "name": "space_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "width": {
-          "name": "width",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "height": {
-          "name": "height",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "code": {
-          "name": "code",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "deleted": {
-          "name": "deleted",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "version": {
-          "name": "version",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "started_at": {
-          "name": "started_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "game_id_unique": {
-          "name": "game_id_unique",
-          "columns": [
-            "id"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "game_space_id_replicache_space_id_fk": {
-          "name": "game_space_id_replicache_space_id_fk",
-          "tableFrom": "game",
-          "tableTo": "replicache_space",
-          "columnsFrom": [
-            "space_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "replicache_client": {
-      "name": "replicache_client",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text(36)",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "client_group_id": {
-          "name": "client_group_id",
-          "type": "text(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "last_mutation_id": {
-          "name": "last_mutation_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "version": {
-          "name": "version",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "replicache_client_id_unique": {
-          "name": "replicache_client_id_unique",
-          "columns": [
-            "id"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "replicache_space": {
-      "name": "replicache_space",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "ip_hash": {
-          "name": "ip_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "version": {
-          "name": "version",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "replicache_space_id_unique": {
-          "name": "replicache_space_id_unique",
-          "columns": [
-            "id"
-          ],
-          "isUnique": true
-        },
-        "replicache_space_ip_hash_unique": {
-          "name": "replicache_space_ip_hash_unique",
-          "columns": [
-            "ip_hash"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    }
-  },
-  "enums": {},
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "indexes": {}
-  }
+	"version": "6",
+	"dialect": "sqlite",
+	"id": "11eb7732-a3cb-47a2-a2fe-6b34377596af",
+	"prevId": "00000000-0000-0000-0000-000000000000",
+	"tables": {
+		"cell": {
+			"name": "cell",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"game_id": {
+					"name": "game_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"marked": {
+					"name": "marked",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"clicked": {
+					"name": "clicked",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"deleted": {
+					"name": "deleted",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"version": {
+					"name": "version",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				}
+			},
+			"indexes": {
+				"cell_id_unique": {
+					"name": "cell_id_unique",
+					"columns": ["id"],
+					"isUnique": true
+				}
+			},
+			"foreignKeys": {
+				"cell_game_id_game_id_fk": {
+					"name": "cell_game_id_game_id_fk",
+					"tableFrom": "cell",
+					"tableTo": "game",
+					"columnsFrom": ["game_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {}
+		},
+		"game": {
+			"name": "game",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"space_id": {
+					"name": "space_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"width": {
+					"name": "width",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"height": {
+					"name": "height",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"code": {
+					"name": "code",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"deleted": {
+					"name": "deleted",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"version": {
+					"name": "version",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"started_at": {
+					"name": "started_at",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				}
+			},
+			"indexes": {
+				"game_id_unique": {
+					"name": "game_id_unique",
+					"columns": ["id"],
+					"isUnique": true
+				}
+			},
+			"foreignKeys": {
+				"game_space_id_replicache_space_id_fk": {
+					"name": "game_space_id_replicache_space_id_fk",
+					"tableFrom": "game",
+					"tableTo": "replicache_space",
+					"columnsFrom": ["space_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {}
+		},
+		"replicache_client": {
+			"name": "replicache_client",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text(36)",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"client_group_id": {
+					"name": "client_group_id",
+					"type": "text(36)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"last_mutation_id": {
+					"name": "last_mutation_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"version": {
+					"name": "version",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				}
+			},
+			"indexes": {
+				"replicache_client_id_unique": {
+					"name": "replicache_client_id_unique",
+					"columns": ["id"],
+					"isUnique": true
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {}
+		},
+		"replicache_space": {
+			"name": "replicache_space",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"ip_hash": {
+					"name": "ip_hash",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"version": {
+					"name": "version",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				}
+			},
+			"indexes": {
+				"replicache_space_id_unique": {
+					"name": "replicache_space_id_unique",
+					"columns": ["id"],
+					"isUnique": true
+				},
+				"replicache_space_ip_hash_unique": {
+					"name": "replicache_space_ip_hash_unique",
+					"columns": ["ip_hash"],
+					"isUnique": true
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {}
+		}
+	},
+	"enums": {},
+	"_meta": {
+		"schemas": {},
+		"tables": {},
+		"columns": {}
+	},
+	"internal": {
+		"indexes": {}
+	}
 }
