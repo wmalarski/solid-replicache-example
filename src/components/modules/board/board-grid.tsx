@@ -7,6 +7,8 @@ import {
 } from "solid-js";
 import { useReplicacheContext } from "~/components/contexts/replicache";
 import { Grid } from "~/styled-system/jsx";
+import { usePlayerCursors } from "../realtime/cursor-provider";
+import { RemoteCursors } from "../realtime/remote-cursors";
 import { BoardCell, DATA_POSITION_ATTRIBUTE } from "./board-cell";
 import { useGameData } from "./game-provider";
 import { LEFT_BUTTON, RIGHT_BUTTON } from "./utils";
@@ -14,6 +16,7 @@ import { LEFT_BUTTON, RIGHT_BUTTON } from "./utils";
 export const BoardGrid: Component = () => {
 	const data = useGameData();
 	const rep = useReplicacheContext();
+	const cursors = usePlayerCursors();
 
 	const { pushedNeighbors, setPushedCell, pushedCell } =
 		createPushedNeighbors();
@@ -88,14 +91,26 @@ export const BoardGrid: Component = () => {
 		await updateStartedAt();
 	};
 
+	const onContextMenu: ComponentProps<"div">["onContextMenu"] = (event) => {
+		event.preventDefault();
+	};
+
+	const onMouseMove: ComponentProps<"div">["onMouseMove"] = (event) => {
+		cursors().send({ x: event.layerX, y: event.layerY });
+	};
+
 	return (
 		<Grid
-			onContextMenu={(e) => e.preventDefault()}
+			onContextMenu={onContextMenu}
+			onMouseMove={onMouseMove}
 			style={{ "grid-template-columns": `repeat(${data().game.width}, 1fr)` }}
 			width="fit-content"
 			onMouseDown={onMouseDown}
 			onMouseUp={onMouseUp}
+			position="relative"
 			gap={0}
+			mx="auto"
+			p={2}
 		>
 			<For each={data().positions}>
 				{(position) => (
@@ -105,6 +120,7 @@ export const BoardGrid: Component = () => {
 					/>
 				)}
 			</For>
+			<RemoteCursors />
 		</Grid>
 	);
 };

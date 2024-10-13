@@ -61,13 +61,7 @@ export const FormLayout: Component<ParentProps> = (props) => {
 
 export const PageLayout: Component<ParentProps> = (props) => {
 	return (
-		<main
-			class={flex({
-				mx: "auto",
-				flexDirection: "column",
-				alignItems: "center",
-			})}
-		>
+		<main class={flex({ mx: "auto", flexDir: "column", alignItems: "center" })}>
 			{props.children}
 			<PageFooter />
 		</main>

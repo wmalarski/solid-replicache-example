@@ -1,13 +1,7 @@
-import {
-	type Component,
-	For,
-	Show,
-	createEffect,
-	createMemo,
-	onCleanup,
-} from "solid-js";
+import { type Component, For, Show, createMemo } from "solid-js";
 import { MousePointerIcon } from "~/components/ui/icons";
 import type { Player } from "~/server/player/utils";
+import { css } from "~/styled-system/css";
 import { flex } from "~/styled-system/patterns";
 import { getTextColor } from "~/utils/colors";
 import { type PlayerCursorState, usePlayerCursors } from "./cursor-provider";
@@ -19,12 +13,19 @@ type CursorProps = {
 };
 
 const Cursor: Component<CursorProps> = (props) => {
+	const transform = createMemo(() => {
+		const { x, y } = props.state;
+		return `translate(${x}px, ${y}px)`;
+	});
+
 	return (
 		<Show when={props.player.name}>
 			<div
 				class={flex({
 					position: "absolute",
 					gap: 1,
+					top: 0,
+					left: 0,
 					padding: 0.5,
 					paddingRight: 2,
 					borderRadius: "full",
@@ -33,8 +34,7 @@ const Cursor: Component<CursorProps> = (props) => {
 					whiteSpace: "nowrap",
 				})}
 				style={{
-					top: `${props.state.y * window.innerHeight}px`,
-					left: `${props.state.x * window.innerWidth}px`,
+					transform: transform(),
 					"background-color": props.player.color,
 					color: props.player.color && getTextColor(props.player.color),
 				}}
@@ -50,36 +50,35 @@ export const RemoteCursors: Component = () => {
 	const cursors = usePlayerCursors();
 	const presence = usePlayerPresence();
 
-	createEffect(() => {
-		const listener = (event: MouseEvent) => {
-			cursors().send({
-				x: event.clientX / window.innerWidth,
-				y: event.clientY / window.innerHeight,
-			});
-		};
-
-		document.addEventListener("mousemove", listener);
-
-		onCleanup(() => {
-			document.removeEventListener("mousemove", listener);
-		});
-	});
-
 	const playerIds = createMemo(() => {
 		return Object.keys(cursors().cursors);
 	});
 
 	return (
-		<For each={playerIds()}>
-			{(playerId) => (
-				<Show when={cursors().cursors[playerId]}>
-					{(state) => (
-						<Show when={presence().players[playerId]}>
-							{(player) => <Cursor player={player()} state={state()} />}
-						</Show>
-					)}
-				</Show>
-			)}
-		</For>
+		<div
+			class={css({
+				left: 0,
+				top: 0,
+				width: "full",
+				height: "full",
+				position: "absolute",
+				borderColor: "white.a10",
+				borderWidth: "thick",
+				pointerEvents: "none",
+				overflow: "clip",
+			})}
+		>
+			<For each={playerIds()}>
+				{(playerId) => (
+					<Show when={cursors().cursors[playerId]}>
+						{(state) => (
+							<Show when={presence().players[playerId]}>
+								{(player) => <Cursor player={player()} state={state()} />}
+							</Show>
+						)}
+					</Show>
+				)}
+			</For>
+		</div>
 	);
 };

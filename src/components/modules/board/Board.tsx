@@ -9,7 +9,6 @@ import { UpdatePlayerDialog } from "../player/update-player-dialog";
 import { BroadcastProvider } from "../realtime/broadcast-provider";
 import { PlayerCursorProvider } from "../realtime/cursor-provider";
 import { PlayerPresenceProvider } from "../realtime/presence-provider";
-import { RemoteCursors } from "../realtime/remote-cursors";
 import { SyncPushProvider } from "../realtime/sync-push-provider";
 import { BoardGrid } from "./board-grid";
 import { BoardTopBar } from "./board-top-board";
@@ -50,7 +49,6 @@ export default function Board(props: BoardProps) {
 								</Stack>
 							</PageLayout>
 							<SuccessConfetti />
-							<RemoteCursors />
 							<UpdatePlayerDialog player={props.player} />
 						</GameDataProvider>
 					</PlayerCursorProvider>
