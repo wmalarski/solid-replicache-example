@@ -7,6 +7,7 @@ import {
 	type Component,
 	type ParentProps,
 	createContext,
+	createEffect,
 	createMemo,
 	onCleanup,
 	useContext,
@@ -19,13 +20,7 @@ import { getClientSupabase } from "~/utils/supabase";
 import type { Player } from "~/server/player/utils";
 import { usePlayerCursors } from "./cursor-provider";
 
-export type PlayerState = {
-	color: string;
-	name: string;
-	playerId: string;
-};
-
-type PlayersState = Record<string, PlayerState | undefined>;
+type PlayersState = Record<string, Player | undefined>;
 
 const PRESENCE_CHANNEL_NAME = "rooms";
 
@@ -33,86 +28,91 @@ const createPlayerPresenceState = (player: Player, spaceId: string) => {
 	const [players, setPlayers] = createStore<PlayersState>({});
 	const cursors = usePlayerCursors();
 
-	const supabase = getClientSupabase();
-	const channelName = `${PRESENCE_CHANNEL_NAME}:${spaceId}`;
-	const payload = {
-		color: randomHexColor(),
-		name: player.id,
-		playerId: player.id,
-	};
+	createEffect(() => {
+		if (!player.name) {
+			return;
+		}
 
-	const channel = supabase.channel(channelName, {
-		config: { presence: { key: spaceId } },
-	});
+		const supabase = getClientSupabase();
+		const channelName = `${PRESENCE_CHANNEL_NAME}:${spaceId}`;
 
-	const subscription = channel
-		.on(
-			REALTIME_LISTEN_TYPES.PRESENCE,
-			{ event: REALTIME_PRESENCE_LISTEN_EVENTS.SYNC },
-			() => {
-				const newState = channel.presenceState<PlayerState>();
-
-				setPlayers(
-					produce((state) => {
-						newState[spaceId]?.forEach((presence) => {
-							state[presence.playerId] = {
-								color: presence.color,
-								name: presence.name,
-								playerId: presence.playerId,
-							};
-						});
-					}),
-				);
-			},
-		)
-		.on(
-			REALTIME_LISTEN_TYPES.PRESENCE,
-			{ event: REALTIME_PRESENCE_LISTEN_EVENTS.JOIN },
-			({ newPresences }) => {
-				setPlayers(
-					produce((state) => {
-						newPresences.forEach((presence) => {
-							state[presence.playerId] = {
-								color: presence.color,
-								name: presence.name,
-								playerId: presence.playerId,
-							};
-						});
-					}),
-				);
-			},
-		)
-		.on(
-			REALTIME_LISTEN_TYPES.PRESENCE,
-			{ event: REALTIME_PRESENCE_LISTEN_EVENTS.LEAVE },
-			({ leftPresences }) => {
-				const leftIds = leftPresences.map((presence) => presence.playerId);
-
-				cursors().leave(leftIds);
-
-				setPlayers(
-					produce((state) => {
-						leftIds.forEach((playerId) => {
-							state[playerId] = undefined;
-						});
-					}),
-				);
-			},
-		)
-		.subscribe(async (status) => {
-			if (status === REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
-				await channel.track(payload);
-			}
+		const channel = supabase.channel(channelName, {
+			config: { presence: { key: spaceId } },
 		});
 
-	onCleanup(() => {
-		const untrackPresence = async () => {
-			await subscription.unsubscribe();
-			await channel.untrack();
-			await supabase.removeChannel(channel);
-		};
+		const subscription = channel
+			.on(
+				REALTIME_LISTEN_TYPES.PRESENCE,
+				{ event: REALTIME_PRESENCE_LISTEN_EVENTS.SYNC },
+				() => {
+					const newState = channel.presenceState<Player>();
 
-		untrackPresence();
+					setPlayers(
+						produce((state) => {
+							newState[spaceId]?.forEach((presence) => {
+								state[presence.id] = {
+									color: presence.color,
+									name: presence.name,
+									id: presence.id,
+								};
+							});
+						}),
+					);
+				},
+			)
+			.on(
+				REALTIME_LISTEN_TYPES.PRESENCE,
+				{ event: REALTIME_PRESENCE_LISTEN_EVENTS.JOIN },
+				({ newPresences }) => {
+					setPlayers(
+						produce((state) => {
+							newPresences.forEach((presence) => {
+								state[presence.playerId] = {
+									color: presence.color,
+									name: presence.name,
+									id: presence.id,
+								};
+							});
+						}),
+					);
+				},
+			)
+			.on(
+				REALTIME_LISTEN_TYPES.PRESENCE,
+				{ event: REALTIME_PRESENCE_LISTEN_EVENTS.LEAVE },
+				({ leftPresences }) => {
+					const leftIds = leftPresences.map((presence) => presence.playerId);
+
+					cursors().leave(leftIds);
+
+					setPlayers(
+						produce((state) => {
+							leftIds.forEach((playerId) => {
+								state[playerId] = undefined;
+							});
+						}),
+					);
+				},
+			)
+			.subscribe(async (status) => {
+				if (status === REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
+					await channel.track({
+						color: randomHexColor(),
+						name: player.name,
+						playerId: player.id,
+					});
+				}
+			});
+
+		onCleanup(() => {
+			const untrackPresence = async () => {
+				await subscription.unsubscribe();
+				await channel.untrack();
+				await supabase.removeChannel(channel);
+			};
+
+			untrackPresence();
+		});
 	});
 
 	return players;

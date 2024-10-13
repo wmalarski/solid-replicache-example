@@ -7,14 +7,15 @@ import {
 	onCleanup,
 } from "solid-js";
 import { MousePointerIcon } from "~/components/ui/icons";
+import type { Player } from "~/server/player/utils";
 import { flex } from "~/styled-system/patterns";
 import { getTextColor } from "~/utils/colors";
 import { type PlayerCursorState, usePlayerCursors } from "./cursor-provider";
-import { type PlayerState, usePlayerPresence } from "./presence-provider";
+import { usePlayerPresence } from "./presence-provider";
 
 type CursorProps = {
 	state: PlayerCursorState;
-	player: PlayerState;
+	player: Player;
 };
 
 const Cursor: Component<CursorProps> = (props) => {
@@ -28,12 +29,13 @@ const Cursor: Component<CursorProps> = (props) => {
 				borderRadius: "full",
 				fontSize: "md",
 				fontFamily: "monospace",
+				whiteSpace: "nowrap",
 			})}
 			style={{
 				top: `${props.state.y * window.innerHeight}px`,
 				left: `${props.state.x * window.innerWidth}px`,
 				"background-color": props.player.color,
-				color: getTextColor(props.player.color),
+				color: props.player.color && getTextColor(props.player.color),
 			}}
 		>
 			<MousePointerIcon />
