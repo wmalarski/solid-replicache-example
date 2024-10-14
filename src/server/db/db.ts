@@ -2,21 +2,24 @@ import { createClient } from "@libsql/client";
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/libsql";
 
-try {
-	config({ path: ".env.local" });
-} catch {
-	//
-}
+export const getDrizzle = () => {
+	try {
+		config({ path: ".env.local" });
+	} catch {
+		//
+	}
 
-const client = createClient({
-	// biome-ignore lint/style/noNonNullAssertion: <explanation>
-	url: process.env.TURSO_CONNECTION_URL!,
-	// biome-ignore lint/style/noNonNullAssertion: <explanation>
-	authToken: process.env.TURSO_AUTH_TOKEN!,
-});
+	const url =
+		process.env.TURSO_CONNECTION_URL || import.meta.env.TURSO_CONNECTION_URL;
 
-export const db = drizzle(client);
+	const authToken =
+		process.env.TURSO_AUTH_TOKEN || import.meta.env.TURSO_AUTH_TOKEN;
 
-export type Transaction =
-	| typeof db
-	| Parameters<Parameters<typeof db.transaction>[0]>[0];
+	const client = createClient({ url, authToken });
+
+	return drizzle(client);
+};
+
+type Db = ReturnType<typeof getDrizzle>;
+
+export type Transaction = Db | Parameters<Parameters<Db["transaction"]>[0]>[0];
