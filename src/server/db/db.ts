@@ -2,7 +2,11 @@ import { createClient } from "@libsql/client";
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/libsql";
 
-config({ path: ".env.local" });
+try {
+	config({ path: ".env.local" });
+} catch {
+	//
+}
 
 const client = createClient({
 	// biome-ignore lint/style/noNonNullAssertion: <explanation>
