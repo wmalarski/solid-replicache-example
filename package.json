@@ -29,7 +29,6 @@
 		"decode-formdata": "^0.8.0",
 		"dotenv": "^16.4.5",
 		"drizzle-orm": "^0.34.1",
-		"nanoid": "^5.0.7",
 		"replicache": "^15.0.1",
 		"solid-js": "^1.9.2",
 		"valibot": "^0.42.1",
@@ -45,6 +44,6 @@
 		"drizzle-kit": "^0.25.0"
 	},
 	"engines": {
-		"node": ">=18"
+		"node": ">=20"
 	}
 }

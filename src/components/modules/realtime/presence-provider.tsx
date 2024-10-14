@@ -21,10 +21,10 @@ import type { Player } from "~/server/player/utils";
 type PlayersState = Record<string, Player | undefined>;
 
 const PRESENCE_CHANNEL_NAME = "rooms";
-const COLOR = randomHexColor();
 
 const createPlayerPresenceState = (player: Player, spaceId: string) => {
 	const [players, setPlayers] = createStore<PlayersState>({});
+	const color = randomHexColor();
 
 	const supabase = getClientSupabase();
 	const channelName = `${PRESENCE_CHANNEL_NAME}:${spaceId}`;
@@ -86,7 +86,7 @@ const createPlayerPresenceState = (player: Player, spaceId: string) => {
 		)
 		.subscribe(async (status) => {
 			if (status === REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
-				await channel.track({ color: COLOR, name: player.name, id: player.id });
+				await channel.track({ color: color, name: player.name, id: player.id });
 			}
 		});
 
