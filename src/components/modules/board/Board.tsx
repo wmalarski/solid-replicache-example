@@ -1,9 +1,9 @@
 import { ReplicacheProvider } from "~/components/contexts/replicache";
-import { Spinner } from "~/components/ui/spinner";
 import type { SelectGameResult } from "~/server/games/db";
 import type { Player } from "~/server/player/utils";
 import { Stack } from "~/styled-system/jsx";
 import { FormLayout, PageLayout } from "../common/layout";
+import { LoadingPlaceholder } from "../common/loading-placeholder";
 import { CreateGameCard } from "../create-game/create-game-card";
 import { UpdatePlayerDialog } from "../player/update-player-dialog";
 import { BroadcastProvider } from "../realtime/broadcast-provider";
@@ -31,11 +31,7 @@ export default function Board(props: BoardProps) {
 						<GameDataProvider
 							initialGame={props.game}
 							spaceId={props.spaceId}
-							loadingPlaceholder={
-								<Stack alignItems="center" p={10} width="full">
-									<Spinner size="lg" />
-								</Stack>
-							}
+							loadingPlaceholder={<LoadingPlaceholder />}
 							emptyPlaceholder={
 								<FormLayout>
 									<CreateGameCard spaceId={props.spaceId} />

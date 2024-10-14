@@ -1,10 +1,9 @@
 import { type RouteDefinition, createAsync, useParams } from "@solidjs/router";
-import { clientOnly } from "@solidjs/start";
-import { Show } from "solid-js";
+import { Show, Suspense } from "solid-js";
+import { BoardWrapper } from "~/components/modules/board/board-wrapper";
+import { LoadingPlaceholder } from "~/components/modules/common/loading-placeholder";
 import { selectGameLoader } from "~/server/games/client";
 import { getPlayerLoader } from "~/server/player/client";
-
-const Board = clientOnly(() => import("~/components/modules/board/board"));
 
 export const route = {
 	load: async ({ params }) => {
@@ -19,10 +18,16 @@ export default function GamePage() {
 	const game = createAsync(() => selectGameLoader(params.spaceId));
 
 	return (
-		<Show when={player()}>
-			{(player) => (
-				<Board spaceId={params.spaceId} player={player()} game={game()} />
-			)}
-		</Show>
+		<Suspense fallback={<LoadingPlaceholder />}>
+			<Show when={player()}>
+				{(player) => (
+					<BoardWrapper
+						spaceId={params.spaceId}
+						player={player()}
+						game={game()}
+					/>
+				)}
+			</Show>
+		</Suspense>
 	);
 }
