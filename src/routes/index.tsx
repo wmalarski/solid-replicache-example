@@ -1,8 +1,4 @@
-import {
-	FormLayout,
-	PageFooter,
-	PageTitle,
-} from "~/components/modules/common/layout";
+import { FormLayout, PageTitle } from "~/components/modules/common/layout";
 import { CreateSpaceCard } from "~/components/modules/spaces/create-space-card";
 
 export default function Home() {
@@ -10,7 +6,6 @@ export default function Home() {
 		<FormLayout>
 			<PageTitle />
 			<CreateSpaceCard />
-			<PageFooter />
 		</FormLayout>
 	);
 }
