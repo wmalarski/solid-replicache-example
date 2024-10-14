@@ -7,7 +7,7 @@ const globalForDb = globalThis as unknown as {
 };
 
 export const dbMiddleware = async (event: FetchEvent) => {
-	const db = globalForDb.client ?? getDrizzle();
+	const db = globalForDb.client ?? getDrizzle(event);
 
 	if (process.env.NODE_ENV !== "production") {
 		globalForDb.client = db;
