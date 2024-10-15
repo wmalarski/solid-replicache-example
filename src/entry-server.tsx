@@ -8,7 +8,11 @@ export default createHandler(() => {
 	return (
 		<StartServer
 			document={({ assets, children, scripts }) => (
-				<html lang="en" data-color-mode={theme}>
+				<html
+					lang="en"
+					data-color-mode={theme}
+					style={{ "color-scheme": theme }}
+				>
 					<head>
 						<meta charset="utf-8" />
 						<meta

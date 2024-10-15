@@ -18,8 +18,16 @@ export const BoardGrid: Component = () => {
 	const rep = useReplicacheContext();
 	const cursors = usePlayerCursors();
 
+	const [touchStartDate, setTouchStartDate] = createSignal<Date | null>(null);
+
 	const { pushedNeighbors, setPushedCell, pushedCell } =
 		createPushedNeighbors();
+
+	const getPositionAttribute = (target: EventTarget & Element) => {
+		return target
+			.closest(`[${DATA_POSITION_ATTRIBUTE}]`)
+			?.getAttribute(DATA_POSITION_ATTRIBUTE);
+	};
 
 	const onMouseDown: ComponentProps<"div">["onMouseDown"] = (event) => {
 		const { clickedOnMine, isSuccess } = data();
@@ -28,15 +36,42 @@ export const BoardGrid: Component = () => {
 			return;
 		}
 
-		const attribute = event.target
-			.closest(`[${DATA_POSITION_ATTRIBUTE}]`)
-			?.getAttribute(DATA_POSITION_ATTRIBUTE);
+		const attribute = getPositionAttribute(event.target);
 
 		const position = attribute
 			? { position: attribute, button: event.button }
 			: null;
 
 		setPushedCell(position);
+	};
+
+	const onTouchStart = () => {
+		setTouchStartDate(new Date());
+	};
+
+	const onTouchEnd: ComponentProps<"div">["onTouchEnd"] = async (event) => {
+		const startDate = touchStartDate();
+		setTouchStartDate(null);
+
+		if (!startDate) {
+			return;
+		}
+
+		const differenceMs = new Date().getTime() - startDate.getTime();
+		const shouldMark = differenceMs > 500;
+
+		if (!shouldMark) {
+			return;
+		}
+
+		const attribute = getPositionAttribute(event.target);
+		if (!attribute) {
+			return;
+		}
+
+		event.preventDefault();
+
+		await updateCell(attribute, true);
 	};
 
 	const updateStartedAt = async () => {
@@ -101,12 +136,14 @@ export const BoardGrid: Component = () => {
 
 	return (
 		<Grid
-			onContextMenu={onContextMenu}
-			onMouseMove={onMouseMove}
 			style={{ "grid-template-columns": `repeat(${data().game.width}, 1fr)` }}
 			width="fit-content"
+			onContextMenu={onContextMenu}
+			onMouseMove={onMouseMove}
 			onMouseDown={onMouseDown}
 			onMouseUp={onMouseUp}
+			onTouchStart={onTouchStart}
+			onTouchEnd={onTouchEnd}
 			position="relative"
 			gap={0}
 			mx="auto"
