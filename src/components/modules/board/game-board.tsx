@@ -1,8 +1,7 @@
 import { ReplicacheProvider } from "~/components/contexts/replicache";
 import type { SelectGameResult } from "~/server/games/db";
 import type { Player } from "~/server/player/utils";
-import { Stack } from "~/styled-system/jsx";
-import { FormLayout, PageLayout } from "../common/layout";
+import { FormLayout, PageFooter, PageLayout } from "../common/layout";
 import { LoadingPlaceholder } from "../common/loading-placeholder";
 import { CreateGameCard } from "../create-game/create-game-card";
 import { UpdatePlayerDialog } from "../player/update-player-dialog";
@@ -39,10 +38,9 @@ export default function Board(props: BoardProps) {
 							}
 						>
 							<PageLayout>
-								<Stack>
-									<BoardTopBar />
-									<BoardGrid />
-								</Stack>
+								<BoardTopBar />
+								<BoardGrid />
+								<PageFooter />
 							</PageLayout>
 							<SuccessConfetti />
 							<UpdatePlayerDialog player={props.player} />

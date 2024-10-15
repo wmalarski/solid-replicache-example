@@ -6,6 +6,7 @@ import {
 	createSignal,
 } from "solid-js";
 import { useReplicacheContext } from "~/components/contexts/replicache";
+import { css } from "~/styled-system/css";
 import { Grid } from "~/styled-system/jsx";
 import { usePlayerCursors } from "../realtime/cursor-provider";
 import { RemoteCursors } from "../realtime/remote-cursors";
@@ -131,34 +132,44 @@ export const BoardGrid: Component = () => {
 	};
 
 	const onMouseMove: ComponentProps<"div">["onMouseMove"] = (event) => {
-		cursors().send({ x: event.layerX, y: event.layerY });
+		cursors().send({
+			x: event.layerX + event.currentTarget.scrollLeft,
+			y: event.layerY + event.currentTarget.scrollTop,
+		});
 	};
 
 	return (
-		<Grid
-			style={{ "grid-template-columns": `repeat(${data().game.width}, 1fr)` }}
-			width="fit-content"
-			onContextMenu={onContextMenu}
-			onMouseMove={onMouseMove}
-			onMouseDown={onMouseDown}
-			onMouseUp={onMouseUp}
-			onTouchStart={onTouchStart}
-			onTouchEnd={onTouchEnd}
-			position="relative"
-			gap={0}
-			mx="auto"
-			p={2}
+		<div
+			class={css({ position: "relative", width: "min-content", mx: "auto" })}
 		>
-			<For each={data().positions}>
-				{(position) => (
-					<BoardCell
-						position={position}
-						isPushed={pushedNeighbors().covered.has(position)}
-					/>
-				)}
-			</For>
+			<Grid
+				style={{ "grid-template-columns": `repeat(${data().game.width}, 1fr)` }}
+				width="fit-content"
+				onContextMenu={onContextMenu}
+				onMouseMove={onMouseMove}
+				onMouseDown={onMouseDown}
+				onMouseUp={onMouseUp}
+				onTouchStart={onTouchStart}
+				onTouchEnd={onTouchEnd}
+				position="relative"
+				gap={0}
+				mx="auto"
+				maxH="70vh"
+				maxW="screen"
+				overflow="auto"
+				p={4}
+			>
+				<For each={data().positions}>
+					{(position) => (
+						<BoardCell
+							position={position}
+							isPushed={pushedNeighbors().covered.has(position)}
+						/>
+					)}
+				</For>
+			</Grid>
 			<RemoteCursors />
-		</Grid>
+		</div>
 	);
 };
 

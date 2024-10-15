@@ -3,7 +3,7 @@ import { useI18n } from "~/components/contexts/i18n";
 import { LandPlotIcon } from "~/components/ui/icons";
 import { Link } from "~/components/ui/link";
 import { css } from "~/styled-system/css";
-import { flex } from "~/styled-system/patterns";
+import { flex, grid } from "~/styled-system/patterns";
 
 import { paths } from "~/utils/paths";
 
@@ -35,7 +35,7 @@ export const PageFooter: Component = () => {
 	const { t } = useI18n();
 
 	return (
-		<footer class={css({ p: 4 })}>
+		<footer class={css({ p: 4, textAlign: "center" })}>
 			<Link href={paths.repository} fontSize="xs">
 				{t("info.madeBy")}
 			</Link>
@@ -61,9 +61,13 @@ export const FormLayout: Component<ParentProps> = (props) => {
 
 export const PageLayout: Component<ParentProps> = (props) => {
 	return (
-		<main class={flex({ mx: "auto", flexDir: "column", alignItems: "center" })}>
+		<main
+			class={grid({
+				gridTemplateColumns: 1,
+				width: "screen",
+			})}
+		>
 			{props.children}
-			<PageFooter />
 		</main>
 	);
 };

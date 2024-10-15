@@ -2,7 +2,7 @@ import { useSubmission } from "@solidjs/router";
 import { type Component, createUniqueId } from "solid-js";
 import { useI18n } from "~/components/contexts/i18n";
 import { Button } from "~/components/ui/button";
-import { Dialog, DialogCloseXTrigger } from "~/components/ui/dialog";
+import { Dialog } from "~/components/ui/dialog";
 import {} from "~/components/ui/icons";
 import { setPlayerDetailAction } from "~/server/player/client";
 import type { Player } from "~/server/player/utils";
@@ -44,7 +44,6 @@ export const UpdatePlayerDialog: Component<UpdatePlayerDialogProps> = (
 							{t("updatePlayer.button")}
 						</Button>
 					</Stack>
-					<DialogCloseXTrigger />
 				</Dialog.Content>
 			</Dialog.Positioner>
 		</Dialog.Root>

@@ -62,7 +62,7 @@ export const RemoteCursors: Component = () => {
 				width: "full",
 				height: "full",
 				position: "absolute",
-				borderColor: "white.a10",
+				borderColor: "white.a8",
 				borderWidth: "thick",
 				pointerEvents: "none",
 				overflow: "clip",
